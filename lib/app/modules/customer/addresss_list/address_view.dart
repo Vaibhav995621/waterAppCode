@@ -102,11 +102,14 @@ class AddressListScreen extends StatelessWidget {
                           selected:
                           item.isDefault == 1  ,
 
-                          onTap: (){
-                            Get.toNamed(
+                          onTap: () async {
+                            final result = await Get.toNamed(
                               AppRoutes.editAddressScreen,
-                              arguments: item
+                              arguments: item,
                             );
+                            if (result == true) {
+                              controller.refreshAddress();
+                            }
                           },
 
                           onDelete: (){

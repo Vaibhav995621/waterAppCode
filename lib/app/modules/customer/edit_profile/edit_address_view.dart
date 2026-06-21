@@ -2,8 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zourney/app/models/address_model/addresss_model.dart';
-import 'package:zourney/app/models/profile_model/profile_model.dart';
 import 'edit_address_controller.dart';
 
 class EditAddressView extends GetView<EditAddressController> {
@@ -72,6 +70,12 @@ class EditAddressView extends GetView<EditAddressController> {
                           ),
 
                           _field(
+                            "Floor Number",
+                            controller
+                                .floorNoController,
+                          ),
+
+                          _field(
                             "Street Name",
                             controller
                                 .streetNameController,
@@ -87,6 +91,12 @@ class EditAddressView extends GetView<EditAddressController> {
                             "Gali Number",
                             controller
                                 .galiNumberController,
+                          ),
+
+                          _field(
+                            "Sector",
+                            controller
+                                .sectorController,
                           ),
 
                           _field(
@@ -116,63 +126,40 @@ class EditAddressView extends GetView<EditAddressController> {
                           const SizedBox(
                               height: 25),
 
-
-                          if(controller.addressData == null)
-                            Obx(() {
-                              return SizedBox(
-                                width: double.infinity,
-                                height: 58,
-
-                                child:
-                                ElevatedButton(
-                                  onPressed:
-                                  controller
-                                      .isLoading
-                                      .value
-                                      ? null
-                                      : controller
-                                      .addAddress,
-
-                                  style:
-                                  ElevatedButton
-                                      .styleFrom(
-                                    elevation:
-                                    0,
-                                    backgroundColor:
-                                    const Color(
-                                        0xff6B67F6),
-
-                                    shape:
-                                    RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(
-                                          18),
-                                    ),
-                                  ),
-
-                                  child:
-                                  controller
-                                      .isLoading
-                                      .value
-                                      ? const CircularProgressIndicator(
-                                    color:
-                                    Colors.white,
-                                  )
-                                      : const Text(
-                                    "Update Profile",
-                                    style:
-                                    TextStyle(
-                                      fontSize:
-                                      18,
-                                      fontWeight:
-                                      FontWeight.bold,
-                                      color:
-                                      Colors.white,
-                                    ),
+                          Obx(() {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 58,
+                              child: ElevatedButton(
+                                onPressed: controller.isLoading.value
+                                    ? null
+                                    : (controller.addressData == null
+                                        ? controller.addAddress
+                                        : controller.updateAddress),
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0,
+                                  backgroundColor: const Color(0xff6B67F6),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
                                   ),
                                 ),
-                              );
-                            }),
+                                child: controller.isLoading.value
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : Text(
+                                        controller.addressData == null
+                                            ? "Add Address"
+                                            : "Update Address",
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            );
+                          }),
                           const SizedBox(
                               height: 30),
                         ],

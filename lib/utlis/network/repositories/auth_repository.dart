@@ -10,6 +10,7 @@ import '../../../app/models/Admin/admin_order_list/admin_order_model.dart';
 import '../../../app/models/Admin/assign_delivery/assign_to_delivery_model.dart';
 import '../../../app/models/address_model/addresss_model.dart';
 import '../../../app/models/address_model/delete_address_model.dart';
+import '../../../app/models/address_model/add_edit_address_model.dart';
 import '../../../app/models/login_model/login_model.dart';
 import '../../../app/models/order_list_model/add_order_model.dart';
 import '../../../app/models/order_list_model/order_list.dart';
@@ -365,7 +366,7 @@ class AuthRepository {
   }
 
 
-  Future<ProfileModel> addAddress({
+  Future<AddEditAddressModel> addAddress({
     required Map<String, dynamic> body,
   }) async {
     final response = await _api.post(
@@ -377,7 +378,27 @@ class AuthRepository {
       },
     );
 
-    return ProfileModel.fromJson(response);
+    return AddEditAddressModel.fromJson(response);
+  }
+
+  Future<AddEditAddressModel> updateAddress({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.updateAddress,
+        body,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh",
+        },
+      );
+      return AddEditAddressModel.fromJson(response);
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] ?? "Network error";
+      throw Exception(message);
+    }
   }
 
 

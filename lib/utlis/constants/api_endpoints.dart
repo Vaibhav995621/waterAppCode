@@ -11,6 +11,7 @@ class ApiEndpoints {
   static const deleteAddress = "deletecustomeraddressbyid";
   static const setDefaultAddress = "setdefaultaddress";
   static const addAddress = "addaddressbycustomerid";
+  static const updateAddress = "updateaddressbyid";
 
 
 

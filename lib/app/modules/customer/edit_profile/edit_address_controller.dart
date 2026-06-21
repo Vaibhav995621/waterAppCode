@@ -9,7 +9,6 @@ import 'package:zourney/app/models/address_model/addresss_model.dart';
 
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
-import '../../../models/profile_model/profile_model.dart';
 
 class EditAddressController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -25,6 +24,8 @@ class EditAddressController extends GetxController {
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
+  final floorNoController = TextEditingController();
+  final sectorController = TextEditingController();
 
   RxBool isLoading = false.obs;
 
@@ -69,6 +70,12 @@ class EditAddressController extends GetxController {
     stateController.text =
         addressData?.state ?? "";
 
+    floorNoController.text =
+        addressData?.floornumber.toString() ?? "";
+
+    sectorController.text =
+        addressData?.sector ?? "";
+
     pinCodeController.text =
         addressData?.pincode ?? "";
   }
@@ -78,10 +85,12 @@ class EditAddressController extends GetxController {
     Map<String, dynamic> profileData = {
       "customerid": AppSession.userId,
       "fulladdress": addressController.text,
+      "floornumber": floorNoController.text,
       "housenumber": houseNoController.text,
       "flatnumber": flatNoController.text,
       "societyname": societyNameController.text,
       "galinumber": galiNumberController.text,
+      "sector": sectorController.text,
       "landmark": landmarkController.text,
       "city": cityController.text,
       "state": stateController.text,
@@ -92,16 +101,57 @@ class EditAddressController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = await _repo.addAddress(body: profileData);
+      final res = await _repo.addAddress(body: profileData);
 
       /// ✅ Handle API-level failure
-      if (user.statusCode == '201') {
-        AppSnackbar.error(user.message ?? 'Something went wrong');
+      if (res.statusCode == '201') {
+        AppSnackbar.error(res.message);
       }
       /// ✅ Navigation
-      if (user.statusCode == "200") {
+      if (res.statusCode == "200") {
         Get.back(result: true);
-      } else {
+      }
+    } catch (e) {
+      final message = e.toString().replaceAll("Exception: ", "");
+      AppSnackbar.error(message);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> updateAddress() async {
+    if (!formKey.currentState!.validate()) return;
+    
+    Map<String, dynamic> updateData = {
+      "id": addressData?.id.toString() ?? "",
+      "userid": addressData?.userid.toString() ?? AppSession.userId,
+      "fulladdress": addressController.text,
+      "floornumber": floorNoController.text,
+      "housenumber": houseNoController.text,
+      "flatnumber": flatNoController.text,
+      "societyname": societyNameController.text,
+      "galinumber": galiNumberController.text,
+      "sector": sectorController.text,
+      "landmark": landmarkController.text,
+      "city": cityController.text,
+      "state": stateController.text,
+      "pincode": pinCodeController.text,
+      "status": "active",
+      "is_default_address": addressData?.isDefault.toString() ?? "0",
+    };
+
+    try {
+      isLoading.value = true;
+
+      final res = await _repo.updateAddress(body: updateData);
+
+      /// ✅ Handle API-level failure
+      if (res.statusCode == '201') {
+        AppSnackbar.error(res.message);
+      }
+      /// ✅ Navigation
+      if (res.statusCode == "200") {
+        Get.back(result: true);
       }
     } catch (e) {
       final message = e.toString().replaceAll("Exception: ", "");
@@ -124,6 +174,8 @@ class EditAddressController extends GetxController {
     stateController.dispose();
     pinCodeController.dispose();
 
+    floorNoController.dispose();
+    sectorController.dispose();
     super.onClose();
   }
 

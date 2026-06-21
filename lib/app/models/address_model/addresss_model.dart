@@ -34,10 +34,12 @@ class AddressData {
   int id;
   int userid;
   String fullAddress;
+  int floornumber;
   String housenumber;
   String flatnumber;
   String societyname;
   String galinumber;
+  String sector;
   String landmark;
   String city;
   String state;
@@ -51,10 +53,12 @@ class AddressData {
     required this.id,
     required this.fullAddress,
     required this.userid,
+    required this.floornumber,
     required this.housenumber,
     required this.flatnumber,
     required this.societyname,
     required this.galinumber,
+    required this.sector,
     required this.landmark,
     required this.city,
     required this.state,
@@ -68,12 +72,14 @@ class AddressData {
   factory AddressData.fromJson(Map<String, dynamic> json) {
     return AddressData(
       id: json["id"] ?? 0,
-      fullAddress: json["fulladdress"] ?? 0,
+      fullAddress: json["fulladdress"]?.toString() ?? "",
       userid: json["userid"] ?? 0,
+      floornumber: json["floornumber"] is int ? json["floornumber"] : int.tryParse(json["floornumber"]?.toString() ?? "") ?? 0,
       housenumber: json["housenumber"] ?? "",
       flatnumber: json["flatnumber"] ?? "",
       societyname: json["societyname"] ?? "",
       galinumber: json["galinumber"] ?? "",
+      sector: json["sector"]?.toString() ?? "",
       landmark: json["landmark"] ?? "",
       city: json["city"] ?? "",
       state: json["state"] ?? "",
@@ -93,10 +99,13 @@ class AddressData {
     return {
       "id": id,
       "userid": userid,
+      "fulladdress": fullAddress,
+      "floornumber": floornumber,
       "housenumber": housenumber,
       "flatnumber": flatnumber,
       "societyname": societyname,
       "galinumber": galinumber,
+      "sector": sector,
       "landmark": landmark,
       "city": city,
       "state": state,
@@ -104,6 +113,7 @@ class AddressData {
       "status": status,
       "cdate": cdate.toIso8601String(),
       "modified_date": modifiedDate.toIso8601String(),
+      "is_default_address": isDefault,
     };
   }
 }
