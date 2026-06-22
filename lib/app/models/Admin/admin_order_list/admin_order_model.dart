@@ -262,6 +262,7 @@ class Address {
   String flatnumber;
   String societyname;
   String galinumber;
+  String sector;
   String landmark;
   String city;
   String state;
@@ -275,6 +276,7 @@ class Address {
     required this.flatnumber,
     required this.societyname,
     required this.galinumber,
+    required this.sector,
     required this.landmark,
     required this.city,
     required this.state,
@@ -292,6 +294,7 @@ class Address {
       flatnumber: json['flatnumber'] ?? '',
       societyname: json['societyname'] ?? '',
       galinumber: json['galinumber'] ?? '',
+      sector: json['sector']?.toString() ?? '',
       landmark: json['landmark'] ?? '',
       city: json['city'] ?? '',
       state: json['state'] ?? '',
@@ -309,6 +312,7 @@ class Address {
       'flatnumber': flatnumber,
       'societyname': societyname,
       'galinumber': galinumber,
+      'sector': sector,
       'landmark': landmark,
       'city': city,
       'state': state,

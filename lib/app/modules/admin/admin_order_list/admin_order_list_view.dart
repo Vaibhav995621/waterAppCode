@@ -29,19 +29,60 @@ class AdminOrderListView extends StatelessWidget {
           /// Search
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Search Order Number...",
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: const Icon(Icons.filter_list),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (val) {
+                      controller.orderSearchQuery.value = val;
+                      controller.filterOrders();
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Search Order Number...",
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                Obx(() {
+                  final isFilterActive =
+                      controller.selectedSector.value.isNotEmpty;
+                  return InkWell(
+                    onTap: () {
+                      _showSectorFilterBottomSheet(context);
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: isFilterActive
+                            ? const Color(0xff5E35B1)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.filter_list,
+                        color: isFilterActive ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
 
@@ -471,6 +512,179 @@ class AdminOrderListView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showSectorFilterBottomSheet(BuildContext context) {
+    if (controller.sectors.isEmpty) {
+      controller.getSectorsApi();
+    }
+
+    final localSearchQuery = ''.obs;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Select Sector",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Obx(() {
+                    if (controller.selectedSector.value.isNotEmpty) {
+                      return TextButton(
+                        onPressed: () {
+                          controller.selectedSector.value = '';
+                          controller.filterOrders();
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          "Clear Filter",
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              /// Local Search Sector TextField
+              TextField(
+                onChanged: (val) => localSearchQuery.value = val,
+                decoration: InputDecoration(
+                  hintText: "Search Sector...",
+                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              /// Sectors List
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.4,
+                ),
+                child: Obx(() {
+                  if (controller.isSectorsLoading.value) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xff5E35B1),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Local filter of sector names
+                  final query = localSearchQuery.value.trim().toLowerCase();
+                  final filtered = controller.sectors
+                      .where((s) => s.toLowerCase().contains(query))
+                      .toList();
+
+                  if (filtered.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          "No sectors found",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filtered.length,
+                    separatorBuilder: (context, index) => Divider(
+                      color: Colors.grey.shade100,
+                      height: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final sector = filtered[index];
+                      final isSelected =
+                          controller.selectedSector.value == sector;
+
+                      return ListTile(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 8),
+                        title: Text(
+                          "Sector $sector",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? const Color(0xff5E35B1)
+                                : Colors.black87,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Color(0xff5E35B1),
+                              )
+                            : null,
+                        onTap: () {
+                          controller.selectedSector.value = sector;
+                          controller.filterOrders();
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

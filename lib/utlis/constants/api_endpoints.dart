@@ -40,7 +40,6 @@ class ApiEndpoints {
   static const updateorderstatusbyorderid = "updateorderstatusbyorderid";
 
   static const deliveryPartnerOrderHistory = "getpastorderlistbypartnerid";
-
-
+  static const getSectorList = "getsectorlist";
 
 }

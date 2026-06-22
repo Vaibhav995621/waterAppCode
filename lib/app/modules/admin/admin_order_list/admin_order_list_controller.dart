@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
+import '../../../models/Admin/admin_order_list/sector_list_model.dart';
 
 class AdminOrderListController extends GetxController {
   final AuthRepository _repo = AuthRepository();
@@ -16,6 +17,12 @@ class AdminOrderListController extends GetxController {
 
   Rxn<AdminOrderListModel> orderResponse = Rxn<AdminOrderListModel>();
   RxList<Order> orders = <Order>[].obs;
+
+  /// Sector & Search Filter State
+  RxList<String> sectors = <String>[].obs;
+  RxString selectedSector = ''.obs;
+  RxBool isSectorsLoading = false.obs;
+  RxString orderSearchQuery = ''.obs;
 
   bool isSelected(Order order) {
     return selectedOrders.any((e) => e.id == order.id);
@@ -93,24 +100,60 @@ class AdminOrderListController extends GetxController {
       return;
     }
 
-    orders.clear();
+    List<Order> tempOrders = [];
 
     switch (activeTab.value) {
       case 'Pending':
-        orders.assignAll(data.pendingOrders);
+        tempOrders.addAll(data.pendingOrders);
         break;
 
       case 'Assigned':
-        orders.assignAll(data.assignedOrders);
+        tempOrders.addAll(data.assignedOrders);
         break;
 
       case 'Delivered':
-        orders.assignAll(data.deliveredOrders);
+        tempOrders.addAll(data.deliveredOrders);
         break;
 
       default:
-        orders.assignAll(data.allOrders);
+        tempOrders.addAll(data.allOrders);
         break;
+    }
+
+    // Apply Sector Filter
+    if (selectedSector.value.isNotEmpty) {
+      tempOrders = tempOrders.where((order) {
+        return order.customerDetails.address.sector.toLowerCase() ==
+            selectedSector.value.toLowerCase();
+      }).toList();
+    }
+
+    // Apply Order Number Search Filter
+    if (orderSearchQuery.value.isNotEmpty) {
+      final query = orderSearchQuery.value.trim().toLowerCase();
+      tempOrders = tempOrders.where((order) {
+        return order.ordernumber.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    orders.assignAll(tempOrders);
+  }
+
+  Future<void> getSectorsApi() async {
+    try {
+      isSectorsLoading.value = true;
+      final response = await _repo.getSectorList();
+      if (response.statusCode == '200') {
+        sectors.assignAll(response.data);
+      } else {
+        AppSnackbar.error(response.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    } finally {
+      isSectorsLoading.value = false;
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:zourney/app/models/bottel_model/botle_model.dart';
 import '../../../app/models/Admin/admin_dashboard/admin_dashboard_model.dart';
 import '../../../app/models/Admin/admin_order_details/admin_order_details_model.dart';
 import '../../../app/models/Admin/admin_order_list/admin_order_model.dart';
+import '../../../app/models/Admin/admin_order_list/sector_list_model.dart';
 import '../../../app/models/Admin/assign_delivery/assign_to_delivery_model.dart';
 import '../../../app/models/address_model/addresss_model.dart';
 import '../../../app/models/address_model/delete_address_model.dart';
@@ -761,4 +762,27 @@ Future<SubscriptionModel> getSubscriptionList() async {
       throw Exception(message);
     }
   }
+
+  Future<SectorListModel> getSectorList() async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getSectorList,
+        {},
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return SectorListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
 }
+
