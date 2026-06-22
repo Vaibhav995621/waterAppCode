@@ -61,7 +61,7 @@ class AdminOrderListController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getOrdersApi();
+    getOrdersApi("" );
   }
 
   void changeTab(String tab) {
@@ -69,14 +69,13 @@ class AdminOrderListController extends GetxController {
     filterOrders();
   }
 
-  Future<void> getOrdersApi() async {
+  Future<void> getOrdersApi(String sector) async {
     try {
       isLoading.value = true;
 
-      final response = await _repo.adminOrderApi();
+      final response = await _repo.adminOrderApi(sector);
 
       if (response.statusCode == '200') {
-        orderResponse.value = response;
 
         orders.clear();
         orderResponse.value = response;
@@ -121,20 +120,20 @@ class AdminOrderListController extends GetxController {
     }
 
     // Apply Sector Filter
-    if (selectedSector.value.isNotEmpty) {
-      tempOrders = tempOrders.where((order) {
-        return order.customerDetails.address.sector.toLowerCase() ==
-            selectedSector.value.toLowerCase();
-      }).toList();
-    }
+    // if (selectedSector.value.isNotEmpty) {
+    //   tempOrders = tempOrders.where((order) {
+    //     return order.customerDetails.address.sector.toLowerCase() ==
+    //         selectedSector.value.toLowerCase();
+    //   }).toList();
+    // }
 
     // Apply Order Number Search Filter
-    if (orderSearchQuery.value.isNotEmpty) {
-      final query = orderSearchQuery.value.trim().toLowerCase();
-      tempOrders = tempOrders.where((order) {
-        return order.ordernumber.toLowerCase().contains(query);
-      }).toList();
-    }
+    // if (orderSearchQuery.value.isNotEmpty) {
+    //   final query = orderSearchQuery.value.trim().toLowerCase();
+    //   tempOrders = tempOrders.where((order) {
+    //     return order.ordernumber.toLowerCase().contains(query);
+    //   }).toList();
+    // }
 
     orders.assignAll(tempOrders);
   }

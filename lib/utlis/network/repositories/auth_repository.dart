@@ -598,11 +598,12 @@ Future<SubscriptionModel> getSubscriptionList() async {
     }
   }
 
-  Future<AdminOrderListModel> adminOrderApi() async {
+  Future<AdminOrderListModel> adminOrderApi(String sector) async {
     try {
       final response = await _api.post(
         ApiEndpoints.adminOrderList, // change endpoint if needed
         {
+          "sector": sector,
         },
         tokenRequired: false,
         headers: {

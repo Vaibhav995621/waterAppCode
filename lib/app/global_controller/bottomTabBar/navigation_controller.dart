@@ -35,7 +35,7 @@ class NavigationController extends GetxController {
       Get.find<OrdersController>().getCustomerHistoryOrder();
     }
     else if (index == 1 && AppSession.role == 3) {
-      Get.find<AdminOrderListController>().getOrdersApi();
+      Get.find<AdminOrderListController>().getOrdersApi('');
 
     }
   }

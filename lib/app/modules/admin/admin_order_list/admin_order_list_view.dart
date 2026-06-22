@@ -673,7 +673,7 @@ class AdminOrderListView extends StatelessWidget {
                             : null,
                         onTap: () {
                           controller.selectedSector.value = sector;
-                          controller.filterOrders();
+                          controller.getOrdersApi(sector);
                           Navigator.pop(context);
                         },
                       );
