@@ -1,14 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import '../../../../routes/app_routes.dart';
-import '../../../../utlis/progress_hud/app_snackbar.dart';
-import '../../../models/address_model/addresss_model.dart';
 import 'address_controller.dart';
+import '../../../../routes/app_routes.dart';
+import 'package:zourney/app/models/address_model/addresss_model.dart';
 
 /// SCREEN
 class AddressListScreen extends StatelessWidget {
@@ -332,6 +329,9 @@ class AddressListScreen extends StatelessWidget {
 
 /// CARD
 /// UPDATED ADDRESS CARD UI
+///
+///
+
 class AddressCard extends StatelessWidget {
   final AddressData model;
   final bool selected;
@@ -352,14 +352,15 @@ class AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final fullAddress =
-        "${model.housenumber ?? ""}, "
-        "Flat ${model.flatnumber ?? ""}, "
-        "${model.societyname ?? ""}, "
-        "${model.galinumber ?? ""}, "
-        "${model.landmark ?? ""}, "
-        "${model.city ?? ""}, "
-        "${model.state ?? ""} - "
-        "${model.pincode ?? ""}";
+        "Society Name - ${model.societyname}"
+        "House Number - ${model.housenumber}\n"
+        "Falt No - ${model.flatnumber}\n"
+        "Gali No - ${model.galinumber}\n"
+        "Sector - ${model.sector}\n"
+        "Landmark - ${model.landmark}, "
+        "City${model.city} "
+        "State${model.state} - "
+        "Pin Code${model.pincode}";
 
     return GestureDetector(
       onTap: onTap,

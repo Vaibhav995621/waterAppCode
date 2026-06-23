@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import 'package:zourney/app/modules/customer/addresss_list/address_controller.dart';
+
+import 'address_controller.dart';
 
 class AddressBinding extends Bindings {
   @override

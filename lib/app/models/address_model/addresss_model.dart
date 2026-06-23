@@ -79,7 +79,7 @@ class AddressData {
       flatnumber: json["flatnumber"] ?? "",
       societyname: json["societyname"] ?? "",
       galinumber: json["galinumber"] ?? "",
-      sector: json["sector"]?.toString() ?? "",
+      sector: json["sector"] ?? "",
       landmark: json["landmark"] ?? "",
       city: json["city"] ?? "",
       state: json["state"] ?? "",

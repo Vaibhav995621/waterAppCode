@@ -409,7 +409,7 @@ class AdminOrderListView extends StatelessWidget {
           ),
         ],
       ),
-    ) : SizedBox.shrink();
+    ): SizedBox.shrink();
   }
 
   Widget buildInfoTile(IconData icon, String title, String value) {
