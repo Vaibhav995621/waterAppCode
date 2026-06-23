@@ -36,7 +36,7 @@ class AdminOrderListView extends StatelessWidget {
                       controller.filterOrders();
                     },
                     decoration: InputDecoration(
-                      hintText: "Search Order Number...",
+                      hintText: "Search Name, Phone, Address, Sector...",
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
                       fillColor: Colors.white,

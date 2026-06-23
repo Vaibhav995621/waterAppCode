@@ -120,20 +120,40 @@ class AdminOrderListController extends GetxController {
     }
 
     // Apply Sector Filter
-    // if (selectedSector.value.isNotEmpty) {
-    //   tempOrders = tempOrders.where((order) {
-    //     return order.customerDetails.address.sector.toLowerCase() ==
-    //         selectedSector.value.toLowerCase();
-    //   }).toList();
-    // }
+    if (selectedSector.value.isNotEmpty) {
+      tempOrders = tempOrders.where((order) {
+        return order.customerDetails.address.sector.toString().toLowerCase() ==
+            selectedSector.value.toLowerCase();
+      }).toList();
+    }
 
-    // Apply Order Number Search Filter
-    // if (orderSearchQuery.value.isNotEmpty) {
-    //   final query = orderSearchQuery.value.trim().toLowerCase();
-    //   tempOrders = tempOrders.where((order) {
-    //     return order.ordernumber.toLowerCase().contains(query);
-    //   }).toList();
-    // }
+    // Apply Local Search Filter (Name, Phone, Address, Sector, Order number)
+    if (orderSearchQuery.value.isNotEmpty) {
+      final query = orderSearchQuery.value.trim().toLowerCase();
+      tempOrders = tempOrders.where((order) {
+        final orderNo = order.ordernumber.toString().toLowerCase();
+        final name = order.customerDetails.fullname.toString().toLowerCase();
+        final mobile = order.customerDetails.mobile.toString().toLowerCase();
+        
+        final addr = order.customerDetails.address;
+        final sector = addr.sector.toString().toLowerCase();
+        final fulladdress = addr.fulladdress.toString().toLowerCase();
+        final societyname = addr.societyname.toString().toLowerCase();
+        final housenumber = addr.housenumber.toString().toLowerCase();
+        final flatnumber = addr.flatnumber.toString().toLowerCase();
+        final city = addr.city.toString().toLowerCase();
+
+        return orderNo.contains(query) ||
+            name.contains(query) ||
+            mobile.contains(query) ||
+            sector.contains(query) ||
+            fulladdress.contains(query) ||
+            societyname.contains(query) ||
+            housenumber.contains(query) ||
+            flatnumber.contains(query) ||
+            city.contains(query);
+      }).toList();
+    }
 
     orders.assignAll(tempOrders);
   }
