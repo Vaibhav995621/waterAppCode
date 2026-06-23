@@ -4,8 +4,10 @@ import 'package:zourney/app/app_session/app_session.dart';
 import 'package:zourney/routes/app_routes.dart';
 import 'payment_controller.dart';
 
-class PaymentScreen extends GetView<PaymentController> {
-  const PaymentScreen({super.key});
+class PaymentScreen extends StatelessWidget {
+  PaymentScreen({super.key});
+
+  final controller = Get.put(PaymentController());
 
   @override
   Widget build(BuildContext context) {

@@ -13,6 +13,7 @@ class AssignDeliveryBoyController extends GetxController {
   RxBool isLoading = false.obs;
 
   Rxn<Order> order = Rxn<Order>();
+  final RxList<Order> selectedOrdersList = <Order>[].obs;
 
 
   Rxn<DeliveryBoyListModel> deliveryBoyResponse =
@@ -31,7 +32,15 @@ class AssignDeliveryBoyController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.arguments != null) {
-      order.value = Get.arguments as Order;
+      if (Get.arguments is List<Order>) {
+        selectedOrdersList.assignAll(Get.arguments as List<Order>);
+        if (selectedOrdersList.isNotEmpty) {
+          order.value = selectedOrdersList.first;
+        }
+      } else if (Get.arguments is Order) {
+        order.value = Get.arguments as Order;
+        selectedOrdersList.add(Get.arguments as Order);
+      }
     }
     deliveryBoyListApi();
   }
@@ -85,21 +94,33 @@ class AssignDeliveryBoyController extends GetxController {
 
 
   Future<void> assignDeliveryBoy(BuildContext context) async {
-    var orderId = order.value?.id.toString() ?? "";
+    if (selectedBoyId.value == -1) {
+      AppSnackbar.error("Please select a delivery boy.");
+      return;
+    }
     var deliveryBoyId = selectedBoyId.value.toString();
     try {
       isLoading.value = true;
 
-      final response = await _repo.assignDeliveryBoy(orderId,deliveryBoyId);
+      bool allSuccess = true;
+      String lastMessage = "";
 
-      if (response.statusCode == '200') {
-        AppSnackbar.success(response.message);
+      for (var ord in selectedOrdersList) {
+        final response = await _repo.assignDeliveryBoy(ord.id.toString(), deliveryBoyId);
+        if (response.statusCode != '200') {
+          allSuccess = false;
+          lastMessage = response.message;
+        } else {
+          lastMessage = response.message;
+        }
+      }
+
+      if (allSuccess) {
+        AppSnackbar.success("Delivery boy assigned successfully.");
         Navigator.of(context).popUntil((route) => route.isFirst);
-        Get.find<NavigationController>()
-            .changeIndex(1);
-
+        Get.find<NavigationController>().changeIndex(1);
       } else {
-        AppSnackbar.error(response.message);
+        AppSnackbar.error(lastMessage.isNotEmpty ? lastMessage : "Failed to assign some orders.");
       }
     } catch (e) {
       AppSnackbar.error(

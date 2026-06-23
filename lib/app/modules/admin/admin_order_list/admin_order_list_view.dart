@@ -164,44 +164,73 @@ class AdminOrderListView extends StatelessWidget {
                 ),
                 itemBuilder: (context, index) {
                   final order = orders[index];
-                  return InkWell(
-                    onTap: () {
-                      Get.toNamed(AppRoutes.adminOrderDetail, arguments: order);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(.06),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              /// Header
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "#${safeValue(order.ordernumber)}",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                  return Obx(() {
+                    final isSelected = controller.isSelected(order);
+                    final isPending = controller.activeTab.value == 'Pending';
+                    return InkWell(
+                      onTap: () {
+                        if (isPending && controller.isSelectionMode.value) {
+                          controller.toggleSelection(order);
+                        } else {
+                          Get.toNamed(AppRoutes.adminOrderDetail, arguments: order);
+                        }
+                      },
+                      onLongPress: () {
+                        if (isPending) {
+                          controller.toggleSelection(order);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(.06),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                /// Header
+                                Row(
+                                  children: [
+                                    if (isPending) ...[
+                                      GestureDetector(
+                                        onTap: () => controller.toggleSelection(order),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 12),
+                                          child: Icon(
+                                            isSelected
+                                                ? Icons.radio_button_checked
+                                                : Icons.radio_button_off,
+                                            color: isSelected
+                                                ? Colors.blue
+                                                : Colors.grey.shade400,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    Expanded(
+                                      child: Text(
+                                        "#${safeValue(order.ordernumber)}",
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  buildStatusChip(order.statusText),
-                                ],
-                              ),
+                                    buildStatusChip(order.statusText),
+                                  ],
+                                ),
 
                               const SizedBox(height: 6),
 
@@ -311,39 +340,105 @@ class AdminOrderListView extends StatelessWidget {
                       ],
                     ),
                   );
+                  });
                 },
               );
             }),
           ),
         ],
       ),
+      floatingActionButton: Obx(() {
+        if (controller.isSelectionMode.value && controller.selectedOrders.isNotEmpty) {
+          return FloatingActionButton.extended(
+            onPressed: () {
+              Get.toNamed(
+                AppRoutes.adminAssignDelivery,
+                arguments: controller.selectedOrders.toList(),
+              );
+            },
+            backgroundColor: const Color(0xff5E35B1),
+            icon: const Icon(Icons.person_add, color: Colors.white),
+            label: const Text(
+              "Assign Delivery Boy",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      }),
     );
   }
 
   Widget buildHeader() {
-    return Container(
-      height: 120,
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xff4527A0), Color(0xff5E35B1)],
-        ),
-      ),
-      child: const Center(
-        child: Text(
-          "Order List",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+    return Obx(() {
+      final isSelection = controller.isSelectionMode.value;
+      final selectedCount = controller.selectedOrders.length;
+
+      return Container(
+        height: 120,
+        width: double.infinity,
+        padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xff4527A0), Color(0xff5E35B1)],
           ),
         ),
-      ),
-    );
+        child: Row(
+          children: [
+            if (isSelection) ...[
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => controller.clearSelection(),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "$selectedCount Selected",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  if (selectedCount == controller.orders.length) {
+                    controller.clearSelection();
+                  } else {
+                    controller.selectAll();
+                  }
+                },
+                child: Text(
+                  selectedCount == controller.orders.length ? "Deselect All" : "Select All",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ] else ...[
+              const Spacer(),
+              const Text(
+                "Order List",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+            ],
+          ],
+        ),
+      );
+    });
   }
+  
 
   String formatDate(DateTime date) {
     return DateFormat('dd MMM yyyy').format(date);

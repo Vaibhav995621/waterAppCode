@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
-import '../../../models/Admin/admin_order_list/sector_list_model.dart';
 
 class AdminOrderListController extends GetxController {
   final AuthRepository _repo = AuthRepository();
@@ -66,6 +65,7 @@ class AdminOrderListController extends GetxController {
 
   void changeTab(String tab) {
     activeTab.value = tab;
+    clearSelection();
     filterOrders();
   }
 
