@@ -160,7 +160,7 @@ class Order {
       json['deliveryPartnerName'] ?? '',
       statusText: json['statusText'] ?? '',
       deliveryPartnerId:
-      json['deliveryPartnerId'] ?? 0,
+      json['delivery_partner_id'] ?? 0,
       customerDetails: CustomerDetails.fromJson(
         json['customer_details'] ?? {},
       ),
@@ -189,7 +189,7 @@ class Order {
       'customerName': customerName,
       'deliveryPartnerName': deliveryPartnerName,
       'statusText': statusText,
-      'deliveryPartnerId': deliveryPartnerId,
+      'delivery_partner_id': deliveryPartnerId,
       'customer_details': customerDetails.toJson(),
       'delivery_details': deliveryDetails.toJson(),
     };

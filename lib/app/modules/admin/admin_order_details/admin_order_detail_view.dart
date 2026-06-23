@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'admin_order_detail_controller.dart';
 
@@ -129,7 +130,11 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                         children: [
                           _detailRow("Name", order.customerDetails.fullname),
 
-                          _detailRow("Mobile", order.customerDetails.mobile),
+                          _detailRow(
+                            "Mobile",
+                            order.customerDetails.mobile,
+                            onCallTap: () => makePhoneCall(order.customerDetails.mobile),
+                          ),
 
                           _detailRow("Email", order.customerDetails.email),
                         ],
@@ -176,18 +181,22 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                     /// DELIVERY PARTNER
                     ///
-                    if (order.deliveryPartnerId > 0)
+                    if (order.deliveryPartnerId  > 0 )
                       _sectionTitle("Delivery Partner"),
                     if (order.deliveryPartnerId > 0)
                       _buildCard(
                       child: Column(
                         children: [
-                          _detailRow(
+                           _detailRow(
                             "Name",
                             order.deliveryDetails.deliveryPartnerName,
                           ),
 
-                          _detailRow("Mobile", order.deliveryDetails.mobileNo),
+                          _detailRow(
+                            "Mobile",
+                            order.deliveryDetails.mobileNo,
+                            onCallTap: () => makePhoneCall(order.deliveryDetails.mobileNo),
+                          ),
 
                           _detailRow("Email", order.deliveryDetails.email),
                         ],
@@ -270,11 +279,11 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
     );
   }
 
-  Widget _detailRow(String title, String value) {
+  Widget _detailRow(String title, String value, {VoidCallback? onCallTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             flex: 2,
@@ -282,15 +291,52 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
           ),
           Expanded(
             flex: 3,
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (onCallTap != null && value.isNotEmpty && value != "N/A") ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: onCallTap,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.call,
+                        color: Colors.green,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> makePhoneCall(String phoneNumber) async {
+    if (phoneNumber.isEmpty || phoneNumber == "N/A") return;
+
+    final Uri uri = Uri.parse('tel:$phoneNumber');
+
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint("Unable to call: $e");
+    }
   }
 
   Widget buildHeader() {
