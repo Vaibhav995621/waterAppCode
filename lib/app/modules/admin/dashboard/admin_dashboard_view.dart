@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_controller.dart';
-
 import '../../../../routes/app_routes.dart';
-import '../../../models/Admin/admin_dashboard/admin_dashboard_model.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 
 class AdminDashboardView extends StatelessWidget {
@@ -208,12 +206,10 @@ class AdminDashboardView extends StatelessWidget {
                             ),
                           ),
 
-                          const SizedBox(height: 15),
-
                           /// RECENT ORDERS
                           Padding(
                             padding:
-                            const EdgeInsets.all(16),
+                            const EdgeInsets.fromLTRB(16, 10, 16, 16),
                             child: Container(
                               padding:
                               const EdgeInsets.all(16),

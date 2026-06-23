@@ -162,18 +162,7 @@ class ProfileView extends GetView<ProfileController> {
                     child: Column(
                       children: [
 
-                        // cardTile(
-                        //   Icons.person,
-                        //   "Edit Profile",
-                        //       () {
-                        //     Get.toNamed(
-                        //       AppRoutes.editAddressScreen,
-                        //       arguments:
-                        //       controller.profile.value,
-                        //     );
-                        //   },
-                        // ),
-
+                        AppSession.role  == 1 ?
                         cardTile(
                           Icons.location_on,
                           "My Address",
@@ -182,7 +171,7 @@ class ProfileView extends GetView<ProfileController> {
                               AppRoutes.addressList,
                             );
                           },
-                        ),
+                        ): SizedBox.shrink(),
                         cardTile(
                           Icons.payment,
                           "Payment History",
