@@ -485,42 +485,6 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
 
                     SizedBox(height: 30),
 
-                    /// Buttons
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(25),
-                            onTap: controller.bookWater,
-                            child: actionCard(
-                              Icons.water_drop,
-                              "Book Water",
-                              const Color(0xff3498DB),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(width: 15),
-
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              Get.find<NavigationController>()
-                                  .changeIndex(1);
-                            },
-                            child: actionCard(
-                              Icons.list_alt,
-                              "Orders",
-                              Color(0xff6B67F6),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 30),
-
                     Align(
                       alignment:
                       Alignment.centerLeft,

@@ -90,7 +90,7 @@ class SelectAddressController extends GetxController {
         'amount': price * 100,
         'name': 'Water Delivery',
         'description': 'Water Bottle Order',
-        'prefill': {'contact': '7503781220', 'email': 'test@gmail.com'},
+        'prefill': {'contact': AppSession.name, 'name': AppSession.name},
         'theme': {'color': '#0D47A1'},
         'method': {
           'upi': true,

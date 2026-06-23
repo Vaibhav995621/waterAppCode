@@ -352,15 +352,15 @@ class AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final fullAddress =
-        "Society Name - ${model.societyname}"
+        "Society Name - ${model.societyname}\n"
         "House Number - ${model.housenumber}\n"
         "Falt No - ${model.flatnumber}\n"
         "Gali No - ${model.galinumber}\n"
         "Sector - ${model.sector}\n"
-        "Landmark - ${model.landmark}, "
-        "City${model.city} "
-        "State${model.state} - "
-        "Pin Code${model.pincode}";
+        "Landmark - ${model.landmark}\n"
+        "City - ${model.city} "
+        "State - ${model.state} "
+        "Pin Code - ${model.pincode}\n";
 
     return GestureDetector(
       onTap: onTap,
