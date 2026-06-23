@@ -154,7 +154,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                   onPressed: () {
                     //controller.addOrder();
                     Get.toNamed(
-                      AppRoutes.selectAddress,
+                      AppRoutes.paymentScreen,
                       arguments: {
                         "waterbottleid": controller.bottle.id,
                         "price": controller.total.toString(),

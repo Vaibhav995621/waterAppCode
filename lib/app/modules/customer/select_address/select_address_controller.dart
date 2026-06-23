@@ -135,8 +135,9 @@ class SelectAddressController extends GetxController {
     DateTime deliveryDate,
     String deliveryTime,
     String addressId,
-      int planType
-  ) async {
+    int planType, {
+    bool isCod = false,
+  }) async {
     addOrderMap = {
       "customerid": AppSession.userId,
       "waterbottleid": waterBottleId,
@@ -159,13 +160,13 @@ class SelectAddressController extends GetxController {
       /// SUCCESS
       if (response.statusCode == "200") {
         orderId = response.data.id.toString();
-        if(AppSession.planType == planType) {
+        if (AppSession.planType == planType || isCod) {
           Get.toNamed(
             AppRoutes.paymentSuccess,
             arguments: {"amount": addOrderMap["price"].toString()},
           );
-        }else{
-        makePayment(double.tryParse(price) ?? 0.0);
+        } else {
+          makePayment(double.tryParse(price) ?? 0.0);
         }
         return true;
       }

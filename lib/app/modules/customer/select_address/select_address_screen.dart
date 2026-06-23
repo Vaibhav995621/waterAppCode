@@ -10,16 +10,15 @@ class SelectAddressScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final args = Get.arguments;
-    late int waterBottleId = args["waterbottleid"] ?? 0;
-    late String price = args["price"] ?? "";
-    late int quantity = args["quantity"] ?? 0;
-    late DateTime deliveryDate =
-        args["deliverydate"] ?? "";
-    late String deliveryTime =
-        args["deliverytime"] ?? "";
-    late int plantype =
-        args["plantype"] ?? 0;
+    final args = Get.arguments is Map ? Get.arguments : {};
+    final int waterBottleId = args["waterbottleid"] ?? 0;
+    final String price = args["price"] ?? "";
+    final int quantity = args["quantity"] ?? 0;
+    final DateTime deliveryDate = args["deliverydate"] is DateTime
+        ? args["deliverydate"]
+        : DateTime.now();
+    final String deliveryTime = args["deliverytime"] ?? "";
+    final int plantype = args["plantype"] ?? 0;
 
 
     return Scaffold(
@@ -279,34 +278,16 @@ class SelectAddressScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: controller.isPaymentLoading.value
-                            ? null
-                            : () {
-
-                                controller.addOrder(
-                                  waterBottleId.toString(),
-                                  price,
-                                  quantity.toString(),
-                                  deliveryDate,
-                                  deliveryTime,
-                                  controller.selectedId.toString(),
-                                    plantype
-                                );
-                                // controller
-                                //     .makePayment();
-                              },
-
-                        child: controller.isPaymentLoading.value
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            :  Text(
-                              ( plantype == AppSession.planType)? "Order Now" : "Pay Now",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: const Text(
+                          "Confirm Address",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),

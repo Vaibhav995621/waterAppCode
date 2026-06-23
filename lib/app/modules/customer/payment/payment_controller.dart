@@ -1,114 +1,65 @@
 import 'package:get/get.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:zourney/app/modules/customer/select_address/select_address_controller.dart';
+import 'package:zourney/utlis/progress_hud/app_snackbar.dart';
 
 class PaymentController extends GetxController {
-  late Razorpay razorpay;
+  late int waterBottleId;
+  late String price;
+  late int quantity;
+  late DateTime deliveryDate;
+  late String deliveryTime;
+  late int plantype;
 
-  RxBool isLoading = false.obs;
+  // Selected payment method: 'cod' or 'pay_now'
+  final selectedMethod = 'cod'.obs;
+
+  late SelectAddressController addressController;
 
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments is Map ? Get.arguments : {};
+    waterBottleId = args["waterbottleid"] ?? 0;
+    price = args["price"] ?? "0";
+    quantity = args["quantity"] ?? 0;
+    deliveryDate = args["deliverydate"] is DateTime
+        ? args["deliverydate"]
+        : DateTime.now();
+    deliveryTime = args["deliverytime"] ?? "";
+    plantype = args["plantype"] ?? 0;
 
-    razorpay = Razorpay();
-
-    razorpay.on(
-      Razorpay.EVENT_PAYMENT_SUCCESS,
-      _handlePaymentSuccess,
-    );
-
-    razorpay.on(
-      Razorpay.EVENT_PAYMENT_ERROR,
-      _handlePaymentError,
-    );
-
-    razorpay.on(
-      Razorpay.EVENT_EXTERNAL_WALLET,
-      _handleExternalWallet,
-    );
+    // Retrieve or initialize SelectAddressController
+    addressController = Get.put(SelectAddressController());
   }
 
-  void makePayment() {
-    try {
-      isLoading.value = true;
+  void selectPaymentMethod(String method) {
+    selectedMethod.value = method;
+  }
 
-      var options = {
-        'key': 'rzp_test_SrUuMWoExaIWgc',
-
-        'amount': 500 * 100,
-
-        'name': 'Water Delivery',
-
-        'description':
-        'Water Bottle Order',
-
-        'prefill': {
-          'contact': '7503781220',
-          'email': 'test@gmail.com'
-        },
-
-        'theme': {
-          'color': '#0D47A1'
-        },
-
-        'method': {
-          'upi': true,
-          'card': true,
-          'wallet': true,
-          'netbanking': true
-        }
-      };
-
-      razorpay.open(options);
-    } catch (e) {
-      isLoading.value = false;
-
-      Get.snackbar(
-        "Error",
-        e.toString(),
-      );
+  Future<void> processPayment() async {
+    if (addressController.selectedId.value == -1) {
+      AppSnackbar.error("Please select a delivery address.");
+      return;
     }
-  }
 
-  void _handlePaymentSuccess(
-      PaymentSuccessResponse response) {
+    final isCod = selectedMethod.value == 'cod';
 
-    isLoading.value = false;
-
-    Get.snackbar(
-      "Success",
-      "Payment Success",
-    );
-
-    print(response.paymentId);
-
-    // call payment verification API
-  }
-
-  void _handlePaymentError(
-      PaymentFailureResponse response) {
-
-    isLoading.value = false;
-
-    Get.snackbar(
-      "Failed",
-      response.message ??
-          "Payment failed",
-    );
-  }
-
-  void _handleExternalWallet(
-      ExternalWalletResponse response) {
-
-    Get.snackbar(
-      "Wallet",
-      response.walletName ?? "",
-    );
-  }
-
-  @override
-  void onClose() {
-    razorpay.clear();
-    super.onClose();
+    addressController.isPaymentLoading.value = true;
+    try {
+      await addressController.addOrder(
+        waterBottleId.toString(),
+        price,
+        quantity.toString(),
+        deliveryDate,
+        deliveryTime,
+        addressController.selectedId.value.toString(),
+        plantype,
+        isCod: isCod,
+      );
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      addressController.isPaymentLoading.value = false;
+    }
   }
 }
