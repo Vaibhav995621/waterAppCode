@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'order_detail_controller.dart';
 
@@ -16,28 +17,43 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
       bottomNavigationBar: GetBuilder<DeliveryOrderDetailController>(
         id: 'status',
         builder: (_) {
-
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
                 height: 55,
                 child: Obx(
-                      () => ElevatedButton.icon(
+                  () => ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff6B67F6),
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
                     onPressed: controller.isLoading.value
                         ? null
                         : () => controller.markAsDelivered('4'),
                     icon: controller.isLoading.value
                         ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : const Icon(Icons.check_circle),
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.check_circle, color: Colors.white),
                     label: Text(
                       controller.isLoading.value
                           ? 'Updating...'
                           : 'Mark as Delivered',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -68,7 +84,22 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
               title: 'Customer Details',
               children: [
                 _row('Name', order.customername),
-                _row('Mobile', order.customermobile),
+                _rowWithAction(
+                  'Mobile',
+                  order.customermobile,
+                  icon: const Icon(Icons.call, color: Color(0xff6E6AF8), size: 18),
+                  onTap: () async {
+                    final Uri launchUri = Uri(
+                      scheme: 'tel',
+                      path: order.customermobile,
+                    );
+                    if (await canLaunchUrl(launchUri)) {
+                      await launchUrl(launchUri);
+                    } else {
+                      Get.snackbar("Error", "Could not launch call dialer");
+                    }
+                  },
+                ),
               ],
             ),
 
@@ -113,30 +144,7 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
                 ],
               ),
 
-            const SizedBox(height: 16),
-
-            GetBuilder<DeliveryOrderDetailController>(
-              id: 'status',
-              builder: (_) {
-                return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: _statusColor(order.status).withOpacity(.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    controller.statusText,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: _statusColor(order.status),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                );
-              },
-            ),
+            // Bottom status delivered container has been removed
           ],
         ),
       ),
@@ -184,18 +192,34 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
     );
   }
 
-  Color _statusColor(int status) {
-    switch (status) {
-      case 0:
-        return Colors.orange;
-      case 1:
-        return Colors.blue;
-      case 2:
-        return Colors.green;
-      case 3:
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+  Widget _rowWithAction(String title, String value, {required Widget icon, required VoidCallback onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(title, style: const TextStyle(color: Colors.grey)),
+          ),
+          GestureDetector(
+            onTap: onTap,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    decoration: TextDecoration.underline,
+                    color: Color(0xff6E6AF8),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                icon,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

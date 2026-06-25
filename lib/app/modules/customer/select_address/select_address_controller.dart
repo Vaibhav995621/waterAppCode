@@ -17,6 +17,7 @@ class SelectAddressController extends GetxController {
   RxList<AddressData> addressList = <AddressData>[].obs;
   RxBool isLoading = false.obs;
   RxBool isPaymentLoading = false.obs;
+  RxBool setAsDefault = false.obs;
 
   late Map<String, dynamic> addOrderMap;
    String orderId = "";
@@ -33,8 +34,8 @@ class SelectAddressController extends GetxController {
 
   void selectAddress(int id) {
     selectedId.value = id;
-
     selectedAddress.value = addressList.firstWhere((e) => e.id == id);
+    setAsDefault.value = selectedAddress.value?.isDefault == 1;
   }
 
   Future<bool> getAddressList() async {
@@ -53,19 +54,25 @@ class SelectAddressController extends GetxController {
       if (data.statusCode == "200") {
         addressList.assignAll(data.data);
 
-        final defaultAddress = addressList.firstWhereOrNull(
-          (e) => e.isDefault == 1,
-        );
+        if (selectedId.value != -1 && addressList.any((e) => e.id == selectedId.value)) {
+          selectedAddress.value = addressList.firstWhere((e) => e.id == selectedId.value);
+        } else {
+          final defaultAddress = addressList.firstWhereOrNull(
+            (e) => e.isDefault == 1,
+          );
 
-        if (defaultAddress != null) {
-          selectedId.value = defaultAddress.id!;
-
-          selectedAddress.value = defaultAddress;
-        } else if (addressList.isNotEmpty) {
-          selectedId.value = addressList.first.id!;
-
-          selectedAddress.value = addressList.first;
+          if (defaultAddress != null) {
+            selectedId.value = defaultAddress.id!;
+            selectedAddress.value = defaultAddress;
+          } else if (addressList.isNotEmpty) {
+            selectedId.value = addressList.first.id!;
+            selectedAddress.value = addressList.first;
+          } else {
+            selectedId.value = -1;
+            selectedAddress.value = null;
+          }
         }
+        setAsDefault.value = selectedAddress.value?.isDefault == 1;
       }
 
       return true;
@@ -78,6 +85,46 @@ class SelectAddressController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<bool> setDefaultAddress(int addressId) async {
+    try {
+      isLoading.value = true;
+      final data = await _repo.setAsDefaultAddress(
+        customerId: AppSession.userId.toString(),
+        addressId: addressId.toString(),
+      );
+      isLoading.value = false;
+
+      if (data.statusCode == "201") {
+        AppSnackbar.error(data.message);
+        return false;
+      }
+
+      if (data.statusCode == "200") {
+        await getAddressList();
+        AppSnackbar.success(data.message);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      isLoading.value = false;
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+      return false;
+    }
+  }
+
+  Future<void> saveAndGoBack() async {
+    if (selectedId.value == -1) {
+      AppSnackbar.error("Please select an address first");
+      return;
+    }
+
+    if (selectedAddress.value?.isDefault != 1) {
+      final success = await setDefaultAddress(selectedId.value);
+      if (!success) return;
+    }
+    Get.back();
   }
 
   late Razorpay razorpay;

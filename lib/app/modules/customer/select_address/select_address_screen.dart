@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zourney/app/app_session/app_session.dart';
+import 'package:zourney/routes/app_routes.dart';
 import 'select_address_controller.dart';
 
 class SelectAddressScreen extends StatelessWidget {
@@ -81,22 +82,36 @@ class SelectAddressScreen extends StatelessWidget {
                 /// HEADER
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-
                   child: Row(
                     children: [
-                      const Spacer(),
-                      const Text(
-                        "Select Address",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff2D3A5A),
+                      const SizedBox(width: 48), // Balance the right side icon button
+                      const Expanded(
+                        child: Center(
+                          child: Text(
+                            "Select Address",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff2D3A5A),
+                            ),
+                          ),
                         ),
                       ),
-
-                      const Spacer(),
-
-                      const SizedBox(width: 40),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          color: Color(0xff6E6AF8),
+                          size: 28,
+                        ),
+                        onPressed: () async {
+                          final result = await Get.toNamed(
+                            AppRoutes.editAddressScreen,
+                          );
+                          if (result == true) {
+                            controller.getAddressList();
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -221,7 +236,7 @@ class SelectAddressScreen extends StatelessWidget {
 
                                       children: [
                                         Text(
-                                          item.societyname ?? "",
+                                          item.societyname,
 
                                           style: TextStyle(
                                             fontSize: 18,
@@ -236,7 +251,7 @@ class SelectAddressScreen extends StatelessWidget {
                                         const SizedBox(height: 8),
 
                                         Text(
-                                          item.fullAddress ?? "",
+                                          item.fullAddress,
 
                                           style: TextStyle(
                                             color: selected
@@ -247,6 +262,25 @@ class SelectAddressScreen extends StatelessWidget {
                                       ],
                                     ),
                                   ),
+
+                                  const SizedBox(width: 10),
+
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: selected ? Colors.white70 : const Color(0xff6E6AF8),
+                                      size: 20,
+                                    ),
+                                    onPressed: () async {
+                                      final result = await Get.toNamed(
+                                        AppRoutes.editAddressScreen,
+                                        arguments: item,
+                                      );
+                                      if (result == true) {
+                                        controller.getAddressList();
+                                      }
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
@@ -256,6 +290,36 @@ class SelectAddressScreen extends StatelessWidget {
                     );
                   }),
                 ),
+
+                Obx(() {
+                  if (controller.selectedId.value == -1) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: Colors.grey.shade600,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Note: Saving will set this address as default.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
 
                 Padding(
                   padding: const EdgeInsets.all(20),
@@ -271,24 +335,32 @@ class SelectAddressScreen extends StatelessWidget {
                         ),
                       ),
 
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff6B67F6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      child: Obx(() {
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff6B67F6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ),
-                        onPressed: () {
-                          Get.back();
-                        },
-                        child: const Text(
-                          "Confirm Address",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () {
+                                  controller.saveAndGoBack();
+                                },
+                          child: controller.isLoading.value
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "Save",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        );
+                      }),
                     ),
                   ),
                 ),
