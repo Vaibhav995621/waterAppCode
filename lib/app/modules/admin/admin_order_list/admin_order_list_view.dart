@@ -303,62 +303,82 @@ class AdminOrderListView extends StatelessWidget {
                               children: [
                                 // Customer
                                 Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade50,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.person_outline, size: 14, color: Color(0xff5E35B1)),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            customerName,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                  child: GestureDetector(
+                                    onTap: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                        ? () => makePhoneCall(customerMobile)
+                                        : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.person_outline, size: 14, color: Color(0xff5E35B1)),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              customerName,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                                    ? const Color(0xff5E35B1)
+                                                    : Colors.black87,
+                                                decoration: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                                    ? TextDecoration.underline
+                                                    : TextDecoration.none,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        if (customerMobile != "N/A" && customerMobile.isNotEmpty)
-                                          GestureDetector(
-                                            onTap: () => makePhoneCall(customerMobile),
-                                            child: const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
-                                          ),
-                                      ],
+                                          if (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                            const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 // Delivery Partner
                                 Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade50,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            deliveryName != "N/A" ? deliveryName : "Unassigned",
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: deliveryName != "N/A" ? Colors.black87 : Colors.grey,
+                                  child: GestureDetector(
+                                    onTap: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                        ? () => makePhoneCall(deliveryMobile)
+                                        : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              deliveryName != "N/A" ? deliveryName : "Unassigned",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: deliveryName != "N/A"
+                                                    ? ((deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                                        ? Colors.blue.shade700
+                                                        : Colors.black87)
+                                                    : Colors.grey,
+                                                decoration: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                                    ? TextDecoration.underline
+                                                    : TextDecoration.none,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        if (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
-                                          GestureDetector(
-                                            onTap: () => makePhoneCall(deliveryMobile),
-                                            child: const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
-                                          ),
-                                      ],
+                                          if (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                            const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
