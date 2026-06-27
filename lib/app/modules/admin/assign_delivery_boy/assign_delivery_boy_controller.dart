@@ -101,27 +101,21 @@ class AssignDeliveryBoyController extends GetxController {
     var deliveryBoyId = selectedBoyId.value.toString();
     try {
       isLoading.value = true;
-
-      bool allSuccess = true;
-      String lastMessage = "";
-
-      for (var ord in selectedOrdersList) {
-        final response = await _repo.assignDeliveryBoy(ord.id.toString(), deliveryBoyId);
-        if (response.statusCode != '200') {
-          allSuccess = false;
-          lastMessage = response.message;
+      String orderIds = selectedOrdersList
+          .map((order) => order.id.toString())
+          .join(',');
+      print(orderIds);
+        final response = await _repo.assignDeliveryBoy(orderIds, deliveryBoyId);
+        if (response.statusCode == '200') {
+          Get.back();
+          Get.find<NavigationController>().changeIndex(1);
+          AppSnackbar.success("Delivery boy assigned successfully.");
         } else {
-          lastMessage = response.message;
+          AppSnackbar.error(
+            response.message.isNotEmpty ? response.message : "Failed to assign delivery boy",
+          );
         }
-      }
 
-      if (allSuccess) {
-        AppSnackbar.success("Delivery boy assigned successfully.");
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        Get.find<NavigationController>().changeIndex(1);
-      } else {
-        AppSnackbar.error(lastMessage.isNotEmpty ? lastMessage : "Failed to assign some orders.");
-      }
     } catch (e) {
       AppSnackbar.error(
         e.toString().replaceAll("Exception: ", ""),

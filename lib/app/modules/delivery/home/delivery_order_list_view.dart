@@ -42,17 +42,48 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           SafeArea(
             child: Column(
               children: [
-                const SizedBox(height: 10),
-                const Text(
-                  "My Orders",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff1A2C56),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 44),
+                      const Text(
+                        "My Orders",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff1A2C56),
+                        ),
+                      ),
+                      
+                      // Notification Icon Button
+                      GestureDetector(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.notifications);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 8,
+                                color: Colors.black12,
+                              )
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: Color(0xff6B67F6),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 10),
 
                 /// Toggle Card
                 Padding(
