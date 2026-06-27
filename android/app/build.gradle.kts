@@ -2,14 +2,16 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.aqua_getx_app"
+    namespace = "com.demo.com"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -19,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.aqua_getx_app"
+        applicationId = "com.demo.com"
 
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -28,7 +30,7 @@ android {
 
         // ADD THIS
         manifestPlaceholders["appAuthRedirectScheme"] =
-            "com.example.aqua_getx_app"
+            "com.demo.com"
     }
 
     buildTypes {
@@ -41,4 +43,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
