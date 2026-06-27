@@ -25,5 +25,5 @@ abstract class AppRoutes {
   static const welcomeScreen = '/welcomeScreen';
   static const notifications = '/notifications';
   static const verifyOtp = '/verifyOtp';
-
+  static const splash = '/splash';
 }

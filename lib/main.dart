@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'app/app_session/app_session.dart';
 import 'app/services/firebase_notification_service.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
@@ -21,9 +20,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'H2O EXPRESS',
-      initialRoute: AppSession.userId.isNotEmpty
-          ? AppRoutes.mainNavigation
-          : AppRoutes.welcomeScreen,
+      initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
     );
   }

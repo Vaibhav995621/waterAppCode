@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:zourney/app/splash_screen/splash_binding.dart';
+import 'package:zourney/app/splash_screen/splash_view.dart';
 import 'package:zourney/app/modules/admin/admin_order_details/admin_order_detail_binding.dart';
 import 'package:zourney/app/modules/admin/admin_order_details/admin_order_detail_view.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_binding.dart';
@@ -186,6 +188,11 @@ class AppPages {
       name: AppRoutes.welcomeScreen,
       page: () => const WelcomeView(),
       binding: WelcomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
     ),
   ];
 }
