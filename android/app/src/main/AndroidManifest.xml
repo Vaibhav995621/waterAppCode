@@ -17,7 +17,7 @@
 
     <application
         android:name="${applicationName}"
-        android:label="aqua_getx_app"
+        android:label="H2O EXPRESS"
         android:icon="@mipmap/ic_launcher">
 
         <!-- Razorpay -->
@@ -49,6 +49,14 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
+
+        <!-- Firebase Cloud Messaging default channel & icon configuration -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
 
     </application>
 

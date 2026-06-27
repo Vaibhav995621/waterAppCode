@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Zourney App',
+      title: 'H2O EXPRESS',
       initialRoute: AppSession.userId.isNotEmpty
           ? AppRoutes.mainNavigation
           : AppRoutes.welcomeScreen,
