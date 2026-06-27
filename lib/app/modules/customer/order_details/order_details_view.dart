@@ -3,6 +3,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'order_detail_controller.dart';
 
 class OrderDetailsScreen extends GetView<OrderDetailsController> {
@@ -47,6 +48,10 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                           const SizedBox(height: 18),
 
                           _buildCustomerDetails(),
+
+                          const SizedBox(height: 18),
+
+                          _buildDeliveryPartnerDetails(),
 
                           const SizedBox(height: 18),
 
@@ -168,6 +173,16 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
     );
   }
 
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
   Widget _buildCustomerDetails() {
     return _buildSection(
       title: 'Customer Details',
@@ -179,11 +194,41 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
             title: 'Customer Name',
             value: controller.customerName,
           ),
-          Divider(height: 24),
+          const Divider(height: 24),
           _DetailTile(
             icon: Icons.call_outlined,
             title: 'Mobile Number',
             value: controller.customerMobile,
+            onTap: controller.customerMobile != 'N/A' && controller.customerMobile.isNotEmpty
+                ? () => makePhoneCall(controller.customerMobile)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryPartnerDetails() {
+    final mobile = controller.deliveryPartnerMobile;
+    if (mobile == 'N/A' || mobile.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return _buildSection(
+      title: 'Delivery Partner Details',
+      icon: Icons.delivery_dining_outlined,
+      child: Column(
+        children: [
+          _DetailTile(
+            icon: Icons.person_outline,
+            title: 'Partner Name',
+            value: controller.deliveryPartnerName,
+          ),
+          const Divider(height: 24),
+          _DetailTile(
+            icon: Icons.call_outlined,
+            title: 'Mobile Number',
+            value: mobile,
+            onTap: () => makePhoneCall(mobile),
           ),
         ],
       ),
@@ -427,16 +472,18 @@ class _DetailTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
+  final VoidCallback? onTap;
 
   const _DetailTile({
     required this.icon,
     required this.title,
     required this.value,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    Widget child = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
@@ -460,15 +507,30 @@ class _DetailTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: onTap != null ? const Color(0xFF1976D2) : Colors.black,
+                  decoration: onTap != null ? TextDecoration.underline : TextDecoration.none,
                 ),
               ),
             ],
           ),
         ),
+        if (onTap != null)
+          IconButton(
+            icon: const Icon(Icons.call, color: Color(0xFF1976D2)),
+            onPressed: onTap,
+          ),
       ],
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: child,
+      );
+    }
+    return child;
   }
 }

@@ -111,4 +111,16 @@ class OrderDetailsController extends GetxController {
       ((double.tryParse(price) ?? 0) *
           (int.tryParse(quantity) ?? 1))
           .toStringAsFixed(2);
+
+  String get deliveryPartnerName {
+    final name = orderData?.deliveryDetails.deliveryPartnerName;
+    if (name != null && name.trim().isNotEmpty) return name;
+    return 'N/A';
+  }
+
+  String get deliveryPartnerMobile {
+    final mobile = orderData?.deliveryDetails.mobileNo;
+    if (mobile != null && mobile.trim().isNotEmpty) return mobile;
+    return 'N/A';
+  }
 }
