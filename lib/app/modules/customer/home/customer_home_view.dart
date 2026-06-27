@@ -57,62 +57,96 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
 
                     const SizedBox(height: 30),
 
-                    /// profile
-                    ///
-
-                    AppSession.image.isEmpty ? Container(
-                      height: 85,
-                      width: 85,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 20,
-                            color: Colors.black12,
-                          )
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Color(0xff45A9F8),
-                      ),
-                    ) : Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage:
-                        AppSession.image.isNotEmpty
-                            ? NetworkImage(AppSession.image)
-                            : const NetworkImage(
-                          "https://i.pravatar.cc/150",
+                    /// profile header with notifications
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            AppSession.image.isEmpty ? Container(
+                              height: 55,
+                              width: 55,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 10,
+                                    color: Colors.black12,
+                                  )
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                size: 32,
+                                color: Color(0xff45A9F8),
+                              ),
+                            ) : Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 10,
+                                    color: Colors.black12,
+                                  )
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 28,
+                                backgroundImage: NetworkImage(AppSession.image),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Hello, ${AppSession.name} 👋",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  "Good Morning",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      " Hello, ${AppSession.name} 👋",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 2),
-
-                    Text(
-                      "Good Morning",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 17,
-                      ),
+                        
+                        // Notification Icon Button
+                        GestureDetector(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.notifications);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 8,
+                                  color: Colors.black12,
+                                )
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.notifications_none_rounded,
+                              color: Color(0xff6B67F6),
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 20),

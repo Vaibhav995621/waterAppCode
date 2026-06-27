@@ -42,5 +42,6 @@ class ApiEndpoints {
 
   static const deliveryPartnerOrderHistory = "getpastorderlistbypartnerid";
   static const getSectorList = "getsectorlist";
+  static const getNotifications = "getnotifications";
 
 }

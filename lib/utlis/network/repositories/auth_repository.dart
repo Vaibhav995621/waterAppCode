@@ -19,6 +19,7 @@ import '../../../app/models/order_list_model/order_list.dart';
 import '../../../app/models/payment_model/payment_success_model.dart';
 import '../../../app/models/profile_model/profile_model.dart';
 import '../../../app/models/subcription_model/subscription_history_model.dart';
+import '../../../app/models/notification_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -809,6 +810,32 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return SectorListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<NotificationModel> getNotifications({
+    required String customerId,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getNotifications,
+        {
+          "customerid": customerId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return NotificationModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

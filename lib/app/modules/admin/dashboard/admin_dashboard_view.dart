@@ -80,7 +80,7 @@ class AdminDashboardView extends StatelessWidget {
                       ),
 
                       GestureDetector(
-                        onTap: () => Get.toNamed(AppRoutes.adminNotifications),
+                        onTap: () => Get.toNamed(AppRoutes.notifications),
                         child: Container(
                           height: 48,
                           width: 48,
