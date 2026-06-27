@@ -227,7 +227,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                                       .status,
                                 ),
                                 product:
-                                "${order.bottlename}",
+                                order.waterbottle_name,
                                 qty:
                                 "${order.quantity} Qty",
                                 price:

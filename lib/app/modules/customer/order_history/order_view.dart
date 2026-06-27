@@ -195,7 +195,7 @@ class OrdersView extends GetView<OrdersController> {
                                       .status,
                                 ),
                                 product:
-                                "${order.bottlename}",
+                                order.waterbottle_name,
                                 qty:
                                 "${order.quantity} Qty",
                                 price:

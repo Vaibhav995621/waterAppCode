@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
+import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import '../../../models/order_list_model/order_list.dart';
 
 class DeliveryOrderDetailController extends GetxController {
-  late OrderData order;
+  late Order order;
   final AuthRepository _repo = AuthRepository();
 
   final isLoading = false.obs;
@@ -15,7 +16,7 @@ class DeliveryOrderDetailController extends GetxController {
   void onInit() {
     super.onInit();
 
-    order = Get.arguments as OrderData;
+    order = Get.arguments as Order;
   }
 
   String get statusText {

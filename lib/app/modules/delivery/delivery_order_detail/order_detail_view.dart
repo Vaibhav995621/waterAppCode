@@ -83,15 +83,15 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Customer Details',
               children: [
-                _row('Name', order.customername),
+                _row('Name', order.customerDetails.fullname),
                 _rowWithAction(
                   'Mobile',
-                  order.customermobile,
+                  order.customerDetails.mobile,
                   icon: const Icon(Icons.call, color: Color(0xff6E6AF8), size: 18),
                   onTap: () async {
                     final Uri launchUri = Uri(
                       scheme: 'tel',
-                      path: order.customermobile,
+                      path: order.customerDetails.mobile,
                     );
                     if (await canLaunchUrl(launchUri)) {
                       await launchUrl(launchUri);
@@ -109,9 +109,9 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Bottle Details',
               children: [
-                _row('Bottle', '${order.bottlename ?? '-'}'),
-                _row('Weight', '${order.weight ?? '-'}'),
-                _row('Description', '${order.bottledescription ?? '-'}'),
+                _row('Bottle', order.waterbottle_name ?? '-'),
+                _row('Weight', order.waterbottle_name ?? '-'),
+                _row('Description', order.waterbottle_name ?? '-'),
               ],
             ),
 
@@ -122,12 +122,12 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
               title: 'Delivery Address',
               children: [
                 Text(
-                  '${order.housenumber}, '
-                  '${order.flatnumber}, '
-                  '${order.societyname}\n'
-                  '${order.galinumber}\n'
-                  '${order.landmark}\n'
-                  '${order.city}, ${order.state} - ${order.pincode}',
+                  '${order.customerDetails.address.housenumber}, '
+                  '${order.customerDetails.address.flatnumber}, '
+                  '${order.customerDetails.address.societyname}\n'
+                  '${order.customerDetails.address.galinumber}\n'
+                  '${order.customerDetails.address.landmark}\n'
+                  '${order.customerDetails.address.city}, ${order.customerDetails.address.state} - ${order.customerDetails.address.pincode}',
                 ),
               ],
             ),
@@ -135,12 +135,12 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             const SizedBox(height: 16),
 
             /// DELIVERY PARTNER
-            if (order.partnername != null)
+            if (order.deliveryDetails.deliveryPartnerName != null)
               _sectionCard(
                 title: 'Delivery Partner',
                 children: [
-                  _row('Name', '${order.partnername}'),
-                  _row('Mobile', '${order.partnermobile ?? '-'}'),
+                  _row('Name', order.deliveryDetails.deliveryPartnerName),
+                  _row('Mobile', order.deliveryDetails.mobileNo ?? '-'),
                 ],
               ),
 

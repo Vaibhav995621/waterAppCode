@@ -103,6 +103,7 @@ class Order {
   String customerName;
   String deliveryPartnerName;
   String statusText;
+  String waterbottle_name;
   int deliveryPartnerId;
   CustomerDetails customerDetails;
   DeliveryDetails deliveryDetails;
@@ -128,6 +129,7 @@ class Order {
     required this.deliveryPartnerId,
     required this.customerDetails,
     required this.deliveryDetails,
+    required this.waterbottle_name
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -135,6 +137,7 @@ class Order {
       id: json['id'] ?? 0,
       customerid: json['customerid'] ?? 0,
       ordernumber: json['ordernumber'] ?? '',
+      waterbottle_name: json['waterbottle_name'] ?? '',
       waterbottleid: json['waterbottleid'] ?? 0,
       price: json['price']?.toString() ?? '',
       quantity: json['quantity'] ?? 0,
@@ -192,6 +195,7 @@ class Order {
       'delivery_partner_id': deliveryPartnerId,
       'customer_details': customerDetails.toJson(),
       'delivery_details': deliveryDetails.toJson(),
+      'waterbottle_name': waterbottle_name
     };
   }
 }

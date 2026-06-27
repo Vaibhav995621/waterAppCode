@@ -6,6 +6,7 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:zourney/app/models/Admin/admin_order_list/admin_order_model.dart';
 
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
@@ -19,8 +20,8 @@ class DeliveryOrderListController extends GetxController {
   final AuthRepository _repo = AuthRepository();
 
   /// ✅ API Order Lists
-  RxList<OrderData> activeOrders = <OrderData>[].obs;
-  RxList<OrderData> historyOrders = <OrderData>[].obs;
+  RxList<Order> activeOrders = <Order>[].obs;
+  RxList<Order> historyOrders = <Order>[].obs;
 
   /// ✅ Loader
   RxBool isLoading = false.obs;
