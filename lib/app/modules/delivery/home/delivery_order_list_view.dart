@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../routes/app_routes.dart';
 import 'delivery_order_list_controller.dart';
 
@@ -145,52 +146,46 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                     ),
 
                     child: Obx(() {
-
-                      if (controller
-                          .isLoading.value) {
-                        return const Center(
-                          child:
-                          CircularProgressIndicator(),
-                        );
+                      if (controller.isLoading.value) {
+                        return _buildShimmerLoading();
                       }
 
-                      final orders =
-                      controller
-                          .isActiveSelected
-                          .value
-                          ? controller
-                          .activeOrders
-                          : controller
-                          .historyOrders;
+                      final orders = controller.isActiveSelected.value
+                          ? controller.activeOrders
+                          : controller.historyOrders;
 
                       if (orders.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            "No Orders Found",
+                        return RefreshIndicator(
+                          onRefresh: () => controller.isActiveSelected.value
+                              ? controller.getCustomerActiveOrder()
+                              : controller.getCustomerHistoryOrder(),
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: const Center(
+                                  child: Text("No Orders Found"),
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       }
 
-                      return ListView.builder(
-                        padding:
-                        const EdgeInsets
-                            .all(16),
-                        itemCount:
-                        orders.length,
-                        itemBuilder:
-                            (context, index) {
+                      return RefreshIndicator(
+                        onRefresh: () => controller.isActiveSelected.value
+                            ? controller.getCustomerActiveOrder()
+                            : controller.getCustomerHistoryOrder(),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: orders.length,
+                          itemBuilder: (context, index) {
+                            final order = orders[index];
 
-                          final order =
-                          orders[index];
-
-                          return Padding(
-                            padding:
-                            const EdgeInsets
-                                .only(
-                              bottom: 15,
-                            ),
-                            child:
-                            GestureDetector(
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: GestureDetector(
                                 onTap: () async {
                                   final result = await Get.toNamed(
                                     AppRoutes.deliveryOrderDetail,
@@ -198,44 +193,25 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                                   );
 
                                   if (result == true) {
-                                    controller
-                                        .getCustomerActiveOrder(); // reload API
+                                    controller.getCustomerActiveOrder(); // reload API
                                   }
-
-                              },
-                              child:
-                              _orderCard(
-                                orderId: order
-                                    .ordernumber,
-                                date: controller
-                                    .formatDate(
-                                  order
-                                      .deliverydate,
-                                  order
-                                      .deliverytime,
+                                },
+                                child: _orderCard(
+                                  orderId: order.ordernumber,
+                                  date: controller.formatDate(
+                                    order.deliverydate,
+                                    order.deliverytime,
+                                  ),
+                                  status: controller.getStatusText(order.status),
+                                  statusColor: controller.getStatusColor(order.status),
+                                  product: order.waterbottle_name,
+                                  qty: "${order.quantity} Qty",
+                                  price: "₹${order.price}",
                                 ),
-                                status:
-                                controller
-                                    .getStatusText(
-                                  order
-                                      .status,
-                                ),
-                                statusColor:
-                                controller
-                                    .getStatusColor(
-                                  order
-                                      .status,
-                                ),
-                                product:
-                                order.waterbottle_name,
-                                qty:
-                                "${order.quantity} Qty",
-                                price:
-                                "₹${order.price}",
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       );
                     }),
                   ),
@@ -273,6 +249,154 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 15),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Top Row: Order Number & Status
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                      width: 100,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                      width: 80,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              /// Date Text
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 140,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              /// Divider
+              Divider(height: 1, color: Colors.grey.shade100),
+              const SizedBox(height: 16),
+
+              /// Product Row
+              Row(
+                children: [
+                  /// Product Image Placeholder
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                      width: 45,
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  /// Product Details Placeholder
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(
+                            width: 120,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(
+                            width: 60,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /// Price Placeholder
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                      width: 50,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 

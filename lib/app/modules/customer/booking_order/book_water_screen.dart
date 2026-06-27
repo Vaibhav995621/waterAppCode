@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../routes/app_routes.dart';
 import 'book_water_controller.dart';
@@ -36,16 +37,29 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
                     /// Dynamic Bottle List
                     Obx(
-                          () => Column(
-                        children: controller.bottleList
-                            .map(
-                              (item) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _bottleCard(item),
-                          ),
-                        )
-                            .toList(),
-                      ),
+                      () {
+                        if (controller.isLoading.value) {
+                          return Column(
+                            children: List.generate(
+                              3,
+                              (index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _bottleCardShimmer(),
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children: controller.bottleList
+                              .map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: _bottleCard(item),
+                                ),
+                              )
+                              .toList(),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 20),
@@ -54,39 +68,45 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     _sectionTitle("Quantity"),
 
                     Obx(
-                          () => Row(
-                        children: [
-                          _qtyButton(
-                            Icons.remove,
-                            controller.decrementQty,
-                          ),
-
-                          Container(
-                            margin:
-                            const EdgeInsets.symmetric(horizontal: 10),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 25,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                            ),
-                            child: Text(
-                              "${controller.quantity.value}",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                      () => IgnorePointer(
+                        ignoring: controller.isLoading.value,
+                        child: Opacity(
+                          opacity: controller.isLoading.value ? 0.6 : 1.0,
+                          child: Row(
+                            children: [
+                              _qtyButton(
+                                Icons.remove,
+                                controller.decrementQty,
                               ),
-                            ),
-                          ),
 
-                          _qtyButton(
-                            Icons.add,
-                            controller.incrementQty,
+                              Container(
+                                margin:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 25,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                child: Text(
+                                  "${controller.quantity.value}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+
+                              _qtyButton(
+                                Icons.add,
+                                controller.incrementQty,
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
 
@@ -96,33 +116,39 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     _sectionTitle("Delivery Date"),
 
                     Obx(
-                          () => GestureDetector(
-                        onTap: () async {
-                          final now = DateTime.now();
+                      () => IgnorePointer(
+                        ignoring: controller.isLoading.value,
+                        child: Opacity(
+                          opacity: controller.isLoading.value ? 0.6 : 1.0,
+                          child: GestureDetector(
+                            onTap: () async {
+                              final now = DateTime.now();
 
-                          DateTime initialDate =
-                              controller.selectedDate.value;
+                              DateTime initialDate =
+                                  controller.selectedDate.value;
 
-                          if (initialDate.isBefore(now)) {
-                            initialDate = now;
-                          }
+                              if (initialDate.isBefore(now)) {
+                                initialDate = now;
+                              }
 
-                          DateTime? picked = await showDatePicker(
-                            context: Get.context!,
-                            initialDate: initialDate,
-                            firstDate: now,
-                            lastDate: DateTime(2100),
-                          );
+                              DateTime? picked = await showDatePicker(
+                                context: Get.context!,
+                                initialDate: initialDate,
+                                firstDate: now,
+                                lastDate: DateTime(2100),
+                              );
 
-                          if (picked != null) {
-                            controller.setDate(picked);
-                          }
-                        },
-                        child: _inputTile(
-                          "${controller.selectedDate.value.day} "
-                              "${_monthName(controller.selectedDate.value.month)}, "
-                              "${controller.selectedDate.value.year}",
-                          Icons.calendar_today,
+                              if (picked != null) {
+                                controller.setDate(picked);
+                              }
+                            },
+                            child: _inputTile(
+                              "${controller.selectedDate.value.day} "
+                                  "${_monthName(controller.selectedDate.value.month)}, "
+                                  "${controller.selectedDate.value.year}",
+                              Icons.calendar_today,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -133,9 +159,15 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     _sectionTitle("Delivery Time"),
 
                     Obx(
-                          () => _inputTile(
-                        controller.selectedTime.value,
-                        Icons.keyboard_arrow_down,
+                      () => IgnorePointer(
+                        ignoring: controller.isLoading.value,
+                        child: Opacity(
+                          opacity: controller.isLoading.value ? 0.6 : 1.0,
+                          child: _inputTile(
+                            controller.selectedTime.value,
+                            Icons.keyboard_arrow_down,
+                          ),
+                        ),
                       ),
                     ),
 
@@ -147,41 +179,50 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
             /// PLACE ORDER BUTTON
             Obx(
-                  () => SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    //controller.addOrder();
-                    Get.toNamed(
-                      AppRoutes.paymentScreen,
-                      arguments: {
-                        "waterbottleid": controller.bottle.id,
-                        "price": controller.total.toString(),
-                        "quantity": controller.quantity.value,
-                        "deliverydate": controller.selectedDate.value,
-                        "deliverytime": controller.selectedTime.value,
-                        "plantype": controller.bottle.plantype,
+              () {
+                final isLoading = controller.isLoading.value;
+                final isEmpty = controller.bottleList.isEmpty;
+                final bool isBtnEnabled = !isLoading && !isEmpty;
 
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                return SizedBox(
+                  height: 60,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isBtnEnabled
+                        ? () {
+                            Get.toNamed(
+                              AppRoutes.paymentScreen,
+                              arguments: {
+                                "waterbottleid": controller.bottle.id,
+                                "price": controller.total.toString(),
+                                "quantity": controller.quantity.value,
+                                "deliverydate": controller.selectedDate.value,
+                                "deliverytime": controller.selectedTime.value,
+                                "plantype": controller.bottle.plantype,
+                              },
+                            );
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      disabledBackgroundColor: Colors.blue.shade200,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      isLoading
+                          ? "Loading Bottles..."
+                          : (isEmpty ? "No Bottles Available" : "Continue  |  Total ₹${controller.total}"),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  child: Text(
-                    "Continue  |  Total ₹${controller.total}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+                );
+              },
             ),
 
             const SizedBox(height: 20),
@@ -387,6 +428,94 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
           Icon(icon, size: 18),
         ],
+      ),
+    );
+  }
+
+  Widget _bottleCardShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.grey.shade300,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            /// IMAGE PLACEHOLDER
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            /// DETAILS PLACEHOLDER
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 120,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 150,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 40,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
