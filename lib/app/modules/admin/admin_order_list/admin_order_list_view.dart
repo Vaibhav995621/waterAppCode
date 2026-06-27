@@ -167,6 +167,10 @@ class AdminOrderListView extends StatelessWidget {
                   return Obx(() {
                     final isSelected = controller.isSelected(order);
                     final isPending = controller.activeTab.value == 'Pending';
+                    final customerName = safeValue(order.customerDetails.fullname);
+                    final customerMobile = safeValue(order.customerDetails.mobile);
+                    final deliveryName = safeValue(order.deliveryDetails.deliveryPartnerName);
+                    final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
                     return InkWell(
                       onTap: () {
                         if (isPending && controller.isSelectionMode.value) {
@@ -181,164 +185,203 @@ class AdminOrderListView extends StatelessWidget {
                         }
                       },
                       borderRadius: BorderRadius.circular(16),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(.06),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Colors.blue.shade300 : Colors.grey.shade100,
+                            width: isSelected ? 2 : 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(.03),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// Header: Selection + Order ID + Status
+                            Row(
+                              children: [
+                                if (isPending) ...[
+                                  GestureDetector(
+                                    onTap: () => controller.toggleSelection(order),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Icon(
+                                        isSelected
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_off,
+                                        color: isSelected
+                                            ? Colors.blue
+                                            : Colors.grey.shade400,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                Expanded(
+                                  child: Text(
+                                    "#${safeValue(order.ordernumber)}",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff1A2C56),
+                                    ),
+                                  ),
+                                ),
+                                buildStatusChip(order.statusText),
+                              ],
+                            ),
+
+                            const Divider(height: 16, thickness: 0.5),
+
+                            /// Details Row (Price, Qty, Date & Time)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Price
+                                Row(
+                                  children: [
+                                    const Icon(Icons.currency_rupee, size: 14, color: Colors.green),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      "₹${safeValue(order.price)}",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                                // Qty
+                                Row(
+                                  children: [
+                                    const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blue),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "Qty: ${safeValue(order.quantity)}",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                                // Date & Time
+                                Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "${formatDate(order.deliverydate)} | ${safeValue(order.deliverytime)}",
+                                      style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                            const SizedBox(height: 10),
+
+                            /// Contacts Block (Customer & Delivery Partner side-by-side)
+                            Row(
                               children: [
-                                /// Header
-                                Row(
-                                  children: [
-                                    if (isPending) ...[
-                                      GestureDetector(
-                                        onTap: () => controller.toggleSelection(order),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 12),
-                                          child: Icon(
-                                            isSelected
-                                                ? Icons.radio_button_checked
-                                                : Icons.radio_button_off,
-                                            color: isSelected
-                                                ? Colors.blue
-                                                : Colors.grey.shade400,
-                                            size: 24,
+                                // Customer
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade50,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.person_outline, size: 14, color: Color(0xff5E35B1)),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            customerName,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                    Expanded(
-                                      child: Text(
-                                        "#${safeValue(order.ordernumber)}",
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    buildStatusChip(order.statusText),
-                                  ],
-                                ),
-
-                              const SizedBox(height: 6),
-
-                              /// Order Details
-                              buildSectionTitle("Order Details"),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: buildInfoTile(
-                                      Icons.currency_rupee,
-                                      "Price",
-                                      "₹${safeValue(order.price)}",
+                                        if (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                          GestureDetector(
+                                            onTap: () => makePhoneCall(customerMobile),
+                                            child: const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                                          ),
+                                      ],
                                     ),
                                   ),
+                                ),
+                                const SizedBox(width: 8),
+                                // Delivery Partner
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade50,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            deliveryName != "N/A" ? deliveryName : "Unassigned",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: deliveryName != "N/A" ? Colors.black87 : Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                        if (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                          GestureDetector(
+                                            onTap: () => makePhoneCall(deliveryMobile),
+                                            child: const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            /// Address Box (very clean and compact)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffF4F7FC),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.location_on_outlined, color: Colors.red, size: 14),
+                                  const SizedBox(width: 4),
                                   Expanded(
-                                    child: buildInfoTile(
-                                      Icons.inventory_2_outlined,
-                                      "Qty",
-                                      safeValue(order.quantity),
+                                    child: Text(
+                                      getCompleteAddress(order.customerDetails.address),
+                                      style: TextStyle(
+                                        height: 1.2,
+                                        fontSize: 12,
+                                        color: Colors.grey.shade800,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-
-                              const SizedBox(height: 10),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: buildInfoTile(
-                                      Icons.calendar_today,
-                                      "Date",
-                                      formatDate(order.deliverydate),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: buildInfoTile(
-                                      Icons.access_time,
-                                      "Time",
-                                      safeValue(order.deliverytime),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              /// Customer
-                              buildSectionTitle("Customer"),
-
-                              buildContactCard(
-                                name: safeValue(order.customerDetails.fullname),
-                                mobile: safeValue(order.customerDetails.mobile),
-                                imageUrl: safeValue(order.customerDetails.photo),
-                              ),
-
-
-                              const SizedBox(height: 16),
-
-                              /// Delivery Partner
-                              buildSectionTitle("Delivery Partner"),
-
-                              buildContactCard(
-                                name: safeValue(
-                                  order.deliveryDetails.deliveryPartnerName,
-                                ),
-                                mobile: safeValue(order.deliveryDetails.mobileNo),
-                                imageUrl: safeValue(order.deliveryDetails.photo),
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              /// Address
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on,
-                                      color: Colors.red,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        getCompleteAddress(
-                                          order.customerDetails.address,
-                                        ),
-                                        style: const TextStyle(
-                                          height: 1.5,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 32,)
-                      ],
-                    ),
+                      ),
                   );
                   });
                 },
