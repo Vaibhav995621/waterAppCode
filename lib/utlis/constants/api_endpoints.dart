@@ -6,6 +6,7 @@ class ApiEndpoints {
 
   /// Login & OTP
   static const loginApi = "customerlogin";
+  static const changePassword = "changepassword";
   static const registerApi = "customerregistration";
   static const addressList = "getaddressbycustomerid";
   static const deleteAddress = "deletecustomeraddressbyid";

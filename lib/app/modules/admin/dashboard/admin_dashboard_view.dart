@@ -79,17 +79,20 @@ class AdminDashboardView extends StatelessWidget {
                         ],
                       ),
 
-                      Container(
-                        height: 48,
-                        width: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius:
-                          BorderRadius.circular(15),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.white,
+                      GestureDetector(
+                        onTap: () => Get.toNamed(AppRoutes.adminNotifications),
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius:
+                            BorderRadius.circular(15),
+                          ),
+                          child: const Icon(
+                            Icons.notifications_none,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],

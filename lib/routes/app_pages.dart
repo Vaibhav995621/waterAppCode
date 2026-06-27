@@ -3,6 +3,8 @@ import 'package:zourney/app/modules/admin/admin_order_details/admin_order_detail
 import 'package:zourney/app/modules/admin/admin_order_details/admin_order_detail_view.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_binding.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_view.dart';
+import 'package:zourney/app/modules/admin/notifications/admin_notifications_binding.dart';
+import 'package:zourney/app/modules/admin/notifications/admin_notifications_view.dart';
 import 'package:zourney/app/modules/change_password/change_password_binding.dart';
 import 'package:zourney/app/modules/change_password/change_password_view.dart';
 import 'package:zourney/app/modules/customer/edit_profile/edit_address_binding.dart';
@@ -102,6 +104,11 @@ class AppPages {
       name: AppRoutes.adminDashboard,
       page: () => AdminDashboardView(),
       binding: AdminDashboardBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.adminNotifications,
+      page: () => const AdminNotificationsView(),
+      binding: AdminNotificationsBinding(),
     ),
     GetPage(
       name: AppRoutes.adminOrderList,

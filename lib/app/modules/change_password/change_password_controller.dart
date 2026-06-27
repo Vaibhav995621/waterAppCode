@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:get/get.dart';
+import '../../../utlis/network/repositories/auth_repository.dart';
+import '../../../utlis/progress_hud/app_snackbar.dart';
+import '../../app_session/app_session.dart';
 
 class ChangePasswordController extends GetxController {
+  final AuthRepository _repo = AuthRepository();
 
-  final oldPasswordController =
-  TextEditingController();
-
-  final newPasswordController =
-  TextEditingController();
-
-  final confirmPasswordController =
-  TextEditingController();
+  final oldPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   RxBool hideOld = true.obs;
   RxBool hideNew = true.obs;
@@ -25,29 +25,75 @@ class ChangePasswordController extends GetxController {
   }
 
   void toggleConfirm() {
-    hideConfirm.value =
-    !hideConfirm.value;
+    hideConfirm.value = !hideConfirm.value;
   }
 
-  void changePassword() {
+  Future<void> changePassword(BuildContext context) async {
+    final oldPassword = oldPasswordController.text.trim();
+    final newPassword = newPasswordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
 
-    if (newPasswordController.text !=
-        confirmPasswordController.text) {
-
-      Get.snackbar(
-        "Error",
-        "Passwords do not match",
-      );
-
+    if (oldPassword.isEmpty) {
+      AppSnackbar.error("Please enter current password");
+      return;
+    }
+    if (oldPassword.length < 6) {
+      AppSnackbar.error("Current password must be at least 6 characters");
       return;
     }
 
-    Get.snackbar(
-      "Success",
-      "Password Updated",
-      snackPosition:
-      SnackPosition.BOTTOM,
-    );
+    if (newPassword.isEmpty) {
+      AppSnackbar.error("Please enter new password");
+      return;
+    }
+    if (newPassword.length < 6) {
+      AppSnackbar.error("New password must be at least 6 characters");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      AppSnackbar.error("Please confirm your new password");
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      AppSnackbar.error("Passwords do not match");
+      return;
+    }
+
+    if (oldPassword == newPassword) {
+      AppSnackbar.error("New password cannot be the same as current password");
+      return;
+    }
+
+    final progress = ProgressHUD.of(context);
+    try {
+      progress?.show();
+
+      final response = await _repo.changePassword(
+        customerId: AppSession.userId,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+
+      if (response.statusCode == '200') {
+        oldPasswordController.clear();
+        newPasswordController.clear();
+        confirmPasswordController.clear();
+        Get.back();
+        AppSnackbar.success(response.message);
+      } else {
+        AppSnackbar.error(
+          response.message.isNotEmpty ? response.message : "Failed to change password",
+        );
+      }
+    } catch (e) {
+      AppSnackbar.error(
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    } finally {
+      progress?.dismiss();
+    }
   }
 
   @override

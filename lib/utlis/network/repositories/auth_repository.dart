@@ -13,6 +13,7 @@ import '../../../app/models/address_model/addresss_model.dart';
 import '../../../app/models/address_model/delete_address_model.dart';
 import '../../../app/models/address_model/add_edit_address_model.dart';
 import '../../../app/models/login_model/login_model.dart';
+import '../../../app/models/change_password_model.dart';
 import '../../../app/models/order_list_model/add_order_model.dart';
 import '../../../app/models/order_list_model/order_list.dart';
 import '../../../app/models/payment_model/payment_success_model.dart';
@@ -48,6 +49,36 @@ class AuthRepository {
 
       /// ✅ SUCCESS
       return LoginModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<ChangePasswordModel> changePassword({
+    required String customerId,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.changePassword,
+        {
+          "customer_id": customerId,
+          "old_password": oldPassword,
+          "new_password": newPassword,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return ChangePasswordModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

@@ -23,6 +23,7 @@ abstract class AppRoutes {
   static const deliveryOrderDetail = '/deliveryOrderDetail';
   static const deliveryOrderList = '/deliveryOrderList';
   static const welcomeScreen = '/welcomeScreen';
+  static const adminNotifications = '/adminNotifications';
 
 
 
