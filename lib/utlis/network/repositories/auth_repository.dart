@@ -20,6 +20,8 @@ import '../../../app/models/payment_model/payment_success_model.dart';
 import '../../../app/models/profile_model/profile_model.dart';
 import '../../../app/models/subcription_model/subscription_history_model.dart';
 import '../../../app/models/notification_model.dart';
+import '../../../app/models/forgot_password_model.dart';
+import '../../../app/models/forgot_password_reset_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -836,6 +838,88 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return NotificationModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<ForgotPasswordModel> sendOtpForgotPassword({
+    required String mobile,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.sendOtpForgotPassword,
+        {
+          "mobile": mobile,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return ForgotPasswordModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<ForgotPasswordResetModel> forgotPasswordReset({
+    required String mobile,
+    required String newPassword,
+    required String otp,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.forgotPasswordReset,
+        {
+          "mobile": mobile,
+          "new_password": newPassword,
+          "otp": otp,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return ForgotPasswordResetModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<ForgotPasswordModel> resendOtp({
+    required String mobile,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.resendOtp,
+        {
+          "mobile": mobile,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return ForgotPasswordModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

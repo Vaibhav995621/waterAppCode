@@ -5,11 +5,8 @@ import 'package:zourney/routes/app_routes.dart';
 
 import '../../../utlis/progress_hud/app_progress_hud.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({super.key});
-
-  final LoginController controller =
-  Get.put(LoginController());
+class LoginView extends GetView<LoginController> {
+  const LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,9 +118,8 @@ class LoginView extends StatelessWidget {
                             _buildTextField(
                               hint: "9876543210",
                               isPassword: false,
-                              controller:
-                              controller
-                                  .phoneController,
+                              controller: controller.phoneController,
+                              focusNode: controller.phoneFocus,
                             ),
       
                             const SizedBox(height: 20),
@@ -144,8 +140,8 @@ class LoginView extends StatelessWidget {
                                   () => _buildTextField(
                                 hint: "••••••••",
                                 isPassword: true,
-                                controller: controller
-                                    .passwordController,
+                                controller: controller.passwordController,
+                                focusNode: controller.passwordFocus,
                               ),
                             ),
       
@@ -253,6 +249,7 @@ class LoginView extends StatelessWidget {
     required String hint,
     required bool isPassword,
     TextEditingController? controller,
+    FocusNode? focusNode,
     ValueChanged<String>? onChanged,
   }) {
     final loginController =
@@ -260,6 +257,7 @@ class LoginView extends StatelessWidget {
 
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
 
       obscureText: isPassword

@@ -16,6 +16,9 @@ class LoginController extends GetxController {
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
 
+  final phoneFocus = FocusNode();
+  final passwordFocus = FocusNode();
+
   int userType = 1;
 
   /// State
@@ -107,6 +110,8 @@ class LoginController extends GetxController {
   void onClose() {
     phoneController.dispose();
     passwordController.dispose();
+    phoneFocus.dispose();
+    passwordFocus.dispose();
     super.onClose();
   }
 }

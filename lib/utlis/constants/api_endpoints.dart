@@ -43,5 +43,8 @@ class ApiEndpoints {
   static const deliveryPartnerOrderHistory = "getpastorderlistbypartnerid";
   static const getSectorList = "getsectorlist";
   static const getNotifications = "getnotifications";
+  static const sendOtpForgotPassword = "sendotpforforgotpassword";
+  static const forgotPasswordReset = "forgotpassword";
+  static const resendOtp = "resendotp";
 
 }

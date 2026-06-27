@@ -265,64 +265,51 @@ class ForgotPasswordView
                               ],
                             ),
 
-                            child: Material(
-                              color: Colors
-                                  .transparent,
-
-                              child: InkWell(
-                                borderRadius:
-                                BorderRadius
-                                    .circular(
-                                    24),
-
-                                onTap: controller
-                                    .sendOtp,
-
-                                child:
-                                Container(
-                                  height: 60,
-
-                                  alignment:
-                                  Alignment
-                                      .center,
-
-                                  child:
-                                  const Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .center,
-
-                                    children: [
-                                      Icon(
-                                        Icons
-                                            .send_rounded,
-                                        color: Colors
-                                            .white,
-                                      ),
-
-                                      SizedBox(
-                                          width:
-                                          10),
-
-                                      Text(
-                                        "Send OTP",
-                                        style:
-                                        TextStyle(
-                                          color:
-                                          Colors.white,
-
-                                          fontSize:
-                                          18,
-
-                                          fontWeight:
-                                          FontWeight.bold,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+                             child: Material(
+                               color: Colors.transparent,
+                               child: InkWell(
+                                 borderRadius: BorderRadius.circular(24),
+                                 onTap: () {
+                                   if (!controller.isLoading.value) {
+                                     controller.sendOtp();
+                                   }
+                                 },
+                                 child: Container(
+                                   height: 60,
+                                   alignment: Alignment.center,
+                                   child: Obx(() {
+                                     if (controller.isLoading.value) {
+                                       return const SizedBox(
+                                         height: 24,
+                                         width: 24,
+                                         child: CircularProgressIndicator(
+                                           color: Colors.white,
+                                           strokeWidth: 2.5,
+                                         ),
+                                       );
+                                     }
+                                     return const Row(
+                                       mainAxisAlignment: MainAxisAlignment.center,
+                                       children: [
+                                         Icon(
+                                           Icons.send_rounded,
+                                           color: Colors.white,
+                                         ),
+                                         SizedBox(width: 10),
+                                         Text(
+                                           "Send OTP",
+                                           style: TextStyle(
+                                             color: Colors.white,
+                                             fontSize: 18,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         )
+                                       ],
+                                     );
+                                   }),
+                                 ),
+                               ),
+                             ),
                           ),
 
                           const SizedBox(

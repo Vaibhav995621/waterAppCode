@@ -27,6 +27,8 @@ import 'package:zourney/app/modules/delivery/home/delivery_order_list_binding.da
 import 'package:zourney/app/modules/delivery/home/delivery_order_list_view.dart';
 import 'package:zourney/app/modules/forgot_password/forgot_password_binding.dart';
 import 'package:zourney/app/modules/forgot_password/forgot_password_view.dart';
+import 'package:zourney/app/modules/verify_otp/verify_otp_binding.dart';
+import 'package:zourney/app/modules/verify_otp/verify_otp_view.dart';
 import 'package:zourney/app/modules/login_view/login_binding.dart';
 import 'package:zourney/app/modules/login_view/login_view.dart';
 import 'package:zourney/app/welcom_screen/welcome_binding.dart';
@@ -134,6 +136,11 @@ class AppPages {
       name: AppRoutes.forgotPassword,
       page: () => ForgotPasswordView(),
       binding: ForgotPasswordBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.verifyOtp,
+      page: () => const VerifyOtpView(),
+      binding: VerifyOtpBinding(),
     ),
     GetPage(
       name: AppRoutes.selectAddress,
