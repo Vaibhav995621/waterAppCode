@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:zourney/app/modules/customer/select_address/select_address_controller.dart';
 import 'package:zourney/utlis/progress_hud/app_snackbar.dart';
 
+import '../../../app_session/app_session.dart';
+
 class PaymentController extends GetxController {
   late int waterBottleId;
   late String price;
@@ -30,7 +32,13 @@ class PaymentController extends GetxController {
 
     // Retrieve or initialize SelectAddressController
     addressController = Get.put(SelectAddressController());
+
+    if (isSubscriptionOrder) {
+      selectedMethod.value = 'subscription';
+    }
   }
+
+  bool get isSubscriptionOrder => plantype != 0 && AppSession.planType == plantype;
 
   void selectPaymentMethod(String method) {
     selectedMethod.value = method;

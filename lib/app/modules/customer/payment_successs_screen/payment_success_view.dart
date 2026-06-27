@@ -58,69 +58,90 @@ class PaymentSuccessView
                   children: [
 
                     /// Success Icon
-                    Container(
-                      height: 120,
-                      width: 120,
-                      decoration: BoxDecoration(
-                        shape:
-                        BoxShape.circle,
-                        gradient:
-                        const LinearGradient(
-                          colors: [
-                            Color(
-                                0xff57B4FF),
-                            Color(
-                                0xff6C63FF),
+                    Obx(() {
+                      IconData iconData = Icons.check;
+                      List<Color> gradientColors = [const Color(0xff57B4FF), const Color(0xff6C63FF)];
+
+                      if (controller.type.value == "cod") {
+                        iconData = Icons.local_shipping_outlined;
+                        gradientColors = [const Color(0xff4CAF50), const Color(0xff81C784)];
+                      } else if (controller.type.value == "subscription") {
+                        iconData = Icons.star_rounded;
+                        gradientColors = [const Color(0xffFF9F1C), const Color(0xffFFBF69)];
+                      } else if (controller.type.value == "subscription_purchase") {
+                        iconData = Icons.card_membership_rounded;
+                        gradientColors = [const Color(0xff6C63FF), const Color(0xff57B4FF)];
+                      }
+
+                      return Container(
+                        height: 120,
+                        width: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: gradientColors,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: gradientColors[0].withOpacity(.3),
+                              blurRadius: 15,
+                              spreadRadius: 2,
+                            )
                           ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue
-                                .withOpacity(
-                                .3),
-                            blurRadius: 15,
-                            spreadRadius: 2,
-                          )
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color:
-                        Colors.white,
-                        size: 65,
-                      ),
-                    ),
+                        child: Icon(
+                          iconData,
+                          color: Colors.white,
+                          size: 65,
+                        ),
+                      );
+                    }),
 
                     const SizedBox(
                       height: 35,
                     ),
 
-                    const Text(
-                      "Payment Successful",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight:
-                        FontWeight.bold,
-                        color: Color(
-                            0xff4A4A4A),
-                      ),
-                    ),
+                    Obx(() {
+                      String titleText = "Payment Successful";
+                      if (controller.type.value == "cod") {
+                        titleText = "Order Placed!";
+                      } else if (controller.type.value == "subscription") {
+                        titleText = "Order Confirmed!";
+                      } else if (controller.type.value == "subscription_purchase") {
+                        titleText = "Subscription Active!";
+                      }
+                      return Text(
+                        titleText,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff4A4A4A),
+                        ),
+                      );
+                    }),
 
                     const SizedBox(
                       height: 12,
                     ),
 
-                    Text(
-                      "Your payment has been completed successfully.",
-                      textAlign:
-                      TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors
-                            .grey
-                            .shade600,
-                      ),
-                    ),
+                    Obx(() {
+                      String descText = "Your payment has been completed successfully.";
+                      if (controller.type.value == "cod") {
+                        descText = "Your order has been placed successfully. Please pay cash upon delivery.";
+                      } else if (controller.type.value == "subscription") {
+                        descText = "Your order has been confirmed using your active subscription plan.";
+                      } else if (controller.type.value == "subscription_purchase") {
+                        descText = "Your subscription plan has been activated successfully.";
+                      }
+                      return Text(
+                        descText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey.shade600,
+                        ),
+                      );
+                    }),
 
                     const SizedBox(
                       height: 50,
@@ -128,63 +149,51 @@ class PaymentSuccessView
 
                     /// Amount card
                     Container(
-                      padding:
-                      const EdgeInsets
-                          .all(18),
-                      decoration:
-                      BoxDecoration(
-                        color:
-                        Colors.white,
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                            20),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors
-                                .black
-                                .withOpacity(
-                                .05),
-                            blurRadius:
-                            10,
+                            color: Colors.black.withOpacity(.05),
+                            blurRadius: 10,
                           )
                         ],
                       ),
-                      child: Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment
-                            .spaceBetween,
-                        children: [
+                      child: Obx(() {
+                        String cardTitleText = "Amount Paid";
+                        String cardValueText = controller.amount.value;
 
-                          const Text(
-                            "Amount Paid",
-                            style:
-                            TextStyle(
-                              fontSize:
-                              16,
-                            ),
-                          ),
+                        if (controller.type.value == "cod") {
+                          cardTitleText = "Amount to Pay";
+                        } else if (controller.type.value == "subscription") {
+                          cardTitleText = "Payment Method";
+                          cardValueText = "Subscription Plan";
+                        } else if (controller.type.value == "subscription_purchase") {
+                          cardTitleText = "Plan Amount";
+                        }
 
-                          Obx(
-                                ()=> Text(
-                              controller
-                                  .amount
-                                  .value,
-                              style:
-                              const TextStyle(
-                                fontSize:
-                                20,
-                                fontWeight:
-                                FontWeight
-                                    .bold,
-                                color:
-                                Color(
-                                    0xff6C63FF),
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              cardTitleText,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                            Text(
+                              cardValueText,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff6C63FF),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
 
                     const SizedBox(

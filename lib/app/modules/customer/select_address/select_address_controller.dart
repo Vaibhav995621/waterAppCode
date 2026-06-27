@@ -210,7 +210,10 @@ class SelectAddressController extends GetxController {
         if (AppSession.planType == planType || isCod) {
           Get.toNamed(
             AppRoutes.paymentSuccess,
-            arguments: {"amount": addOrderMap["price"].toString()},
+            arguments: {
+              "amount": addOrderMap["price"].toString(),
+              "type": isCod ? "cod" : "subscription",
+            },
           );
         } else {
           makePayment(double.tryParse(price) ?? 0.0);
@@ -247,7 +250,10 @@ class SelectAddressController extends GetxController {
         if(status == "1") {
           Get.toNamed(
             AppRoutes.paymentSuccess,
-            arguments: {"amount": addOrderMap["price"].toString()},
+            arguments: {
+              "amount": addOrderMap["price"].toString(),
+              "type": "online",
+            },
           );
         }else{
           AppSnackbar.error('Payment fail');

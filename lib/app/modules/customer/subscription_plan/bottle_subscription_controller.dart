@@ -175,6 +175,7 @@ class BottleSubscriptionController extends GetxController {
           AppRoutes.paymentSuccess,
           arguments: {
             "amount": totalAmount,
+            "type": "subscription_purchase",
           },
         );
       }
