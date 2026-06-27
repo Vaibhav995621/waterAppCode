@@ -433,23 +433,30 @@ class BookWaterScreen extends GetView<BookWaterController> {
   }
 
   Widget _bottleCardShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-          border: Border.all(
-            color: Colors.grey.shade300,
-            width: 1.5,
-          ),
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: 1.5,
         ),
-        child: Row(
-          children: [
-            /// IMAGE PLACEHOLDER
-            Container(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          /// IMAGE PLACEHOLDER
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
               width: 80,
               height: 80,
               decoration: const BoxDecoration(
@@ -457,13 +464,17 @@ class BookWaterScreen extends GetView<BookWaterController> {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(width: 12),
-            /// DETAILS PLACEHOLDER
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
+          ),
+          const SizedBox(width: 12),
+          /// DETAILS PLACEHOLDER
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
                     width: 120,
                     height: 16,
                     decoration: BoxDecoration(
@@ -471,8 +482,12 @@ class BookWaterScreen extends GetView<BookWaterController> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Container(
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
                     width: double.infinity,
                     height: 12,
                     decoration: BoxDecoration(
@@ -480,8 +495,12 @@ class BookWaterScreen extends GetView<BookWaterController> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Container(
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
                     width: 150,
                     height: 12,
                     decoration: BoxDecoration(
@@ -489,10 +508,14 @@ class BookWaterScreen extends GetView<BookWaterController> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Container(
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
                         width: 50,
                         height: 16,
                         decoration: BoxDecoration(
@@ -500,8 +523,12 @@ class BookWaterScreen extends GetView<BookWaterController> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
+                    ),
+                    const SizedBox(width: 8),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
                         width: 40,
                         height: 14,
                         decoration: BoxDecoration(
@@ -509,13 +536,13 @@ class BookWaterScreen extends GetView<BookWaterController> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

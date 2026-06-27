@@ -109,9 +109,9 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Bottle Details',
               children: [
-                _row('Bottle', order.waterbottle_name ?? '-'),
-                _row('Weight', order.waterbottle_name ?? '-'),
-                _row('Description', order.waterbottle_name ?? '-'),
+                _row('Bottle', order.waterbottle_name),
+                _row('Weight', order.waterbottle_name),
+                _row('Description', order.waterbottle_name),
               ],
             ),
 
@@ -135,12 +135,12 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             const SizedBox(height: 16),
 
             /// DELIVERY PARTNER
-            if (order.deliveryDetails.deliveryPartnerName != null)
+            if (order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty)
               _sectionCard(
                 title: 'Delivery Partner',
                 children: [
                   _row('Name', order.deliveryDetails.deliveryPartnerName),
-                  _row('Mobile', order.deliveryDetails.mobileNo ?? '-'),
+                  _row('Mobile', order.deliveryDetails.mobileNo),
                 ],
               ),
 

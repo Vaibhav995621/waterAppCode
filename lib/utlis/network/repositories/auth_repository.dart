@@ -28,8 +28,6 @@ import '../api_provider.dart';
 
 class AuthRepository {
   final ApiProvider _api = ApiProvider(baseUrl: ApiEndpoints.baseUrl);
-  final ApiProvider _apiPublic = ApiProvider(baseUrl: ApiEndpoints.baseUrl1);
-  final ApiProvider _apiRozarPay = ApiProvider(baseUrl: '');
 
   Future<LoginModel> login(
       String email,

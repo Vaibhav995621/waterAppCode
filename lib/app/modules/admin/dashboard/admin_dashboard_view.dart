@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_controller.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
@@ -45,6 +46,7 @@ class AdminDashboardView extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
+
                 /// HEADER
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -115,72 +117,63 @@ class AdminDashboardView extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
+
                           /// STATS
                           Obx(
-                                () => Padding(
-                              padding:
-                              const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: GridView.count(
-                                shrinkWrap: true,
-                                physics:
-                                const NeverScrollableScrollPhysics(),
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 14,
-                                crossAxisSpacing: 14,
-                                childAspectRatio: 1.45,
-                                children: [
-                                  StatsCard(
-                                    title:
-                                    "Total Orders",
-                                    value: controller
-                                        .totalOrders.value
-                                        .toString(),
-                                    colors: const [
-                                      Color(0xff42A5F5),
-                                      Color(0xff1976D2),
+                                () =>
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: controller.isLoading.value
+                                      ? _buildStatsShimmer()
+                                      : GridView.count(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 14,
+                                    crossAxisSpacing: 14,
+                                    childAspectRatio: 1.45,
+                                    children: [
+                                      StatsCard(
+                                        title: "Total Orders",
+                                        value: controller.totalOrders.value
+                                            .toString(),
+                                        colors: const [
+                                          Color(0xff42A5F5),
+                                          Color(0xff1976D2),
+                                        ],
+                                      ),
+                                      StatsCard(
+                                        title: "Active Orders",
+                                        value: controller.activeOrders.value
+                                            .toString(),
+                                        colors: const [
+                                          Color(0xff66BB6A),
+                                          Color(0xff2E7D32),
+                                        ],
+                                      ),
+                                      StatsCard(
+                                        title: "Completed Orders",
+                                        value: controller.completedOrders.value
+                                            .toString(),
+                                        colors: const [
+                                          Color(0xffFFB74D),
+                                          Color(0xffEF6C00),
+                                        ],
+                                      ),
+                                      StatsCard(
+                                        title: "Total Revenue",
+                                        value: "₹${controller.totalRevenue
+                                            .value}",
+                                        colors: const [
+                                          Color(0xffAB47BC),
+                                          Color(0xff6A1B9A),
+                                        ],
+                                      ),
                                     ],
                                   ),
-
-                                  StatsCard(
-                                    title:
-                                    "Active Orders",
-                                    value: controller
-                                        .activeOrders.value
-                                        .toString(),
-                                    colors: const [
-                                      Color(0xff66BB6A),
-                                      Color(0xff2E7D32),
-                                    ],
-                                  ),
-
-                                  StatsCard(
-                                    title:
-                                    "Completed Orders",
-                                    value: controller
-                                        .completedOrders
-                                        .value
-                                        .toString(),
-                                    colors: const [
-                                      Color(0xffFFB74D),
-                                      Color(0xffEF6C00),
-                                    ],
-                                  ),
-
-                                  StatsCard(
-                                    title:
-                                    "Total Revenue",
-                                    value:
-                                    "₹${controller.totalRevenue.value}",
-                                    colors: const [
-                                      Color(0xffAB47BC),
-                                      Color(0xff6A1B9A),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                                ),
                           ),
 
                           const SizedBox(height: 25),
@@ -226,13 +219,13 @@ class AdminDashboardView extends StatelessWidget {
                               ),
                               child: Obx(
                                     () {
-                                  if (controller
-                                      .recentOrders
-                                      .isEmpty) {
+                                  if (controller.isLoading.value) {
+                                    return _buildRecentOrdersShimmer();
+                                  }
+
+                                  if (controller.recentOrders.isEmpty) {
                                     return const Padding(
-                                      padding:
-                                      EdgeInsets.all(
-                                          20),
+                                      padding: EdgeInsets.all(20),
                                       child: Center(
                                         child: Text(
                                           "No recent orders found",
@@ -243,29 +236,21 @@ class AdminDashboardView extends StatelessWidget {
 
                                   return ListView.separated(
                                     shrinkWrap: true,
-                                    physics:
-                                    const NeverScrollableScrollPhysics(),
-                                    itemCount: controller
-                                        .recentOrders
-                                        .length,
-                                    separatorBuilder:
-                                        (_, __) =>
-                                    const Divider(),
-                                    itemBuilder:
-                                        (_, index) {
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: controller.recentOrders.length,
+                                    separatorBuilder: (_,
+                                        __) => const Divider(),
+                                    itemBuilder: (_, index) {
                                       return InkWell(
-                                        onTap: (){
+                                        onTap: () {
                                           Get.toNamed(
                                             AppRoutes.adminOrderDetail,
                                             arguments: controller
-                                                .recentOrders[
-                                            index],
+                                                .recentOrders[index],
                                           );
                                         },
                                         child: OrderTile(
-                                          order: controller
-                                              .recentOrders[
-                                          index],
+                                          order: controller.recentOrders[index],
                                         ),
                                       );
                                     },
@@ -284,6 +269,153 @@ class AdminDashboardView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatsShimmer() {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 14,
+      crossAxisSpacing: 14,
+      childAspectRatio: 1.45,
+      children: List.generate(4, (index) {
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 90,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 50,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildRecentOrdersShimmer() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 3,
+      separatorBuilder: (_, __) => const Divider(),
+      itemBuilder: (_, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        width: 120,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        width: 80,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        width: 50,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        width: 90,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 80,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

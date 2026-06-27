@@ -75,7 +75,7 @@ class LoginController extends GetxController {
       );
 
       if (user.statusCode == '201') {
-        AppSnackbar.error(user.message ?? 'Something went wrong');
+        AppSnackbar.error(user.message);
         return false;
       }
 
@@ -84,7 +84,7 @@ class LoginController extends GetxController {
           userId: user.data.id.toString(),
           token: '',
           image: user.data.photo,
-          name: user.data.fullname ?? '',
+          name: user.data.fullname,
           role: user.data.role,
           planType: user.data.plandetail.id,
         );
