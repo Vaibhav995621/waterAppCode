@@ -11,6 +11,7 @@ class DioClient {
         receiveTimeout: const Duration(seconds: 15),
         headers: {'Content-Type': 'application/json'},
         validateStatus: (status) => true,
+        persistentConnection: false,
       ),
     );
 

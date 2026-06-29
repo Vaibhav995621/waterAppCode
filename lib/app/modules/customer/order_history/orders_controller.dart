@@ -6,7 +6,6 @@ import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
-import '../../../models/order_list_model/order_list.dart';
 
 class OrdersController extends GetxController {
   /// 🔁 Toggle state
@@ -52,10 +51,6 @@ class OrdersController extends GetxController {
       if (data.statusCode == "200") {
         activeOrders.assignAll(data.data);
 
-        /// Example History Filter
-        historyOrders.assignAll(
-          data.data.where((e) => e.status == 3).toList(),
-        );
       }
 
       return true;
@@ -85,10 +80,7 @@ class OrdersController extends GetxController {
       if (data.statusCode == "200") {
         historyOrders.assignAll(data.data);
 
-        /// Example History Filter
-        historyOrders.assignAll(
-          data.data.where((e) => e.status == 3).toList(),
-        );
+
       }
 
       return true;
