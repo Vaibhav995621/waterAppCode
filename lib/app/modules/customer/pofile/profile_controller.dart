@@ -160,6 +160,40 @@ class ProfileController extends GetxController {
     }
   }
 
+  Future<bool> updateProfileName(String newName) async {
+    try {
+      isLoading.value = true;
+      var custId = AppSession.userId;
+
+      final user = await _repo.updateCustomerProfileName(
+        custId: custId,
+        fullName: newName,
+      );
+
+      if (user.statusCode == '201') {
+        AppSnackbar.error(user.message);
+        return false;
+      }
+
+      if (user.statusCode == '200') {
+        // Refresh the profile details to make sure everything is fully populated
+        await getProfile();
+        AppSnackbar.success(
+          user.message ?? "Profile updated successfully",
+        );
+      }
+
+      return true;
+    } catch (e) {
+      AppSnackbar.error(
+        e.toString().replaceAll("Exception: ", ""),
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void logout() {
     print("Logout");
     AppSession.saveUser(

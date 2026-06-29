@@ -398,6 +398,34 @@ class AuthRepository {
     return ProfileModel.fromJson(response);
   }
 
+  Future<ProfileModel> updateCustomerProfileName({
+    required String custId,
+    required String fullName,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.editProfileData,
+        {
+          "customerid": custId,
+          "fullname": fullName,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return ProfileModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
 
   Future<AddEditAddressModel> addAddress({
     required Map<String, dynamic> body,

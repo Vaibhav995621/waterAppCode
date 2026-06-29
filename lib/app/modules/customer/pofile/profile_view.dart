@@ -130,14 +130,28 @@ class ProfileView extends GetView<ProfileController> {
 
                           const SizedBox(height: 15),
 
-                          Text(
-                            controller.userName,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight:
-                              FontWeight.bold,
-                              color: Color(0xff6C63FF),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                controller.userName,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight:
+                                  FontWeight.bold,
+                                  color: Color(0xff6C63FF),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => _showEditNameDialog(context),
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Color(0xff6C63FF),
+                                  size: 24,
+                                ),
+                              ),
+                            ],
                           ),
 
                           const SizedBox(height: 2),
@@ -282,6 +296,94 @@ class ProfileView extends GetView<ProfileController> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditNameDialog(BuildContext context) {
+    final TextEditingController nameController =
+        TextEditingController(text: controller.userName);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            "Edit Name",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xff6B67F6),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: "Full Name",
+                  hintText: "Enter your name",
+                  labelStyle: const TextStyle(color: Color(0xff6B67F6)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xff6B67F6)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff6B67F6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final newName = nameController.text.trim();
+                      if (newName.isNotEmpty) {
+                        Navigator.pop(context);
+                        await controller.updateProfileName(newName);
+                      } else {
+                        Get.snackbar(
+                          "Error",
+                          "Name cannot be empty",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent,
+                          colorText: Colors.white,
+                        );
+                      }
+                    },
+                    child: const Text(
+                      "Save",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
