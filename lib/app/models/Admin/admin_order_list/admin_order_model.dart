@@ -96,7 +96,7 @@ class Order {
   String deliverytime;
   int addressid;
   int assignedto;
-  int paymentstatus;
+  String paymentstatus;
   int status;
   DateTime cdate;
   DateTime modifiedDate;
@@ -160,7 +160,7 @@ class Order {
       deliverytime: json['deliverytime'] ?? '',
       addressid: json['addressid'] ?? 0,
       assignedto: json['assignedto'] ?? 0,
-      paymentstatus: json['paymentstatus'] ?? 0,
+      paymentstatus: json['paymentstatus'] ?? '0',
       status: json['status'] ?? 0,
       cdate: DateTime.tryParse(
         json['cdate'] ?? '',

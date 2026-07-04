@@ -130,7 +130,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                           _detailRow(
                             "Payment Status",
-                            order.paymentstatus == 1 ? "Paid" : "Pending",
+                            order.paymentstatus,
                           ),
                         ],
                       ),

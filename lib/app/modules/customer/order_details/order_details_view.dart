@@ -142,7 +142,7 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
 
                         _detailRow(
                           "Payment Status",
-                          order.paymentstatus == 1 ? "Paid" : "Pending",
+                          order.paymentstatus,
                         ),
                       ],
                     ),
