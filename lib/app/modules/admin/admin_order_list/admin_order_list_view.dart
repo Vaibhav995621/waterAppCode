@@ -15,7 +15,7 @@ class AdminOrderListView extends StatelessWidget {
     AdminOrderListController(),
   );
 
-  final List<String> tabs = const ['Pending', 'Assigned', 'Delivered'];
+  final List<String> tabs = const ['Pending', 'Assigned', 'Delivered', 'Cancelled'];
 
   @override
   Widget build(BuildContext context) {

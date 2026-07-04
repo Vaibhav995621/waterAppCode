@@ -17,6 +17,10 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
       bottomNavigationBar: GetBuilder<DeliveryOrderDetailController>(
         id: 'status',
         builder: (_) {
+          final isCompleted = order.status == 3 || order.status == 4 || order.status == 5;
+          if (isCompleted) {
+            return const SizedBox.shrink();
+          }
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -109,9 +113,9 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Bottle Details',
               children: [
-                _row('Bottle', order.waterbottle_name),
-                _row('Weight', order.waterbottle_name),
-                _row('Description', order.waterbottle_name),
+                _row('Bottle', displayValue(order.waterbottle_name)),
+                _row('Weight', displayValue(order.bottleWeight)),
+                _row('Description', displayValue(order.bottleDescription)),
               ],
             ),
 
@@ -170,6 +174,15 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
         ),
       ),
     );
+  }
+
+  String displayValue(String? value) {
+    if (value == null) return "N/A";
+    final clean = value.trim().toLowerCase();
+    if (clean.isEmpty || clean == "null" || clean == "n/a" || clean == "na") {
+      return "N/A";
+    }
+    return value;
   }
 
   Widget _row(String title, String value) {

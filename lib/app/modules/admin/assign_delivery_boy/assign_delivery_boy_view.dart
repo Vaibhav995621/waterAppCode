@@ -245,7 +245,6 @@ class AssignDeliveryBoyView
 
               child: const Text(
                 "Assign",
-
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,

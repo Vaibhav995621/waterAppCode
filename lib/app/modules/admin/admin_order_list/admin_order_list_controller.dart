@@ -114,6 +114,17 @@ class AdminOrderListController extends GetxController {
         tempOrders.addAll(data.deliveredOrders);
         break;
 
+      case 'Cancelled':
+        tempOrders.addAll(
+          data.allOrders.where(
+            (order) =>
+                order.status == 3 ||
+                order.status == 5 ||
+                order.statusText.toLowerCase() == 'cancelled',
+          ),
+        );
+        break;
+
       default:
         tempOrders.addAll(data.allOrders);
         break;

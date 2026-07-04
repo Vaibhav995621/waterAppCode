@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zourney/utlis/constants/app_colors.dart';
 
 import 'admin_order_detail_controller.dart';
 
@@ -113,6 +114,21 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                           ),
 
                           _detailRow(
+                            "Water Bottle Name",
+                            displayValue(order.waterbottle_name),
+                          ),
+
+                          _detailRow(
+                            "Bottle Weight",
+                            displayValue(order.bottleWeight),
+                          ),
+
+                          _detailRow(
+                            "Bottle Description",
+                            displayValue(order.bottleDescription),
+                          ),
+
+                          _detailRow(
                             "Payment Status",
                             order.paymentstatus == 1 ? "Paid" : "Pending",
                           ),
@@ -205,7 +221,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                     const SizedBox(height: 24),
 
-                    if (order.assignedto == 0)
+                    if (order.status == 0)
                       SizedBox(
                         width: double.infinity,
                         height: 55,
@@ -226,6 +242,41 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                           ),
                         ),
                       ),
+                    if (order.status == 0)
+                      SizedBox(height: 10,),
+                    if (order.status == 0)
+                      SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: controller.isLoading.value
+                            ? null
+                            : () => controller.updateOrderStatus('5'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: controller.isLoading.value
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                "Delete",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+
 
                     const SizedBox(height: 30),
                   ],
@@ -264,6 +315,15 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
       ),
       child: child,
     );
+  }
+
+  String displayValue(String? value) {
+    if (value == null) return "N/A";
+    final clean = value.trim().toLowerCase();
+    if (clean.isEmpty || clean == "null" || clean == "n/a" || clean == "na") {
+      return "N/A";
+    }
+    return value;
   }
 
   Widget _infoTile(String title, String value) {

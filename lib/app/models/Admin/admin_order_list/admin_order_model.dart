@@ -108,6 +108,13 @@ class Order {
   CustomerDetails customerDetails;
   DeliveryDetails deliveryDetails;
 
+  // New fields
+  String bottleWeight;
+  String bottleOriginalprice;
+  String bottleDiscountprice;
+  int totalbottleQuantity;
+  String bottleDescription;
+
   Order({
     required this.id,
     required this.customerid,
@@ -129,7 +136,12 @@ class Order {
     required this.deliveryPartnerId,
     required this.customerDetails,
     required this.deliveryDetails,
-    required this.waterbottle_name
+    required this.waterbottle_name,
+    required this.bottleWeight,
+    required this.bottleOriginalprice,
+    required this.bottleDiscountprice,
+    required this.totalbottleQuantity,
+    required this.bottleDescription,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -137,7 +149,7 @@ class Order {
       id: json['id'] ?? 0,
       customerid: json['customerid'] ?? 0,
       ordernumber: json['ordernumber'] ?? '',
-      waterbottle_name: json['waterbottle_name'] ?? '',
+      waterbottle_name: (json['waterbottle_name'] ?? json['waterbottel_name'] ?? json['waterbottleName'] ?? json['waterbottelName'] ?? json['waterbottlename'] ?? json['waterbottelname'] ?? json['bottle_name'] ?? json['bottel_name'] ?? json['bottleName'] ?? json['bottelName'] ?? json['name'] ?? '').toString(),
       waterbottleid: json['waterbottleid'] ?? 0,
       price: json['price']?.toString() ?? '',
       quantity: json['quantity'] ?? 0,
@@ -155,25 +167,30 @@ class Order {
       ) ??
           DateTime.now(),
       modifiedDate: DateTime.tryParse(
-        json['modifiedDate'] ?? '',
+        (json['modified_date'] ?? json['modifiedDate'] ?? '').toString(),
       ) ??
           DateTime.now(),
-      customerName: json['customerName'] ?? '',
+      customerName: (json['customer_name'] ?? json['customerName'] ?? '').toString(),
       deliveryPartnerName:
-      json['deliveryPartnerName'] ?? '',
-      statusText: json['statusText'] ?? '',
+          (json['delivery_partner_name'] ?? json['deliveryPartnerName'] ?? '').toString(),
+      statusText: (json['status_text'] ?? json['statusText'] ?? '').toString(),
       deliveryPartnerId:
-      json['delivery_partner_id'] ?? 0,
+          json['delivery_partner_id'] ?? json['deliveryPartnerId'] ?? 0,
       customerDetails: CustomerDetails.fromJson(
         json['customer_details'] ?? {},
       ),
       deliveryDetails: DeliveryDetails.fromJson(
         json['delivery_details'] ?? {},
       ),
+      bottleWeight: (json['bottle_weight'] ?? json['bottel_weight'] ?? json['bottleWeight'] ?? json['bottelWeight'] ?? json['bottleweight'] ?? json['bottelweight'] ?? json['weight'] ?? '').toString(),
+      bottleOriginalprice: (json['bottle_originalprice'] ?? json['bottel_originalprice'] ?? json['bottleOriginalprice'] ?? json['bottelOriginalprice'] ?? json['originalprice'] ?? '').toString(),
+      bottleDiscountprice: (json['bottle_discountprice'] ?? json['bottel_discountprice'] ?? json['bottleDiscountprice'] ?? json['bottelDiscountprice'] ?? json['discountprice'] ?? '').toString(),
+      totalbottleQuantity: int.tryParse((json['totalbottle_quantity'] ?? json['totalbottel_quantity'] ?? json['totalbottleQuantity'] ?? json['totalbottelQuantity'] ?? json['totalbottlequantity'] ?? json['totalbottelquantity'] ?? '').toString()) ?? 0,
+      bottleDescription: (json['bottle_description'] ?? json['bottel_description'] ?? json['bottleDescription'] ?? json['bottelDescription'] ?? json['bottledescription'] ?? json['botteldescription'] ?? json['description'] ?? json['waterbottle_description'] ?? json['waterbottel_description'] ?? json['waterbottle_desc'] ?? json['waterbottel_desc'] ?? '').toString(),
     );
   }
 
-      Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'customerid': customerid,
@@ -188,14 +205,19 @@ class Order {
       'paymentstatus': paymentstatus,
       'status': status,
       'cdate': cdate.toIso8601String(),
-      'modifiedDate': modifiedDate.toIso8601String(),
-      'customerName': customerName,
-      'deliveryPartnerName': deliveryPartnerName,
-      'statusText': statusText,
+      'modified_date': modifiedDate.toIso8601String(),
+      'customer_name': customerName,
+      'delivery_partner_name': deliveryPartnerName,
+      'status_text': statusText,
       'delivery_partner_id': deliveryPartnerId,
       'customer_details': customerDetails.toJson(),
       'delivery_details': deliveryDetails.toJson(),
-      'waterbottle_name': waterbottle_name
+      'waterbottle_name': waterbottle_name,
+      'bottle_weight': bottleWeight,
+      'bottle_originalprice': bottleOriginalprice,
+      'bottle_discountprice': bottleDiscountprice,
+      'totalbottle_quantity': totalbottleQuantity,
+      'bottle_description': bottleDescription,
     };
   }
 }
