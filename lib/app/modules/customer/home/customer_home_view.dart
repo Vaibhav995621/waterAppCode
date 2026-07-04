@@ -5,9 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../app_session/app_session.dart';
 import '../../../global_controller/bottomTabBar/navigation_controller.dart';
+import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import 'customer_home_controller.dart';
 
 class CustomerHomeScreen extends GetView<CustomerHomeController> {
@@ -567,101 +569,7 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
 
                       return Column(
                         children: controller.activeOrders.map((order) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 15),
-                            child: GestureDetector(
-                              onTap: () {
-                                Get.toNamed(
-                                  AppRoutes.orderDetails,
-                                  arguments: order,
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.grey.shade300),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    /// Top Row
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Order #${order.ordernumber}",
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 5),
-
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: controller.getStatusColor(order.status).withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        controller.getStatusText(order.status),
-                                        style: TextStyle(
-                                          color: controller.getStatusColor(order.status),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-
-                                    Text(
-                                      controller.formatDate(order.deliverydate, order.deliverytime),
-                                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                    ),
-
-                                    const SizedBox(height: 12),
-
-                                    /// Product Row
-                                    Row(
-                                      children: [
-                                        Image.asset(
-                                          "assets/images/bottle.png",
-                                          fit: BoxFit.fill,
-                                          height: 45,
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                order.waterbottle_name,
-                                                style: const TextStyle(fontWeight: FontWeight.w600),
-                                              ),
-                                              Text(
-                                                "${order.quantity} Qty",
-                                                style: TextStyle(color: Colors.grey[600]),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        Text(
-                                          "₹${order.price}",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
+                          return _orderCard(context, order, controller);
                         }).toList(),
                       );
                     }),
@@ -673,6 +581,247 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget buildStatusChip(String statusText, Color statusColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        statusText,
+        style: TextStyle(
+          color: statusColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+
+  String getCompleteAddress(Order order) {
+    final addr = order.customerDetails.address;
+    final parts = [
+      addr.housenumber,
+      addr.flatnumber,
+      addr.societyname,
+      addr.galinumber,
+      addr.landmark,
+      addr.city,
+      addr.state,
+      addr.pincode
+    ].map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e != 'null').toList();
+
+    return parts.isEmpty ? "N/A" : parts.join(", ");
+  }
+
+  Widget _orderCard(BuildContext context, Order order, CustomerHomeController controller) {
+    final statusColor = controller.getStatusColor(order.status);
+    final statusText = controller.getStatusText(order.status);
+    final deliveryName = order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty
+        ? order.deliveryDetails.deliveryPartnerName
+        : order.deliveryPartnerName;
+    final deliveryMobile = order.deliveryDetails.mobileNo;
+
+    return InkWell(
+      onTap: () {
+        Get.toNamed(
+          AppRoutes.orderDetails,
+          arguments: order,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey.shade100,
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Header: Order ID + Status
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "#${order.ordernumber}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff1A2C56),
+                    ),
+                  ),
+                ),
+                buildStatusChip(statusText, statusColor),
+              ],
+            ),
+
+            const Divider(height: 16, thickness: 0.5),
+
+            /// Details Row (Price, Qty, Date & Time)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Price
+                Row(
+                  children: [
+                    const Icon(Icons.currency_rupee, size: 14, color: Colors.green),
+                    const SizedBox(width: 2),
+                    Text(
+                      "₹${order.price}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+                // Qty
+                Row(
+                  children: [
+                    const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blue),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Qty: ${order.quantity}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+                // Date & Time
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      controller.formatDate(order.deliverydate, order.deliverytime),
+                      style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            if (deliveryName.isNotEmpty && deliveryName != "N/A" && deliveryName != "null") ...[
+              const SizedBox(height: 12),
+              /// Contact Block (Delivery Partner only since it's the customer side)
+              GestureDetector(
+                onTap: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                    ? () => makePhoneCall(deliveryMobile)
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "Delivery Partner: $deliveryName",
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                                ? Colors.blue.shade700
+                                : Colors.black87,
+                            decoration: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      if (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                        const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 8),
+
+            /// Address Box
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on_outlined, color: Colors.red, size: 16),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      getCompleteAddress(order),
+                      style: TextStyle(
+                        height: 1.3,
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            /// Bottle details
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xffF4F7FC),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.water_drop_outlined, color: Colors.blue, size: 14),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      "${order.waterbottle_name}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
+                      style: TextStyle(
+                        height: 1.2,
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
