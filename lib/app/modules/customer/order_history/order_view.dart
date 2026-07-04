@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import 'orders_controller.dart';
 
 class OrdersView extends GetView<OrdersController> {
@@ -155,29 +158,7 @@ class OrdersView extends GetView<OrdersController> {
                           itemBuilder: (context, index) {
                             final order = orders[index];
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 15),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.toNamed(
-                                    AppRoutes.orderDetails,
-                                    arguments: order,
-                                  );
-                                },
-                                child: _orderCard(
-                                  orderId: order.ordernumber,
-                                  date: controller.formatDate(
-                                    order.deliverydate,
-                                    order.deliverytime,
-                                  ),
-                                  status: controller.getStatusText(order.status),
-                                  statusColor: controller.getStatusColor(order.status),
-                                  product: order.waterbottle_name,
-                                  qty: "${order.quantity} Qty",
-                                  price: "₹${order.price}",
-                                ),
-                              ),
-                            );
+                            return _orderCard(order: order);
                           },
                         ),
                       );
@@ -368,99 +349,244 @@ class OrdersView extends GetView<OrdersController> {
     );
   }
 
-  /// 📦 Order Card UI
-  Widget _orderCard({
-    required String orderId,
-    required String date,
-    required String status,
-    required Color statusColor,
-    required String product,
-    required String qty,
-    required String price,
-  }) {
+  Widget buildStatusChip(String statusText, Color statusColor) {
     return Container(
-      // margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        color: statusColor.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// Top Row
-          ///
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Order #$orderId",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+      child: Text(
+        statusText,
+        style: TextStyle(
+          color: statusColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 
-            ],
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+
+  String getCompleteAddress(Order order) {
+    final addr = order.customerDetails.address;
+    final parts = [
+      addr.housenumber,
+      addr.flatnumber,
+      addr.societyname,
+      addr.galinumber,
+      addr.landmark,
+      addr.city,
+      addr.state,
+      addr.pincode
+    ].map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e != 'null').toList();
+
+    return parts.isEmpty ? "N/A" : parts.join(", ");
+  }
+
+  /// 📦 Order Card UI
+  Widget _orderCard({required Order order}) {
+    final statusColor = controller.getStatusColor(order.status);
+    final statusText = controller.getStatusText(order.status);
+    final deliveryName = order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty
+        ? order.deliveryDetails.deliveryPartnerName
+        : order.deliveryPartnerName;
+    final deliveryMobile = order.deliveryDetails.mobileNo;
+
+    return InkWell(
+      onTap: () {
+        Get.toNamed(
+          AppRoutes.orderDetails,
+          arguments: order,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey.shade100,
+            width: 1,
           ),
-          const SizedBox(height: 5),
-
-          Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
-            child: Text(
-              status,
-              style: TextStyle(
-                color: statusColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Header: Order ID + Status
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "#${order.ordernumber}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff1A2C56),
+                    ),
+                  ),
+                ),
+                buildStatusChip(statusText, statusColor),
+              ],
             ),
-          ),
-          const SizedBox(height: 5),
 
-          Text(
-            date,
-            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-          ),
+            const Divider(height: 16, thickness: 0.5),
 
-          const SizedBox(height: 12),
-
-          /// Product Row
-          Row(
-            children: [
-              Image.asset(
-                "assets/images/bottle.png", // add your splash image here
-                fit: BoxFit.fill,
-                height: 45,
-              ),
-              const SizedBox(width: 10),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            /// Details Row (Price, Qty, Date & Time)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Price
+                Row(
                   children: [
-                    Text(product,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600)),
-                    Text(qty,
-                        style: TextStyle(color: Colors.grey[600])),
+                    const Icon(Icons.currency_rupee, size: 14, color: Colors.green),
+                    const SizedBox(width: 2),
+                    Text(
+                      "₹${order.price}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
                   ],
                 ),
-              ),
-
-              Text(
-                price,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                // Qty
+                Row(
+                  children: [
+                    const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blue),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Qty: ${order.quantity}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
                 ),
-              )
+                // Date & Time
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      controller.formatDate(order.deliverydate, order.deliverytime),
+                      style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            if (deliveryName.isNotEmpty && deliveryName != "N/A" && deliveryName != "null") ...[
+              const SizedBox(height: 12),
+              /// Contact Block (Delivery Partner only since it's the customer side)
+              GestureDetector(
+                onTap: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                    ? () => makePhoneCall(deliveryMobile)
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "Delivery Partner: $deliveryName",
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                                ? Colors.blue.shade700
+                                : Colors.black87,
+                            decoration: (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      if (deliveryMobile.isNotEmpty && deliveryMobile != "N/A" && deliveryMobile != "null")
+                        const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
+                    ],
+                  ),
+                ),
+              ),
             ],
-          )
-        ],
+
+            const SizedBox(height: 8),
+
+            /// Address Box
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on_outlined, color: Colors.red, size: 16),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      getCompleteAddress(order),
+                      style: TextStyle(
+                        height: 1.3,
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            /// Bottle details
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xffF4F7FC),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.water_drop_outlined, color: Colors.blue, size: 14),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      "${order.waterbottle_name}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
+                      style: TextStyle(
+                        height: 1.2,
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
