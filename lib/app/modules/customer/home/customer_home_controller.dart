@@ -73,7 +73,7 @@ class CustomerHomeController extends GetxController {
       if (user.statusCode == '200') {
         AppSession.saveUser(
           userId: AppSession.userId,
-          token: '',
+          token: AppSession.fcmToken,
           image: user.data.photo,
           name: user.data.fullname ?? '',
           role: user.data.role,

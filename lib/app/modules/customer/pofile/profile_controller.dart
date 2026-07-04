@@ -103,7 +103,7 @@ class ProfileController extends GetxController {
         profile.value = user;
         AppSession.saveUser(
           userId: AppSession.userId,
-          token: '',
+          token: AppSession.fcmToken,
           image: user.data.photo,
           name: user.data.fullname ?? '',
           role: user.data.role,

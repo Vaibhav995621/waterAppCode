@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../app_session/app_session.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -85,6 +86,9 @@ class FirebaseNotificationService {
 
       // 7. Retrieve & Print FCM Token (same token for Android & iOS)
       String? token = await messaging.getToken();
+      if (token != null) {
+        await AppSession.saveFcmToken(token);
+      }
       developer.log("=========================================");
       developer.log("🔥 FIREBASE FCM TOKEN 🔥");
       developer.log("$token");
@@ -136,7 +140,8 @@ class FirebaseNotificationService {
       }
 
       // 11. Listen to token refresh
-      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+        await AppSession.saveFcmToken(newToken);
         developer.log("FCM Token Refreshed: $newToken");
         print("🔥 FCM Token Refreshed: $newToken");
       });

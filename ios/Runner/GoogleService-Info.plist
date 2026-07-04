@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAO4i17fkip1MZ4gNAM05sO0A_NJ4fHFO4</string>
+	<string>AIzaSyBaWdpnoJKMi_DJtoY2S7Rth2ISZQrk3zw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1024723026602</string>
+	<string>679437069604</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.demo.com</string>
+	<string>com.h2o.h2oexpress</string>
 	<key>PROJECT_ID</key>
-	<string>flutterdemo-423c9</string>
+	<string>h2o-express-4c077</string>
 	<key>STORAGE_BUCKET</key>
-	<string>flutterdemo-423c9.firebasestorage.app</string>
+	<string>h2o-express-4c077.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1024723026602:ios:78551bb8cd2d6547c606d3</string>
+	<string>1:679437069604:ios:da95e9427b92eb651cd7b1</string>
 </dict>
 </plist>

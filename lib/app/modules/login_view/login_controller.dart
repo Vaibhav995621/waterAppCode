@@ -82,7 +82,7 @@ class LoginController extends GetxController {
       if (user.statusCode == "200") {
         await AppSession.saveUser(
           userId: user.data.id.toString(),
-          token: '',
+          token: AppSession.fcmToken,
           image: user.data.photo,
           name: user.data.fullname,
           role: user.data.role,

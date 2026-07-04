@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "1024723026602",
-    "project_id": "flutterdemo-423c9",
-    "storage_bucket": "flutterdemo-423c9.firebasestorage.app"
+    "project_number": "679437069604",
+    "project_id": "h2o-express-4c077",
+    "storage_bucket": "h2o-express-4c077.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1024723026602:android:a8282b85dcd6bc9ec606d3",
+        "mobilesdk_app_id": "1:679437069604:android:0fa61d230cbee6731cd7b1",
         "android_client_info": {
-          "package_name": "com.demo.com"
+          "package_name": "com.h2o.h2oexpress"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyConEDmxnrCHy6dA-oBnBLLMZ60S0uhGnk"
+          "current_key": "AIzaSyByBFjegGvRgeC6klrJ6bYFg2FllEE43d4"
         }
       ],
       "services": {

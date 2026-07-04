@@ -46,7 +46,7 @@ class AppStrings {
 
   static const String resetLink =
       "No worries! Enter your email and we'll send you a reset link";
-  static const String welcomeBack = "Welcome Back";
+  static const String welcomeBack = "Welcome";
   static const String loginToYourAccount = "Login to your account";
   static const String emailAddress = "Email Address";
   static const String enterPassword = "Enter password";

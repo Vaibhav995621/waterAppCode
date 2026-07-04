@@ -308,7 +308,7 @@ class AdminOrderListView extends StatelessWidget {
                                         ? () => makePhoneCall(customerMobile)
                                         : null,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade50,
                                         borderRadius: BorderRadius.circular(8),
@@ -322,7 +322,7 @@ class AdminOrderListView extends StatelessWidget {
                                               customerName,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
                                                 color: (customerMobile != "N/A" && customerMobile.isNotEmpty)
                                                     ? const Color(0xff5E35B1)
@@ -348,7 +348,7 @@ class AdminOrderListView extends StatelessWidget {
                                         ? () => makePhoneCall(deliveryMobile)
                                         : null,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade50,
                                         borderRadius: BorderRadius.circular(8),
@@ -362,7 +362,7 @@ class AdminOrderListView extends StatelessWidget {
                                               deliveryName != "N/A" ? deliveryName : "Unassigned",
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
                                                 color: deliveryName != "N/A"
                                                     ? ((deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)

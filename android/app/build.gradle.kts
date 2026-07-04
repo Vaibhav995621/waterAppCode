@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.demo.com"
+    namespace = "com.h2o.h2oexpress"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.demo.com"
+        applicationId = "com.h2o.h2oexpress"
 
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -30,7 +30,7 @@ android {
 
         // ADD THIS
         manifestPlaceholders["appAuthRedirectScheme"] =
-            "com.demo.com"
+            "com.h2o.h2oexpress"
     }
 
     buildTypes {

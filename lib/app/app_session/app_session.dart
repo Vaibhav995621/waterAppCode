@@ -33,7 +33,7 @@ class AppSession {
       user['userId']?.toString() ?? '';
 
   static String get token =>
-      user['token']?.toString() ?? '';
+      _box.read('fcmToken')?.toString() ?? '';
 
   static String get name =>
       user['name']?.toString() ?? '';
@@ -53,4 +53,12 @@ class AppSession {
   static Future<void> clear() async {
     await _box.erase();
   }
+
+  static Future<void> saveFcmToken(String token) async {
+    await _box.write('fcmToken', token);
+    await _box.save();
+  }
+
+  static String get fcmToken =>
+      _box.read('fcmToken')?.toString() ?? '';
 }

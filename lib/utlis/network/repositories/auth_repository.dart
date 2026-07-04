@@ -39,6 +39,7 @@ class AuthRepository {
         {
           "mobile": email,
           "password": password,
+          "fcm_token" : AppSession.token,
         },
         tokenRequired: false,
         headers: {
@@ -214,6 +215,9 @@ class AuthRepository {
           "pincode": pinCode,
           "role": role,
           "status": 0,
+          "fcm_token" : AppSession.token,
+          "fmc_token" : AppSession.token,
+          "kcm_token" : AppSession.token
         },
         tokenRequired: false,
         headers: {
