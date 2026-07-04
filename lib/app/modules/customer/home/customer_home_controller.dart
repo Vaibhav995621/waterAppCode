@@ -126,18 +126,12 @@ class CustomerHomeController extends GetxController {
   }
 
   /// Status Color
-  Color getStatusColor(int status) {
+  Color getStatusColor(String status) {
     switch (status) {
-      case 1:
-        return Colors.orange;
-      case 2:
-        return Colors.blue;
-      case 3:
-        return Colors.green;
-      case 4:
+      case 'Failed':
         return Colors.red;
       default:
-        return Colors.grey;
+        return Colors.green;
     }
   }
 

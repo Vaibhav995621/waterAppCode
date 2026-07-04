@@ -595,8 +595,11 @@ class OrderTile extends StatelessWidget {
     final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
 
     return InkWell(
-      onTap: () {
-        Get.toNamed(AppRoutes.adminOrderDetail, arguments: order);
+      onTap: () async {
+        final result = await Get.toNamed(AppRoutes.adminOrderDetail, arguments: order);
+        if (result == true) {
+          Get.find<AdminDashboardController>().adminDashboardApi();
+        }
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(

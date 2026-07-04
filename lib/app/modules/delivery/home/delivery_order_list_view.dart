@@ -260,8 +260,8 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                   ),
                 ),
                 buildStatusChip(
-                  controller.getStatusText(order.status),
-                  controller.getStatusColor(order.status),
+                  order.paymentstatus,
+                  controller.getStatusColor(order.paymentstatus),
                 ),
               ],
             ),

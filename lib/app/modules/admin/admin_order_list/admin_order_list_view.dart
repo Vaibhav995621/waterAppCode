@@ -186,11 +186,17 @@ class AdminOrderListView extends StatelessWidget {
                     final deliveryName = safeValue(order.deliveryDetails.deliveryPartnerName);
                     final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
                     return InkWell(
-                      onTap: () {
+                      onTap: () async {
                         if (isPending && controller.isSelectionMode.value) {
                           controller.toggleSelection(order);
                         } else {
-                          Get.toNamed(AppRoutes.adminOrderDetail, arguments: order);
+                          final result = await Get.toNamed(
+                            AppRoutes.adminOrderDetail,
+                            arguments: order,
+                          );
+                          if (result == true) {
+                            controller.getOrdersApi(controller.selectedSector.value);
+                          }
                         }
                       },
                       onLongPress: () {
@@ -672,7 +678,10 @@ class AdminOrderListView extends StatelessWidget {
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
         break;
-
+      case 'cancelled':
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        break;
       default:
         bgColor = Colors.grey.shade200;
         textColor = Colors.grey.shade800;

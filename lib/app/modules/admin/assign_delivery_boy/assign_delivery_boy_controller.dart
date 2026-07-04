@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../global_controller/bottomTabBar/navigation_controller.dart';
@@ -94,34 +95,41 @@ class AssignDeliveryBoyController extends GetxController {
 
 
   Future<void> assignDeliveryBoy(BuildContext context) async {
+    print("DEBUG: assignDeliveryBoy called");
     if (selectedBoyId.value == -1) {
+      print("DEBUG: selectedBoyId is -1");
       AppSnackbar.error("Please select a delivery boy.");
       return;
     }
     var deliveryBoyId = selectedBoyId.value.toString();
+    print("DEBUG: deliveryBoyId is $deliveryBoyId");
     try {
       isLoading.value = true;
       String orderIds = selectedOrdersList
           .map((order) => order.id.toString())
           .join(',');
-      print(orderIds);
-        final response = await _repo.assignDeliveryBoy(orderIds, deliveryBoyId);
-        if (response.statusCode == '200') {
-          Get.back();
-          Get.find<NavigationController>().changeIndex(1);
-          AppSnackbar.success("Delivery boy assigned successfully.");
-        } else {
-          AppSnackbar.error(
-            response.message.isNotEmpty ? response.message : "Failed to assign delivery boy",
-          );
-        }
-
-    } catch (e) {
+      print("DEBUG: orderIds is $orderIds");
+      print("DEBUG: Calling API repo.assignDeliveryBoy...");
+      final response = await _repo.assignDeliveryBoy(orderIds, deliveryBoyId);
+      print("DEBUG: Response received. Status code: ${response.statusCode}, Message: ${response.message}");
+      if (response.statusCode == '200') {
+        AppSnackbar.success("Delivery boy assigned successfully.");
+        Get.offAllNamed(AppRoutes.mainNavigation);
+      } else {
+        print("DEBUG: Status code is not 200: ${response.statusCode}");
+        AppSnackbar.error(
+          response.message.isNotEmpty ? response.message : "Failed to assign delivery boy",
+        );
+      }
+    } catch (e, stacktrace) {
+      print("DEBUG: Error in assignDeliveryBoy: $e");
+      print("DEBUG: Stacktrace: $stacktrace");
       AppSnackbar.error(
         e.toString().replaceAll("Exception: ", ""),
       );
     } finally {
       isLoading.value = false;
+      print("DEBUG: assignDeliveryBoy finished");
     }
   }
 

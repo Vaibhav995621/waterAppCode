@@ -628,8 +628,8 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
   }
 
   Widget _orderCard(BuildContext context, Order order, CustomerHomeController controller) {
-    final statusColor = controller.getStatusColor(order.status);
-    final statusText = controller.getStatusText(order.status);
+    final statusColor = controller.getStatusColor(order.paymentstatus);
+    final statusText = order.paymentstatus;
     final deliveryName = order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty
         ? order.deliveryDetails.deliveryPartnerName
         : order.deliveryPartnerName;

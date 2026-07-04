@@ -268,7 +268,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                                 ),
                               )
                             : const Text(
-                                "Delete",
+                                "Order Cancel",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

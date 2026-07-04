@@ -10,10 +10,11 @@ class LoginModel {
   });
 
   factory LoginModel.fromJson(Map<String, dynamic> json) {
+    final dataVal = json["data"];
     return LoginModel(
-      statusCode: json["status_code"] ?? "",
+      statusCode: (json["status_code"] ?? json["statusCode"] ?? "").toString(),
       message: json["message"] ?? "",
-      data: Data.fromJson(json["data"] ?? {}),
+      data: Data.fromJson(dataVal is Map<String, dynamic> ? dataVal : const {}),
     );
   }
 

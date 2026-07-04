@@ -3,17 +3,21 @@ import '../../../../routes/app_routes.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
+import '../../../global_controller/bottomTabBar/navigation_controller.dart';
 
 class AdminOrderDetailsController extends GetxController {
   Rxn<Order> order = Rxn<Order>();
   final AuthRepository _repo = AuthRepository();
   final RxBool isLoading = false.obs;
 
-  void assignDeliveryBoy() {
-    Get.toNamed(
+  void assignDeliveryBoy() async {
+    final result = await Get.toNamed(
       AppRoutes.adminAssignDelivery,
       arguments: order.value,
     );
+    if (result == true) {
+      Get.back(result: true);
+    }
   }
 
   Future<void> updateOrderStatus(String orderStatus) async {
