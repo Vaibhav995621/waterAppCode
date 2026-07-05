@@ -186,6 +186,7 @@ class ProfileView extends GetView<ProfileController> {
                             );
                           },
                         ): SizedBox.shrink(),
+                        AppSession.role  == 1 || AppSession.role  == 3?
                         cardTile(
                           Icons.payment,
                           "Payment History",
@@ -194,7 +195,7 @@ class ProfileView extends GetView<ProfileController> {
                               AppRoutes.paymentHistory,
                             );
                           },
-                        ),
+                        ): SizedBox.shrink(),
                         AppSession.role  == 1 ?
                         cardTile(
                           Icons.wallet_giftcard,
