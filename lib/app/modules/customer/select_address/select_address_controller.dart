@@ -20,7 +20,7 @@ class SelectAddressController extends GetxController {
   RxBool setAsDefault = false.obs;
 
   late Map<String, dynamic> addOrderMap;
-   String orderId = "";
+  String orderId = "";
 
   @override
   void onInit() {
@@ -54,8 +54,11 @@ class SelectAddressController extends GetxController {
       if (data.statusCode == "200") {
         addressList.assignAll(data.data);
 
-        if (selectedId.value != -1 && addressList.any((e) => e.id == selectedId.value)) {
-          selectedAddress.value = addressList.firstWhere((e) => e.id == selectedId.value);
+        if (selectedId.value != -1 &&
+            addressList.any((e) => e.id == selectedId.value)) {
+          selectedAddress.value = addressList.firstWhere(
+            (e) => e.id == selectedId.value,
+          );
         } else {
           final defaultAddress = addressList.firstWhereOrNull(
             (e) => e.isDefault == 1,
@@ -160,14 +163,14 @@ class SelectAddressController extends GetxController {
     Get.snackbar("Success", "Payment Success");
 
     print(response.paymentId);
-    orderPayment(response.paymentId.toString(),"1");
+    orderPayment(response.paymentId.toString(), "1");
 
     // call payment verification API
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
     isPaymentLoading.value = false;
-    orderPayment('',"2");
+    orderPayment('', "2");
     Get.snackbar("Failed", response.message ?? "Payment failed");
   }
 
@@ -182,6 +185,7 @@ class SelectAddressController extends GetxController {
     DateTime deliveryDate,
     String deliveryTime,
     String addressId,
+    String paymentmode,
     int planType, {
     bool isCod = false,
   }) async {
@@ -193,6 +197,7 @@ class SelectAddressController extends GetxController {
       "deliverydate": DateFormat('yyyy-MM-dd').format(deliveryDate),
       "deliverytime": deliveryTime,
       "addressid": addressId,
+      "paymentmode":paymentmode,
     };
     try {
       isLoading.value = true;
@@ -247,7 +252,7 @@ class SelectAddressController extends GetxController {
       }
       if (response.statusCode == "200") {
         isLoading.value = false;
-        if(status == "1") {
+        if (status == "1") {
           Get.toNamed(
             AppRoutes.paymentSuccess,
             arguments: {
@@ -255,7 +260,7 @@ class SelectAddressController extends GetxController {
               "type": "online",
             },
           );
-        }else{
+        } else {
           AppSnackbar.error('Payment fail');
           Get.offAllNamed(AppRoutes.mainNavigation);
         }

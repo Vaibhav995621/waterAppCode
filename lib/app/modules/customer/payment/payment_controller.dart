@@ -51,6 +51,17 @@ class PaymentController extends GetxController {
     }
 
     final isCod = selectedMethod.value == 'cod';
+    int paymentMode = 1;
+    if(selectedMethod.value == 'cod'){
+      paymentMode = 1;
+    }
+    else if(selectedMethod.value == 'subscription')
+    {
+      paymentMode = 2;
+
+    } else{
+      paymentMode = 3;
+    }
 
     addressController.isPaymentLoading.value = true;
     try {
@@ -61,6 +72,7 @@ class PaymentController extends GetxController {
         deliveryDate,
         deliveryTime,
         addressController.selectedId.value.toString(),
+        paymentMode.toString(),
         plantype,
         isCod: isCod,
       );

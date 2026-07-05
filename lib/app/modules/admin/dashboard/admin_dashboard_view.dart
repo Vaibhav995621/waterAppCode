@@ -540,7 +540,7 @@ class OrderTile extends StatelessWidget {
     Color textColor;
 
     switch (status.toLowerCase()) {
-      case 'pending':
+      case 'Failed':
         bgColor = Colors.orange.shade100;
         textColor = Colors.orange.shade800;
         break;
@@ -564,10 +564,13 @@ class OrderTile extends StatelessWidget {
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
         break;
-
+      case 'Failed':
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        break;
       default:
-        bgColor = Colors.grey.shade200;
-        textColor = Colors.grey.shade800;
+        bgColor = Colors.green.shade200;
+        textColor = Colors.green.shade800;
     }
 
     return Container(
@@ -636,7 +639,7 @@ class OrderTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                buildStatusChip(order.statusText),
+                buildStatusChip(order.paymentstatus),
               ],
             ),
 
@@ -669,15 +672,22 @@ class OrderTile extends StatelessWidget {
                   ],
                 ),
                 // Date & Time
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${formatDate(order.deliverydate)} | ${safeValue(order.deliverytime)}",
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
-                    ),
-                  ],
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          "${formatDate(order.deliverydate)} | ${safeValue(order.deliverytime)}",
+                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
