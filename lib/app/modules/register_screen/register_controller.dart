@@ -5,6 +5,7 @@ import '../../../utlis/network/repositories/auth_repository.dart';
 import '../../../utlis/progress_hud/app_snackbar.dart';
 import '../../app_session/app_session.dart';
 import '../../global_controller/bottomTabBar/main_navigation_screen.dart';
+import '../../models/register_model/state_list_model.dart';
 
 class RegisterController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -21,17 +22,44 @@ class RegisterController extends GetxController {
   final societyController = TextEditingController();
   final galiController = TextEditingController();
   final landmarkController = TextEditingController();
-  final cityController = TextEditingController();
   final stateController = TextEditingController();
+  final cityController = TextEditingController();
   final pinCodeController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
+  // State Dropdown
+  RxList<StateData> states = <StateData>[].obs;
+  RxBool isStateLoading = false.obs;
+  Rxn<StateData> selectedState = Rxn<StateData>();
 
   // Role selection
   var selectedRole = "User".obs;
 
   void setRole(String role) {
     selectedRole.value = role;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchStates();
+  }
+
+  Future<void> fetchStates() async {
+    try {
+      isStateLoading.value = true;
+      final stateList = await _repo.getStateList();
+      if (stateList.statusCode == '200') {
+        states.assignAll(stateList.data);
+      } else {
+        AppSnackbar.error(stateList.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      isStateLoading.value = false;
+    }
   }
 
   // Validation Methods

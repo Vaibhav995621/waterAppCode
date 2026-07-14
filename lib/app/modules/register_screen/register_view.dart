@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'register_controller.dart';
+import '../../models/register_model/state_list_model.dart';
 
 class RegisterScreen extends GetView<RegisterController> {
   RegisterScreen({super.key});
@@ -291,33 +292,17 @@ class RegisterScreen extends GetView<RegisterController> {
                             ),
 
                             _field(
-                              "House No",
+                              "House No / Flat No",
                               controller
                                   .houseNoController,
                               null,
                             ),
-
                             _field(
-                              "Flat No",
-                              controller
-                                  .flatNoController,
-                              null,
-                            ),
-
-                            _field(
-                              "Street Name",
+                              "Street Name / Society Name",
                               controller
                                   .streetController,
                               null,
                             ),
-
-                            _field(
-                              "Society Name",
-                              controller
-                                  .societyController,
-                              null,
-                            ),
-
                             _field(
                               "Landmark",
                               controller
@@ -325,17 +310,12 @@ class RegisterScreen extends GetView<RegisterController> {
                               null,
                             ),
 
+                            _stateDropdownField(),
+
                             _field(
                               "City",
                               controller
                                   .cityController,
-                              null,
-                            ),
-
-                            _field(
-                              "State",
-                              controller
-                                  .stateController,
                               null,
                             ),
 
@@ -490,6 +470,66 @@ class RegisterScreen extends GetView<RegisterController> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stateDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              "State",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isStateLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<StateData>(
+              initialValue: controller.selectedState.value,
+              hint: const Text("Select State"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+              ),
+              items: controller.states.map((state) {
+                return DropdownMenuItem<StateData>(
+                  value: state,
+                  child: Text(state.statename),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "State is required";
+                return null;
+              },
+              onChanged: (StateData? newValue) {
+                controller.selectedState.value = newValue;
+                if (newValue != null) {
+                  controller.stateController.text = newValue.statename;
+                }
+              },
+            );
+          }),
         ],
       ),
     );

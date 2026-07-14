@@ -22,6 +22,7 @@ import '../../../app/models/subcription_model/subscription_history_model.dart';
 import '../../../app/models/notification_model.dart';
 import '../../../app/models/forgot_password_model.dart';
 import '../../../app/models/forgot_password_reset_model.dart';
+import '../../../app/models/register_model/state_list_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -950,6 +951,28 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return ForgotPasswordModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<StateListModel> getStateList() async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getStateList,
+        {},
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return StateListModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";
