@@ -47,5 +47,7 @@ class ApiEndpoints {
   static const forgotPasswordReset = "forgotpassword";
   static const resendOtp = "resendotp";
   static const getStateList = "getstatelist";
+  static const getDistrictList = "getdisctrictlistbystateid";
+  static const getSubdivisionList = "getsubdivisionlistbystateanddisctritid";
 
 }

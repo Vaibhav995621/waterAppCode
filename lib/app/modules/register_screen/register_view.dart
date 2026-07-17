@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'register_controller.dart';
 import '../../models/register_model/state_list_model.dart';
+import '../../models/register_model/district_list_model.dart';
+import '../../models/register_model/subdivision_list_model.dart';
 
 class RegisterScreen extends GetView<RegisterController> {
   RegisterScreen({super.key});
@@ -291,38 +293,44 @@ class RegisterScreen extends GetView<RegisterController> {
                                   "Address"),
                             ),
 
-                            _field(
-                              "House No / Flat No",
-                              controller
-                                  .houseNoController,
-                              null,
-                            ),
-                            _field(
-                              "Street Name / Society Name",
-                              controller
-                                  .streetController,
-                              null,
-                            ),
-                            _field(
-                              "Landmark",
-                              controller
-                                  .landmarkController,
-                              null,
-                            ),
-
                             _stateDropdownField(),
 
-                            _field(
-                              "City",
-                              controller
-                                  .cityController,
-                              null,
-                            ),
+                            _cityDropdownField(),
+
+                            _societyDropdownField(),
 
                             _field(
                               "PinCode",
                               controller
                                   .pinCodeController,
+                              null,
+                            ),
+
+                            _field(
+                              "Street Name",
+                              controller
+                                  .streetController,
+                              null,
+                            ),
+
+                            _field(
+                              "House No",
+                              controller
+                                  .houseNoController,
+                              null,
+                            ),
+
+                            _field(
+                              "Flat No",
+                              controller
+                                  .flatNoController,
+                              null,
+                            ),
+
+                            _field(
+                              "Landmark",
+                              controller
+                                  .landmarkController,
                               null,
                             ),
 
@@ -523,10 +531,123 @@ class RegisterScreen extends GetView<RegisterController> {
                 return null;
               },
               onChanged: (StateData? newValue) {
-                controller.selectedState.value = newValue;
-                if (newValue != null) {
-                  controller.stateController.text = newValue.statename;
-                }
+                controller.onStateSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _cityDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              "City",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isDistrictLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<DistrictData>(
+              key: ValueKey(controller.selectedState.value?.id),
+              initialValue: controller.selectedDistrict.value,
+              hint: const Text("Select City"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+              ),
+              items: controller.districts.map((district) {
+                return DropdownMenuItem<DistrictData>(
+                  value: district,
+                  child: Text(district.districtname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "City is required";
+                return null;
+              },
+              onChanged: (DistrictData? newValue) {
+                controller.onDistrictSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _societyDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              "Society Name",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isSubdivisionLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<SubdivisionData>(
+              key: ValueKey(controller.selectedDistrict.value?.id),
+              initialValue: controller.selectedSubdivision.value,
+              hint: const Text("Select Society Name"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+              ),
+              items: controller.subdivisions.map((subdivision) {
+                return DropdownMenuItem<SubdivisionData>(
+                  value: subdivision,
+                  child: Text(subdivision.subdivisionname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "Society is required";
+                return null;
+              },
+              onChanged: (SubdivisionData? newValue) {
+                controller.onSubdivisionSelected(newValue);
               },
             );
           }),

@@ -6,6 +6,8 @@ import '../../../utlis/progress_hud/app_snackbar.dart';
 import '../../app_session/app_session.dart';
 import '../../global_controller/bottomTabBar/main_navigation_screen.dart';
 import '../../models/register_model/state_list_model.dart';
+import '../../models/register_model/district_list_model.dart';
+import '../../models/register_model/subdivision_list_model.dart';
 
 class RegisterController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -33,6 +35,16 @@ class RegisterController extends GetxController {
   RxBool isStateLoading = false.obs;
   Rxn<StateData> selectedState = Rxn<StateData>();
 
+  // District Dropdown
+  RxList<DistrictData> districts = <DistrictData>[].obs;
+  RxBool isDistrictLoading = false.obs;
+  Rxn<DistrictData> selectedDistrict = Rxn<DistrictData>();
+
+  // Subdivision Dropdown
+  RxList<SubdivisionData> subdivisions = <SubdivisionData>[].obs;
+  RxBool isSubdivisionLoading = false.obs;
+  Rxn<SubdivisionData> selectedSubdivision = Rxn<SubdivisionData>();
+
   // Role selection
   var selectedRole = "User".obs;
 
@@ -59,6 +71,93 @@ class RegisterController extends GetxController {
       AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
     } finally {
       isStateLoading.value = false;
+    }
+  }
+
+  void onStateSelected(StateData? state) {
+    selectedState.value = state;
+    selectedDistrict.value = null;
+    selectedSubdivision.value = null;
+    districts.clear();
+    subdivisions.clear();
+
+    if (state != null) {
+      stateController.text = state.statename;
+      cityController.clear();
+      societyController.clear();
+      pinCodeController.clear();
+      fetchDistricts(state.id.toString());
+    } else {
+      stateController.clear();
+      cityController.clear();
+      societyController.clear();
+      pinCodeController.clear();
+    }
+  }
+
+  void onDistrictSelected(DistrictData? district) {
+    selectedDistrict.value = district;
+    selectedSubdivision.value = null;
+    subdivisions.clear();
+
+    if (district != null) {
+      cityController.text = district.districtname;
+      societyController.clear();
+      pinCodeController.clear();
+      final stateId = selectedState.value?.id.toString();
+      if (stateId != null) {
+        fetchSubdivisions(stateId, district.id.toString());
+      }
+    } else {
+      cityController.clear();
+      societyController.clear();
+      pinCodeController.clear();
+    }
+  }
+
+  void onSubdivisionSelected(SubdivisionData? subdivision) {
+    selectedSubdivision.value = subdivision;
+    if (subdivision != null) {
+      societyController.text = subdivision.subdivisionname;
+      pinCodeController.text = subdivision.pincode;
+    } else {
+      societyController.clear();
+      pinCodeController.clear();
+    }
+  }
+
+  Future<void> fetchDistricts(String stateId) async {
+    try {
+      isDistrictLoading.value = true;
+      final response = await _repo.getDistrictList(stateId: stateId);
+      if (response.statusCode == '200') {
+        districts.assignAll(response.data);
+      } else {
+        AppSnackbar.error(response.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      isDistrictLoading.value = false;
+    }
+  }
+
+  Future<void> fetchSubdivisions(String stateId, String districtId) async {
+    try {
+      isSubdivisionLoading.value = true;
+      final response = await _repo.getSubdivisionList(
+        stateId: stateId,
+        districtId: districtId,
+      );
+      if (response.statusCode == '200') {
+        subdivisions.assignAll(response.data);
+      } else {
+        AppSnackbar.error(response.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      isSubdivisionLoading.value = false;
     }
   }
 

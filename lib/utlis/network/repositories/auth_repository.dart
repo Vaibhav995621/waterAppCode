@@ -23,6 +23,8 @@ import '../../../app/models/notification_model.dart';
 import '../../../app/models/forgot_password_model.dart';
 import '../../../app/models/forgot_password_reset_model.dart';
 import '../../../app/models/register_model/state_list_model.dart';
+import '../../../app/models/register_model/district_list_model.dart';
+import '../../../app/models/register_model/subdivision_list_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -973,6 +975,58 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return StateListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<DistrictListModel> getDistrictList({required String stateId}) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getDistrictList,
+        {
+          "stateid": stateId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return DistrictListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<SubdivisionListModel> getSubdivisionList({
+    required String stateId,
+    required String districtId,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getSubdivisionList,
+        {
+          "stateid": stateId,
+          "districtid": districtId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return SubdivisionListModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";
