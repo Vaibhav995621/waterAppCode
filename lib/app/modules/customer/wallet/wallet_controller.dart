@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../home/customer_home_controller.dart';
@@ -25,10 +26,24 @@ class WalletController extends GetxController {
     }
   }
 
+  late Razorpay razorpay;
+  var isPaymentLoading = false.obs;
+  double _pendingAmount = 0.0;
+
   @override
   void onInit() {
     super.onInit();
+    razorpay = Razorpay();
+    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     loadWalletData();
+  }
+
+  @override
+  void onClose() {
+    razorpay.clear();
+    super.onClose();
   }
 
   Future<void> loadWalletData() async {
@@ -114,28 +129,83 @@ class WalletController extends GetxController {
       AppSnackbar.error("Please enter a valid amount");
       return;
     }
-    isLoading.value = true;
-    // Simulate API delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      sessionAddedAmount.value += amount;
-      totalAdded.value += amount;
-      
-      // Add successful transaction to the top of list
-      transactions.insert(
-        0,
-        WalletTransaction(
-          title: "Added Money",
-          subtitle: "From UPI Direct",
-          amount: amount,
-          date: DateTime.now(),
-          isCredit: true,
-        ),
-      );
-      
-      isLoading.value = false;
-      update();
-      AppSnackbar.success("₹${amount.toStringAsFixed(2)} added successfully to wallet!");
-    });
+    _pendingAmount = amount;
+    makePayment(amount);
+  }
+
+  void makePayment(double amount) {
+    try {
+      isPaymentLoading.value = true;
+      String userMobile = '7503781220';
+      String userEmail = 'test@gmail.com';
+      try {
+        final homeController = Get.find<CustomerHomeController>();
+        final profileData = homeController.profile.value?.data;
+        if (profileData != null) {
+          if (profileData.mobile.isNotEmpty) {
+            userMobile = profileData.mobile;
+          }
+          if (profileData.email.isNotEmpty) {
+            userEmail = profileData.email;
+          }
+        }
+      } catch (_) {}
+
+      var options = {
+        'key': 'rzp_test_SrUuMWoExaIWgc',
+        'amount': amount * 100,
+        'name': 'Water Delivery',
+        'description': 'Add Money to Wallet',
+        'prefill': {
+          'contact': userMobile,
+          'email': userEmail,
+        },
+        'theme': {'color': '#0D47A1'},
+        'method': {
+          'upi': true,
+          'card': true,
+          'wallet': true,
+          'netbanking': true,
+        },
+      };
+      razorpay.open(options);
+    } catch (e) {
+      isPaymentLoading.value = false;
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    isPaymentLoading.value = false;
+    sessionAddedAmount.value += _pendingAmount;
+    totalAdded.value += _pendingAmount;
+
+    // Add successful transaction to the top of list
+    transactions.insert(
+      0,
+      WalletTransaction(
+        title: "Added Money",
+        subtitle: "From Razorpay",
+        amount: _pendingAmount,
+        date: DateTime.now(),
+        isCredit: true,
+      ),
+    );
+
+    Get.snackbar("Success", "Payment Success");
+    AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added successfully to wallet!");
+    _pendingAmount = 0.0;
+    update();
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    isPaymentLoading.value = false;
+    _pendingAmount = 0.0;
+    Get.snackbar("Failed", response.message ?? "Payment failed");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    Get.snackbar("Wallet", response.walletName ?? "");
   }
 }
 
