@@ -33,6 +33,7 @@ class Data {
   String username;
   String fullname;
   String password;
+  num walletamount;
   String mobile;
   String email;
   String photo;
@@ -50,6 +51,7 @@ class Data {
     required this.username,
     required this.fullname,
     required this.password,
+    required this.walletamount,
     required this.mobile,
     required this.email,
     required this.photo,
@@ -69,6 +71,7 @@ class Data {
       username: json["username"] ?? "",
       fullname: json["fullname"] ?? "",
       password: json["password"] ?? "",
+      walletamount: json["walletamount"] ?? 0,
       mobile: json["mobile"] ?? "",
       email: json["email"] ?? "",
       photo: json["photo"] ?? "",
@@ -92,6 +95,7 @@ class Data {
       "username": username,
       "fullname": fullname,
       "password": password,
+      "walletamount": walletamount,
       "mobile": mobile,
       "email": email,
       "photo": photo,

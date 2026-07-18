@@ -49,5 +49,7 @@ class ApiEndpoints {
   static const getStateList = "getstatelist";
   static const getDistrictList = "getdisctrictlistbystateid";
   static const getSubdivisionList = "getsubdivisionlistbystateanddisctritid";
+  static const getSectorsList = "getsectorslistbystatedistrictsubdivisionid";
+  static const getLocalityList = "getlocalitylistbystatedistrictsubdivisionsectorid";
 
 }

@@ -25,6 +25,8 @@ import '../../../app/models/forgot_password_reset_model.dart';
 import '../../../app/models/register_model/state_list_model.dart';
 import '../../../app/models/register_model/district_list_model.dart';
 import '../../../app/models/register_model/subdivision_list_model.dart';
+import '../../../app/models/register_model/register_sector_list_model.dart';
+import '../../../app/models/register_model/register_locality_list_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -185,9 +187,7 @@ class AuthRepository {
     required String mobile,
     required String fullAddress,
     required String houseNumber,
-    required String flatNumber,
     required String societyName,
-    required String galiNumber,
     required String landmark,
     required String city,
     required String state,
@@ -195,7 +195,13 @@ class AuthRepository {
     required String photo,
     required String pinCode,
     required String role,
-
+    required String userType,
+    required String stateId,
+    required String districtId,
+    required String subdivisionId,
+    required String subdivisionName,
+    String sectorId = '',
+    String localityId = '',
   }) async {
     try {
       final response = await _api.post(
@@ -207,9 +213,7 @@ class AuthRepository {
           "mobile": mobile,
           "fulladdress": fullAddress,
           "housenumber": houseNumber,
-          "flatnumber": flatNumber,
           "societyname": societyName,
-          "galinumber": galiNumber,
           "landmark": landmark,
           "city": city,
           "state": state,
@@ -217,7 +221,14 @@ class AuthRepository {
           "photo": photo,
           "pincode": pinCode,
           "role": role,
-          "status": 0,
+          "status": 1,
+          "usertype": userType,
+          "stateid": stateId,
+          "districtid": districtId,
+          "subdivisionid": subdivisionId,
+          "subdivisionname": subdivisionName,
+          "sectorid": sectorId,
+          "localityid": localityId,
           "fcm_token" : AppSession.token,
           "fmc_token" : AppSession.token,
           "kcm_token" : AppSession.token
@@ -1027,6 +1038,68 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return SubdivisionListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<RegisterSectorListModel> getSectorsList({
+    required String stateId,
+    required String districtId,
+    required String subdivisionId,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getSectorsList,
+        {
+          "stateid": stateId,
+          "districtid": districtId,
+          "subdivisionid": subdivisionId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return RegisterSectorListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<RegisterLocalityListModel> getLocalityList({
+    required String stateId,
+    required String districtId,
+    required String subdivisionId,
+    required String sectorsId,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getLocalityList,
+        {
+          "stateid": stateId,
+          "districtid": districtId,
+          "subdivisionid": subdivisionId,
+          "sectorsid": sectorsId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return RegisterLocalityListModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

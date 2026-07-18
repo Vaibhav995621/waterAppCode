@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../app_session/app_session.dart';
-import '../../../global_controller/bottomTabBar/navigation_controller.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import 'customer_home_controller.dart';
 
@@ -519,7 +518,40 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
 
                     }),
 
-                    SizedBox(height: 30),
+                    const SizedBox(height: 25),
+
+                    /// ================= BOOK BUTTON =================
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: controller.bookWater,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: const Color(0xff6B67F6), // matching app theme color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.water_drop_outlined, color: Colors.white),
+                            SizedBox(width: 10),
+                            Text(
+                              "Book Water Now",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
 
                     Align(
                       alignment:

@@ -12,31 +12,34 @@ class NavigationController extends GetxController {
   void changeIndex(int index) {
     selectedIndex.value = index;
 
-    // Profile tab
+    // Profile or Home update tabs
     if (index == 0 && AppSession.role == 1) {
       Get.find<CustomerHomeController>().getProfile();
     }
     else if (index == 1 && AppSession.role == 2) {
       Get.find<ProfileController>().getProfile();
     }
-    if (index == 3 && AppSession.role == 1) {
+    if (index == 4 && AppSession.role == 1) {
       Get.find<ProfileController>().getProfile();
     }
     else if (index == 2 && AppSession.role == 3) {
       Get.find<ProfileController>().getProfile();
     }
+    else if (index == 2 && AppSession.role == 1) {
+      // Reload profile to get latest wallet balance when switching to Wallet tab
+      Get.find<CustomerHomeController>().getProfile();
+    }
 
-
-
-
-    // Orders tab example
-    if (index == 2 && AppSession.role == 1) {
+    // Orders tab
+    if (index == 1 && AppSession.role == 1) {
       Get.find<OrdersController>().getCustomerActiveOrder();
       Get.find<OrdersController>().getCustomerHistoryOrder();
     }
+    else if (index == 2 && AppSession.role == 1) {
+      // Wallet index, can fetch wallet data if needed
+    }
     else if (index == 1 && AppSession.role == 3) {
       Get.find<AdminOrderListController>().getOrdersApi('');
-
     }
   }
 }

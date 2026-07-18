@@ -4,6 +4,8 @@ import 'register_controller.dart';
 import '../../models/register_model/state_list_model.dart';
 import '../../models/register_model/district_list_model.dart';
 import '../../models/register_model/subdivision_list_model.dart';
+import '../../models/register_model/register_sector_list_model.dart';
+import '../../models/register_model/register_locality_list_model.dart';
 
 class RegisterScreen extends GetView<RegisterController> {
   RegisterScreen({super.key});
@@ -155,117 +157,13 @@ class RegisterScreen extends GetView<RegisterController> {
 
                           children: [
 
-                            /// ROLE TITLE
-                            // const Text(
-                            //   "Select Role",
-                            //   style: TextStyle(
-                            //     fontSize: 15,
-                            //     fontWeight:
-                            //     FontWeight
-                            //         .bold,
-                            //     color: Color(
-                            //         0xff1A2C56),
-                            //   ),
-                            // ),
-
-                            // const SizedBox(
-                            //     height: 14),
-                            //
-                            // /// ROLE CARD
-                            // Obx(
-                            //       ()=>Container(
-                            //     padding:
-                            //     const EdgeInsets
-                            //         .all(
-                            //         5),
-                            //
-                            //     decoration:
-                            //     BoxDecoration(
-                            //       color:
-                            //       const Color(
-                            //         0xffF7F9FC,
-                            //       ),
-                            //
-                            //       borderRadius:
-                            //       BorderRadius.circular(
-                            //           18),
-                            //     ),
-                            //
-                            //     child: Row(
-                            //       children: [
-                            //         "Admin",
-                            //         "User",
-                            //         "Delivery"
-                            //       ].map(
-                            //             (role) {
-                            //           bool isSelected =
-                            //               controller.selectedRole.value ==
-                            //                   role;
-                            //
-                            //           return Expanded(
-                            //             child:
-                            //             GestureDetector(
-                            //               onTap:
-                            //                   ()=>controller.setRole(role),
-                            //
-                            //               child:
-                            //               AnimatedContainer(
-                            //                 duration:
-                            //                 const Duration(
-                            //                     milliseconds:
-                            //                     300),
-                            //
-                            //                 padding:
-                            //                 const EdgeInsets.symmetric(
-                            //                   vertical:
-                            //                   14,
-                            //                 ),
-                            //
-                            //                 decoration:
-                            //                 BoxDecoration(
-                            //                   gradient: isSelected
-                            //                       ? const LinearGradient(
-                            //                     colors: [
-                            //                       Color(0xff4F8EF7),
-                            //                       Color(0xff6C63FF),
-                            //                     ],
-                            //                   )
-                            //                       : null,
-                            //
-                            //                   borderRadius:
-                            //                   BorderRadius.circular(
-                            //                       14),
-                            //                 ),
-                            //
-                            //                 child:
-                            //                 Center(
-                            //                   child:
-                            //                   Text(
-                            //                     role,
-                            //                     style:
-                            //                     TextStyle(
-                            //                       color: isSelected
-                            //                           ? Colors.white
-                            //                           : Colors.black87,
-                            //
-                            //                       fontWeight:
-                            //                       FontWeight.w600,
-                            //                     ),
-                            //                   ),
-                            //                 ),
-                            //               ),
-                            //             ),
-                            //           );
-                            //         },
-                            //       ).toList(),
-                            //     ),
-                            //   ),
-                            // ),
 
                             const SizedBox(
                                 height: 24),
 
                             /// ALL FIELDS
+                            _addressTypeField(context),
+
                             _field(
                               "Full Name",
                               controller
@@ -297,7 +195,11 @@ class RegisterScreen extends GetView<RegisterController> {
 
                             _cityDropdownField(),
 
-                            _societyDropdownField(),
+                            _districtDropdownField(),
+
+                            _sectorDropdownField(),
+
+                            _localityDropdownField(),
 
                             _field(
                               "PinCode",
@@ -307,25 +209,13 @@ class RegisterScreen extends GetView<RegisterController> {
                             ),
 
                             _field(
-                              "Street Name",
-                              controller
-                                  .streetController,
-                              null,
-                            ),
-
-                            _field(
-                              "House No",
+                              "House No / Falt NO",
                               controller
                                   .houseNoController,
                               null,
                             ),
 
-                            _field(
-                              "Flat No",
-                              controller
-                                  .flatNoController,
-                              null,
-                            ),
+
 
                             _field(
                               "Landmark",
@@ -598,7 +488,7 @@ class RegisterScreen extends GetView<RegisterController> {
     );
   }
 
-  Widget _societyDropdownField() {
+  Widget _districtDropdownField() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
@@ -607,7 +497,7 @@ class RegisterScreen extends GetView<RegisterController> {
           const Padding(
             padding: EdgeInsets.only(bottom: 6),
             child: Text(
-              "Society Name",
+              "District",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -628,7 +518,7 @@ class RegisterScreen extends GetView<RegisterController> {
             return DropdownButtonFormField<SubdivisionData>(
               key: ValueKey(controller.selectedDistrict.value?.id),
               initialValue: controller.selectedSubdivision.value,
-              hint: const Text("Select Society Name"),
+              hint: const Text("Select District"),
               isExpanded: true,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -643,11 +533,127 @@ class RegisterScreen extends GetView<RegisterController> {
                 );
               }).toList(),
               validator: (value) {
-                if (value == null) return "Society is required";
+                if (value == null) return "District is required";
                 return null;
               },
               onChanged: (SubdivisionData? newValue) {
                 controller.onSubdivisionSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectorDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              "Sector/Locality",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isSectorLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<RegisterSectorData>(
+              key: ValueKey(controller.selectedSubdivision.value?.id),
+              initialValue: controller.selectedSector.value,
+              hint: const Text("Select Sector/Locality"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+              ),
+              items: controller.sectors.map((sector) {
+                return DropdownMenuItem<RegisterSectorData>(
+                  value: sector,
+                  child: Text(sector.sectororvillagename),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "Sector/Locality is required";
+                return null;
+              },
+              onChanged: (RegisterSectorData? newValue) {
+                controller.onSectorSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _localityDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              "Street Name/ Block Name / Gali No",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isLocalityLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<RegisterLocalityData>(
+              key: ValueKey(controller.selectedSector.value?.id),
+              initialValue: controller.selectedLocality.value,
+              hint: const Text("Select Street Name/ Block Name / Gali No"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+              ),
+              items: controller.localities.map((locality) {
+                return DropdownMenuItem<RegisterLocalityData>(
+                  value: locality,
+                  child: Text(locality.localityname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "Street/Block/Gali is required";
+                return null;
+              },
+              onChanged: (RegisterLocalityData? newValue) {
+                controller.onLocalitySelected(newValue);
               },
             );
           }),
@@ -705,6 +711,82 @@ class RegisterScreen extends GetView<RegisterController> {
               ),
             );
           }),
+        ],
+      ),
+    );
+  }
+
+  Widget _addressTypeField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Address Type",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(() => Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  controller.addressType.value = "residential";
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      controller.addressType.value == "residential"
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: Theme.of(context).primaryColor,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Residential",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 30),
+              GestureDetector(
+                onTap: () {
+                  controller.addressType.value = "commercial";
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      controller.addressType.value == "commercial"
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: Theme.of(context).primaryColor,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Commercial",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )),
         ],
       ),
     );

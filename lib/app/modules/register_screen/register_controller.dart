@@ -8,6 +8,8 @@ import '../../global_controller/bottomTabBar/main_navigation_screen.dart';
 import '../../models/register_model/state_list_model.dart';
 import '../../models/register_model/district_list_model.dart';
 import '../../models/register_model/subdivision_list_model.dart';
+import '../../models/register_model/register_sector_list_model.dart';
+import '../../models/register_model/register_locality_list_model.dart';
 
 class RegisterController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -19,10 +21,8 @@ class RegisterController extends GetxController {
   final mobileController = TextEditingController();
   final addressController = TextEditingController();
   final houseNoController = TextEditingController();
-  final flatNoController = TextEditingController();
   final streetController = TextEditingController();
   final societyController = TextEditingController();
-  final galiController = TextEditingController();
   final landmarkController = TextEditingController();
   final stateController = TextEditingController();
   final cityController = TextEditingController();
@@ -44,6 +44,19 @@ class RegisterController extends GetxController {
   RxList<SubdivisionData> subdivisions = <SubdivisionData>[].obs;
   RxBool isSubdivisionLoading = false.obs;
   Rxn<SubdivisionData> selectedSubdivision = Rxn<SubdivisionData>();
+
+  // Sector Dropdown
+  RxList<RegisterSectorData> sectors = <RegisterSectorData>[].obs;
+  RxBool isSectorLoading = false.obs;
+  Rxn<RegisterSectorData> selectedSector = Rxn<RegisterSectorData>();
+
+  // Locality Dropdown
+  RxList<RegisterLocalityData> localities = <RegisterLocalityData>[].obs;
+  RxBool isLocalityLoading = false.obs;
+  Rxn<RegisterLocalityData> selectedLocality = Rxn<RegisterLocalityData>();
+
+  // Address Type (Residential / Commercial)
+  RxString addressType = "residential".obs;
 
   // Role selection
   var selectedRole = "User".obs;
@@ -78,19 +91,25 @@ class RegisterController extends GetxController {
     selectedState.value = state;
     selectedDistrict.value = null;
     selectedSubdivision.value = null;
+    selectedSector.value = null;
+    selectedLocality.value = null;
     districts.clear();
     subdivisions.clear();
+    sectors.clear();
+    localities.clear();
 
     if (state != null) {
       stateController.text = state.statename;
       cityController.clear();
       societyController.clear();
+      streetController.clear();
       pinCodeController.clear();
       fetchDistricts(state.id.toString());
     } else {
       stateController.clear();
       cityController.clear();
       societyController.clear();
+      streetController.clear();
       pinCodeController.clear();
     }
   }
@@ -98,11 +117,16 @@ class RegisterController extends GetxController {
   void onDistrictSelected(DistrictData? district) {
     selectedDistrict.value = district;
     selectedSubdivision.value = null;
+    selectedSector.value = null;
+    selectedLocality.value = null;
     subdivisions.clear();
+    sectors.clear();
+    localities.clear();
 
     if (district != null) {
       cityController.text = district.districtname;
       societyController.clear();
+      streetController.clear();
       pinCodeController.clear();
       final stateId = selectedState.value?.id.toString();
       if (stateId != null) {
@@ -111,18 +135,100 @@ class RegisterController extends GetxController {
     } else {
       cityController.clear();
       societyController.clear();
+      streetController.clear();
       pinCodeController.clear();
     }
   }
 
   void onSubdivisionSelected(SubdivisionData? subdivision) {
     selectedSubdivision.value = subdivision;
+    selectedSector.value = null;
+    selectedLocality.value = null;
+    sectors.clear();
+    localities.clear();
+
     if (subdivision != null) {
-      societyController.text = subdivision.subdivisionname;
       pinCodeController.text = subdivision.pincode;
-    } else {
       societyController.clear();
+      streetController.clear();
+      final stateId = selectedState.value?.id.toString();
+      final districtId = selectedDistrict.value?.id.toString();
+      if (stateId != null && districtId != null) {
+        fetchSectors(stateId, districtId, subdivision.id.toString());
+      }
+    } else {
       pinCodeController.clear();
+      societyController.clear();
+      streetController.clear();
+    }
+  }
+
+  void onSectorSelected(RegisterSectorData? sector) {
+    selectedSector.value = sector;
+    selectedLocality.value = null;
+    localities.clear();
+    streetController.clear();
+    societyController.clear();
+
+    if (sector != null) {
+      final stateId = selectedState.value?.id.toString();
+      final districtId = selectedDistrict.value?.id.toString();
+      final subdivisionId = selectedSubdivision.value?.id.toString();
+      if (stateId != null && districtId != null && subdivisionId != null) {
+        fetchLocalities(stateId, districtId, subdivisionId, sector.id.toString());
+      }
+    }
+  }
+
+  void onLocalitySelected(RegisterLocalityData? locality) {
+    selectedLocality.value = locality;
+    if (locality != null) {
+      streetController.text = locality.localityname;
+      societyController.text = locality.localityname;
+    } else {
+      streetController.clear();
+      societyController.clear();
+    }
+  }
+
+  Future<void> fetchSectors(String stateId, String districtId, String subdivisionId) async {
+    try {
+      isSectorLoading.value = true;
+      final response = await _repo.getSectorsList(
+        stateId: stateId,
+        districtId: districtId,
+        subdivisionId: subdivisionId,
+      );
+      if (response.statusCode == '200') {
+        sectors.assignAll(response.data);
+      } else {
+        AppSnackbar.error(response.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      isSectorLoading.value = false;
+    }
+  }
+
+  Future<void> fetchLocalities(String stateId, String districtId, String subdivisionId, String sectorId) async {
+    try {
+      isLocalityLoading.value = true;
+      final response = await _repo.getLocalityList(
+        stateId: stateId,
+        districtId: districtId,
+        subdivisionId: subdivisionId,
+        sectorsId: sectorId,
+      );
+      if (response.statusCode == '200') {
+        localities.assignAll(response.data);
+      } else {
+        AppSnackbar.error(response.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      isLocalityLoading.value = false;
     }
   }
 
@@ -200,7 +306,7 @@ class RegisterController extends GetxController {
     if (formKey.currentState!.validate()) {
       try {
         final user = await _repo.registerApi(
-          userName: '',
+          userName: fullNameController.text.trim().replaceAll(' ', ''),
           fullName: fullNameController.text.isEmpty
               ? ""
               : fullNameController.text,
@@ -210,16 +316,12 @@ class RegisterController extends GetxController {
           houseNumber: houseNoController.text.trim().isEmpty
               ? ""
               : houseNoController.text.trim(),
-          flatNumber: flatNoController.text.trim().isEmpty
-              ? ""
-              : flatNoController.text,
+
 
           societyName: societyController.text.trim().isEmpty
               ? ""
               : societyController.text,
-          galiNumber: galiController.text.trim().isEmpty
-              ? ""
-              : galiController.text.trim(),
+
           landmark: landmarkController.text.trim().isEmpty
               ? ""
               : landmarkController.text.trim(),
@@ -243,7 +345,14 @@ class RegisterController extends GetxController {
               : mobileController.text.trim(),
 
           email: '',
-          role:  "1"
+          role:  "1",
+          userType: addressType.value == "residential" ? "1" : "2",
+          stateId: selectedState.value?.id.toString() ?? "",
+          districtId: selectedDistrict.value?.id.toString() ?? "",
+          subdivisionId: selectedSubdivision.value?.id.toString() ?? "",
+          subdivisionName: selectedSubdivision.value?.subdivisionname ?? societyController.text.trim(),
+          sectorId: selectedSector.value?.id.toString() ?? "",
+          localityId: selectedLocality.value?.id.toString() ?? "",
         );
 
         /// ✅ Handle API-level failure
