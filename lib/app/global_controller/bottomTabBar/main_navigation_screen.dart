@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zourney/app/modules/admin/admin_order_list/admin_order_list_view.dart';
 import 'package:zourney/app/modules/admin/dashboard/admin_dashboard_view.dart';
+import 'package:zourney/app/modules/customer/booking_order/book_water_screen.dart';
 import 'package:zourney/app/modules/customer/home/customer_home_view.dart';
 import 'package:zourney/app/modules/customer/order_history/order_view.dart';
 import 'package:zourney/app/modules/customer/order_history/orders_controller.dart';
 import 'package:zourney/app/modules/customer/pofile/profile_view.dart';
 import 'package:zourney/app/modules/customer/wallet/wallet_view.dart';
 import 'package:zourney/app/modules/customer/wallet/wallet_controller.dart';
-import 'package:zourney/app/modules/customer/offers/offers_view.dart';
 import '../../app_session/app_session.dart';
 import '../../modules/customer/booking_order/book_water_controller.dart';
 import '../../modules/customer/home/customer_home_controller.dart';
@@ -40,9 +40,9 @@ class MainNavigationScreen extends StatelessWidget {
       //customer
       screens = [
         CustomerHomeScreen(),
+        BookWaterScreen(),
         OrdersView(),
         WalletView(),
-        OffersView(),
         ProfileView(),
       ];
     } else if (userType == 2) {
@@ -107,6 +107,11 @@ class MainNavigationScreen extends StatelessWidget {
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.book),
+            activeIcon: Icon(Icons.assignment),
+            label: 'Book Now',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.assignment_outlined),
             activeIcon: Icon(Icons.assignment),
             label: 'Orders',
@@ -115,11 +120,6 @@ class MainNavigationScreen extends StatelessWidget {
             icon: Icon(Icons.account_balance_wallet_outlined),
             activeIcon: Icon(Icons.account_balance_wallet),
             label: 'Wallet',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_offer_outlined),
-            activeIcon: Icon(Icons.local_offer),
-            label: 'Offers',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
