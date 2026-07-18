@@ -71,6 +71,9 @@ class PaymentSuccessView
                       } else if (controller.type.value == "subscription_purchase") {
                         iconData = Icons.card_membership_rounded;
                         gradientColors = [const Color(0xff6C63FF), const Color(0xff57B4FF)];
+                      } else if (controller.type.value == "wallet") {
+                        iconData = Icons.account_balance_wallet_rounded;
+                        gradientColors = [const Color(0xffFF9F1C), const Color(0xffFFD000)];
                       }
 
                       return Container(
@@ -109,6 +112,8 @@ class PaymentSuccessView
                         titleText = "Order Confirmed!";
                       } else if (controller.type.value == "subscription_purchase") {
                         titleText = "Subscription Active!";
+                      } else if (controller.type.value == "wallet") {
+                        titleText = "Order Confirmed!";
                       }
                       return Text(
                         titleText,
@@ -132,6 +137,8 @@ class PaymentSuccessView
                         descText = "Your order has been confirmed using your active subscription plan.";
                       } else if (controller.type.value == "subscription_purchase") {
                         descText = "Your subscription plan has been activated successfully.";
+                      } else if (controller.type.value == "wallet") {
+                        descText = "Your order has been confirmed. Amount deducted from your wallet.";
                       }
                       return Text(
                         descText,
@@ -171,6 +178,8 @@ class PaymentSuccessView
                           cardValueText = "Subscription Plan";
                         } else if (controller.type.value == "subscription_purchase") {
                           cardTitleText = "Plan Amount";
+                        } else if (controller.type.value == "wallet") {
+                          cardTitleText = "Paid via Wallet";
                         }
 
                         return Row(

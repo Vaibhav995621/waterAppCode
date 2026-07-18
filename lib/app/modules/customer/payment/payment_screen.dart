@@ -119,6 +119,92 @@ class PaymentScreen extends StatelessWidget {
                         ),
                       ),
 
+                    /// WALLET CARD
+                    if (!controller.isSubscriptionOrder)
+                      Obx(() {
+                        final isSelected = controller.selectedMethod.value == 'wallet';
+                        final walletBal = controller.walletBalance;
+                        return GestureDetector(
+                          onTap: () => controller.selectPaymentMethod('wallet'),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xffFF9F1C)
+                                    : Colors.grey.shade200,
+                                width: isSelected ? 2 : 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isSelected
+                                        ? const Color(0xffFFF7ED)
+                                        : const Color(0xffF1F3F6),
+                                  ),
+                                  child: Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    color: isSelected
+                                        ? const Color(0xffFF9F1C)
+                                        : Colors.grey.shade600,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Wallet",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff2D3A5A),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Pay using your wallet balance (Balance: ₹${walletBal.toStringAsFixed(2)})",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  isSelected
+                                      ? Icons.radio_button_checked
+                                      : Icons.radio_button_off,
+                                  color: isSelected
+                                      ? const Color(0xffFF9F1C)
+                                      : Colors.grey.shade400,
+                                  size: 24,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+
                     /// CASH ON DELIVERY CARD
                     if (!controller.isSubscriptionOrder)
                       Obx(() {

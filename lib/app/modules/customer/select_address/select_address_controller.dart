@@ -188,6 +188,7 @@ class SelectAddressController extends GetxController {
     String paymentmode,
     int planType, {
     bool isCod = false,
+    bool isWallet = false,
   }) async {
     addOrderMap = {
       "customerid": AppSession.userId,
@@ -212,12 +213,14 @@ class SelectAddressController extends GetxController {
       /// SUCCESS
       if (response.statusCode == "200") {
         orderId = response.data.id.toString();
-        if (AppSession.planType == planType || isCod) {
+        if (AppSession.planType == planType || isCod || isWallet) {
           Get.toNamed(
             AppRoutes.paymentSuccess,
             arguments: {
               "amount": addOrderMap["price"].toString(),
-              "type": isCod ? "cod" : "subscription",
+              "type": isCod
+                  ? "cod"
+                  : (isWallet ? "wallet" : "subscription"),
             },
           );
         } else {

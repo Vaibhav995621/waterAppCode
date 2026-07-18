@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:zourney/app/modules/customer/select_address/select_address_controller.dart';
 import 'package:zourney/utlis/progress_hud/app_snackbar.dart';
+import 'package:zourney/app/modules/customer/wallet/wallet_controller.dart';
 
 import '../../../app_session/app_session.dart';
 
@@ -12,7 +13,7 @@ class PaymentController extends GetxController {
   late String deliveryTime;
   late int plantype;
 
-  // Selected payment method: 'cod' or 'pay_now'
+  // Selected payment method: 'cod', 'pay_now' or 'wallet'
   final selectedMethod = 'cod'.obs;
 
   late SelectAddressController addressController;
@@ -40,6 +41,16 @@ class PaymentController extends GetxController {
 
   bool get isSubscriptionOrder => plantype != 0 && AppSession.planType == plantype;
 
+  // Get wallet balance
+  double get walletBalance {
+    try {
+      final walletController = Get.put(WalletController());
+      return walletController.walletBalance;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
   void selectPaymentMethod(String method) {
     selectedMethod.value = method;
   }
@@ -51,21 +62,31 @@ class PaymentController extends GetxController {
     }
 
     final isCod = selectedMethod.value == 'cod';
-    int paymentMode = 1;
-    if(selectedMethod.value == 'cod'){
-      paymentMode = 1;
-    }
-    else if(selectedMethod.value == 'subscription')
-    {
-      paymentMode = 2;
+    final isWallet = selectedMethod.value == 'wallet';
 
-    } else{
+    if (isWallet) {
+      final orderAmount = double.tryParse(price) ?? 0.0;
+      if (walletBalance < orderAmount) {
+        AppSnackbar.error(
+            "Insufficient wallet balance. Please add money to your wallet or choose another payment method.");
+        return;
+      }
+    }
+
+    int paymentMode = 1;
+    if (selectedMethod.value == 'cod') {
+      paymentMode = 1;
+    } else if (selectedMethod.value == 'subscription') {
+      paymentMode = 2;
+    } else if (selectedMethod.value == 'wallet') {
+      paymentMode = 4;
+    } else {
       paymentMode = 3;
     }
 
     addressController.isPaymentLoading.value = true;
     try {
-      await addressController.addOrder(
+      final success = await addressController.addOrder(
         waterBottleId.toString(),
         price,
         quantity.toString(),
@@ -75,7 +96,16 @@ class PaymentController extends GetxController {
         paymentMode.toString(),
         plantype,
         isCod: isCod,
+        isWallet: isWallet,
       );
+
+      if (success && isWallet) {
+        try {
+          final walletController = Get.put(WalletController());
+          walletController.sessionAddedAmount.value -=
+              double.tryParse(price) ?? 0.0;
+        } catch (_) {}
+      }
     } catch (e) {
       AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
     } finally {
