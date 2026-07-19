@@ -151,7 +151,7 @@ class Address {
       societyname:
       json["societyname"] ?? "",
       galinumber:
-      json["galinumber"] ?? "",
+      json["galinumber"]?.toString() ?? "",
       landmark:
       json["landmark"] ?? "",
       city: json["city"] ?? "",

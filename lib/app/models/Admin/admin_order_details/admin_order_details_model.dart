@@ -127,7 +127,7 @@ class Address {
       housenumber: json['housenumber'] ?? '',
       flatnumber: json['flatnumber'] ?? '',
       societyname: json['societyname'] ?? '',
-      galinumber: json['galinumber'] ?? '',
+      galinumber: json['galinumber']?.toString() ?? '',
       landmark: json['landmark'] ?? '',
       city: json['city'] ?? '',
       state: json['state'] ?? '',

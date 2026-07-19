@@ -48,6 +48,15 @@ class AddressData {
   DateTime cdate;
   DateTime modifiedDate;
   int isDefault;
+  String? houseFlatFloorNo;
+  String? societyGaliBlockNo;
+  int? localityid;
+  int? sectorid;
+  int? stateid;
+  int? districtid;
+  int? subdivisionid;
+  String? subdivisionname;
+  int? assignedstatus;
 
   AddressData({
     required this.id,
@@ -67,6 +76,15 @@ class AddressData {
     required this.cdate,
     required this.modifiedDate,
     required this.isDefault,
+    this.houseFlatFloorNo,
+    this.societyGaliBlockNo,
+    this.localityid,
+    this.sectorid,
+    this.stateid,
+    this.districtid,
+    this.subdivisionid,
+    this.subdivisionname,
+    this.assignedstatus,
   });
 
   factory AddressData.fromJson(Map<String, dynamic> json) {
@@ -75,15 +93,15 @@ class AddressData {
       fullAddress: json["fulladdress"]?.toString() ?? "",
       userid: json["userid"] ?? 0,
       floornumber: json["floornumber"] is int ? json["floornumber"] : int.tryParse(json["floornumber"]?.toString() ?? "") ?? 0,
-      housenumber: json["housenumber"] ?? "",
-      flatnumber: json["flatnumber"] ?? "",
-      societyname: json["societyname"] ?? "",
-      galinumber: json["galinumber"] ?? "",
-      sector: json["sector"] ?? "",
-      landmark: json["landmark"] ?? "",
-      city: json["city"] ?? "",
-      state: json["state"] ?? "",
-      pincode: json["pincode"] ?? "",
+      housenumber: json["housenumber"]?.toString() ?? "",
+      flatnumber: json["flatnumber"]?.toString() ?? "",
+      societyname: json["societyname"]?.toString() ?? "",
+      galinumber: json["galinumber"]?.toString() ?? "",
+      sector: json["sector"]?.toString() ?? "",
+      landmark: json["landmark"]?.toString() ?? "",
+      city: json["city"]?.toString() ?? "",
+      state: json["state"]?.toString() ?? "",
+      pincode: json["pincode"]?.toString() ?? "",
       status: json["status"] ?? 0,
       cdate: json["cdate"] == null
           ? DateTime.now()
@@ -92,6 +110,15 @@ class AddressData {
           ? DateTime.now()
           : DateTime.parse(json["modified_date"]),
       isDefault: json["is_default_address"] ?? 0,
+      houseFlatFloorNo: json["house_flat_floor_no"]?.toString(),
+      societyGaliBlockNo: json["society_gali_block_no"]?.toString(),
+      localityid: json["localityid"] is int ? json["localityid"] : int.tryParse(json["localityid"]?.toString() ?? ""),
+      sectorid: json["sectorid"] is int ? json["sectorid"] : int.tryParse(json["sectorid"]?.toString() ?? ""),
+      stateid: json["stateid"] is int ? json["stateid"] : int.tryParse(json["stateid"]?.toString() ?? ""),
+      districtid: json["districtid"] is int ? json["districtid"] : int.tryParse(json["districtid"]?.toString() ?? ""),
+      subdivisionid: json["subdivisionid"] is int ? json["subdivisionid"] : int.tryParse(json["subdivisionid"]?.toString() ?? ""),
+      subdivisionname: json["subdivisionname"]?.toString(),
+      assignedstatus: json["assignedstatus"] is int ? json["assignedstatus"] : int.tryParse(json["assignedstatus"]?.toString() ?? ""),
     );
   }
 
@@ -114,6 +141,15 @@ class AddressData {
       "cdate": cdate.toIso8601String(),
       "modified_date": modifiedDate.toIso8601String(),
       "is_default_address": isDefault,
+      "house_flat_floor_no": houseFlatFloorNo,
+      "society_gali_block_no": societyGaliBlockNo,
+      "localityid": localityid,
+      "sectorid": sectorid,
+      "stateid": stateid,
+      "districtid": districtid,
+      "subdivisionid": subdivisionid,
+      "subdivisionname": subdivisionname,
+      "assignedstatus": assignedstatus,
     };
   }
 }

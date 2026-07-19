@@ -46,8 +46,15 @@ class EditAddressController extends GetxController {
     addressController.text =
         addressData?.fullAddress ?? "";
 
-    houseNoController.text =
-        addressData?.housenumber ?? "";
+    final displayHouse = addressData?.houseFlatFloorNo != null && addressData!.houseFlatFloorNo!.isNotEmpty
+        ? addressData!.houseFlatFloorNo!
+        : addressData?.housenumber ?? "";
+
+    final displaySociety = addressData?.societyGaliBlockNo != null && addressData!.societyGaliBlockNo!.isNotEmpty
+        ? addressData!.societyGaliBlockNo!
+        : addressData?.societyname ?? "";
+
+    houseNoController.text = displayHouse;
 
     flatNoController.text =
         addressData?.flatnumber ?? "";
@@ -55,8 +62,7 @@ class EditAddressController extends GetxController {
     streetNameController.text =
         addressData?.galinumber ?? "";
 
-    societyNameController.text =
-        addressData?.societyname ?? "";
+    societyNameController.text = displaySociety;
 
     galiNumberController.text =
         addressData?.galinumber ?? "";

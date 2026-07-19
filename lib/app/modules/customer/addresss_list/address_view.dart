@@ -351,9 +351,16 @@ class AddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final displaySociety = model.societyGaliBlockNo != null && model.societyGaliBlockNo!.isNotEmpty
+        ? model.societyGaliBlockNo
+        : model.societyname;
+    final displayHouse = model.houseFlatFloorNo != null && model.houseFlatFloorNo!.isNotEmpty
+        ? model.houseFlatFloorNo
+        : model.housenumber;
+
     final fullAddress =
-        "Society Name - ${model.societyname}\n"
-        "House Number - ${model.housenumber}\n"
+        "Society Name - $displaySociety\n"
+        "House Number - $displayHouse\n"
         "Falt No - ${model.flatnumber}\n"
         "Gali No - ${model.galinumber}\n"
         "Sector - ${model.sector}\n"

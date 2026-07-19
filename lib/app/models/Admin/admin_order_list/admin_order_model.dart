@@ -319,7 +319,7 @@ class Address {
       housenumber: json['housenumber'] ?? '',
       flatnumber: json['flatnumber'] ?? '',
       societyname: json['societyname'] ?? '',
-      galinumber: json['galinumber'] ?? '',
+      galinumber: json['galinumber']?.toString() ?? '',
       sector: json['sector']?.toString() ?? '',
       landmark: json['landmark'] ?? '',
       city: json['city'] ?? '',
