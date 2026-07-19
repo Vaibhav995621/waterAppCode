@@ -42,7 +42,7 @@ class OrdersController extends GetxController {
       final data = await _repo.getActiveOrderList(AppSession.userId);
 
       /// ❌ API Error
-      if (data.statusCode == "201") {
+      if (data.statusCode == "201" && data.message != "No Data Found") {
         AppSnackbar.error(data.message);
         return false;
       }

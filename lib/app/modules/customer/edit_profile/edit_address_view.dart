@@ -1,7 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_address_controller.dart';
+import '../../../models/register_model/state_list_model.dart';
+import '../../../models/register_model/district_list_model.dart';
+import '../../../models/register_model/subdivision_list_model.dart';
+import '../../../models/register_model/register_sector_list_model.dart';
+import '../../../models/register_model/register_locality_list_model.dart';
 
 class EditAddressView extends GetView<EditAddressController> {
    const EditAddressView({super.key});
@@ -9,7 +13,7 @@ class EditAddressView extends GetView<EditAddressController> {
   @override
   Widget build(BuildContext context) {
 
-    return   Scaffold(
+    return Scaffold(
       backgroundColor: const Color(0xffF4F7FC),
 
       bottomNavigationBar: SafeArea(
@@ -61,20 +65,25 @@ class EditAddressView extends GetView<EditAddressController> {
                 key: controller.formKey,
                 child: Column(
                   children: [
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 30),
 
                     _field("Address", controller.addressController),
-                    _field("House No", controller.houseNoController),
-                    _field("Flat No", controller.flatNoController),
-                    _field("Floor Number", controller.floorNoController),
-                    _field("Street Name", controller.streetNameController),
-                    _field("Society Name", controller.societyNameController),
-                    _field("Gali Number", controller.galiNumberController),
-                    _field("Sector", controller.sectorController),
-                    _field("Landmark", controller.landmarkController),
-                    _field("City", controller.cityController),
-                    _field("State", controller.stateController),
+
+                    _stateDropdownField(),
+
+                    _cityDropdownField(),
+
+                    _districtDropdownField(),
+
+                    _sectorDropdownField(),
+
+                    _localityDropdownField(),
+
                     _field("PinCode", controller.pinCodeController),
+
+                    _field("House No / Falt NO", controller.houseNoController),
+
+                    _field("Landmark", controller.landmarkController),
 
                     const SizedBox(height: 20),
                   ],
@@ -88,8 +97,6 @@ class EditAddressView extends GetView<EditAddressController> {
       ),
     );
   }
-
-
 
   /// 🔤 Common TextField
   Widget _field(
@@ -153,4 +160,382 @@ class EditAddressView extends GetView<EditAddressController> {
     );
   }
 
+  Widget _stateDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              "State",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isStateLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<StateData>(
+              value: controller.selectedState.value,
+              hint: const Text("Select State"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: controller.states.map((state) {
+                return DropdownMenuItem<StateData>(
+                  value: state,
+                  child: Text(state.statename),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "State is required";
+                return null;
+              },
+              onChanged: (StateData? newValue) {
+                controller.onStateSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _cityDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              "City",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isDistrictLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<DistrictData>(
+              key: ValueKey(controller.selectedState.value?.id),
+              value: controller.selectedDistrict.value,
+              hint: const Text("Select City"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: controller.districts.map((district) {
+                return DropdownMenuItem<DistrictData>(
+                  value: district,
+                  child: Text(district.districtname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "City is required";
+                return null;
+              },
+              onChanged: (DistrictData? newValue) {
+                controller.onDistrictSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _districtDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              "District",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isSubdivisionLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<SubdivisionData>(
+              key: ValueKey(controller.selectedDistrict.value?.id),
+              value: controller.selectedSubdivision.value,
+              hint: const Text("Select District"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: controller.subdivisions.map((subdivision) {
+                return DropdownMenuItem<SubdivisionData>(
+                  value: subdivision,
+                  child: Text(subdivision.subdivisionname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "District is required";
+                return null;
+              },
+              onChanged: (SubdivisionData? newValue) {
+                controller.onSubdivisionSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectorDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              "Sector/Locality",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isSectorLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<RegisterSectorData>(
+              key: ValueKey(controller.selectedSubdivision.value?.id),
+              value: controller.selectedSector.value,
+              hint: const Text("Select Sector/Locality"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: controller.sectors.map((sector) {
+                return DropdownMenuItem<RegisterSectorData>(
+                  value: sector,
+                  child: Text(sector.sectororvillagename),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "Sector/Locality is required";
+                return null;
+              },
+              onChanged: (RegisterSectorData? newValue) {
+                controller.onSectorSelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _localityDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              "Street Name/ Block Name / Gali No",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          Obx(() {
+            if (controller.isLocalityLoading.value) {
+              return const SizedBox(
+                height: 55,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return DropdownButtonFormField<RegisterLocalityData>(
+              key: ValueKey(controller.selectedSector.value?.id),
+              value: controller.selectedLocality.value,
+              hint: const Text("Select Street Name/ Block Name / Gali No"),
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: controller.localities.map((locality) {
+                return DropdownMenuItem<RegisterLocalityData>(
+                  value: locality,
+                  child: Text(locality.localityname),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null) return "Street/Block/Gali is required";
+                return null;
+              },
+              onChanged: (RegisterLocalityData? newValue) {
+                controller.onLocalitySelected(newValue);
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
 }
