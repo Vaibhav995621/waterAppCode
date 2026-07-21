@@ -357,13 +357,14 @@ class AddressCard extends StatelessWidget {
     final displayHouse = model.houseFlatFloorNo != null && model.houseFlatFloorNo!.isNotEmpty
         ? model.houseFlatFloorNo
         : model.housenumber;
+    final displaySector = model.sectornumber != null && model.sectornumber!.isNotEmpty
+        ? model.sectornumber
+        : 'NA';
 
     final fullAddress =
-        "Society Name - $displaySociety\n"
-        "House Number - $displayHouse\n"
-        "Falt No - ${model.flatnumber}\n"
-        "Gali No - ${model.galinumber}\n"
-        "Sector - ${model.sector}\n"
+        "Gali / society / Block - $displaySociety\n"
+        "Flat No / House No - $displayHouse\n"
+        "Sector - $displaySector\n"
         "Landmark - ${model.landmark}\n"
         "City - ${model.city} "
         "State - ${model.state} "

@@ -8,7 +8,7 @@ class AdminOrderListController extends GetxController {
   final AuthRepository _repo = AuthRepository();
 
   RxBool isLoading = false.obs;
-  RxString activeTab = 'Pending'.obs;
+  RxString activeTab = 'Assigned'.obs;
 
   /// Multi Selection
   RxBool isSelectionMode = false.obs;

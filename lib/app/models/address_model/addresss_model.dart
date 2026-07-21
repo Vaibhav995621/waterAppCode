@@ -39,7 +39,6 @@ class AddressData {
   String flatnumber;
   String societyname;
   String galinumber;
-  String sector;
   String landmark;
   String city;
   String state;
@@ -56,6 +55,7 @@ class AddressData {
   int? districtid;
   int? subdivisionid;
   String? subdivisionname;
+  String? sectornumber;
   int? assignedstatus;
 
   AddressData({
@@ -67,7 +67,6 @@ class AddressData {
     required this.flatnumber,
     required this.societyname,
     required this.galinumber,
-    required this.sector,
     required this.landmark,
     required this.city,
     required this.state,
@@ -84,6 +83,7 @@ class AddressData {
     this.districtid,
     this.subdivisionid,
     this.subdivisionname,
+    this.sectornumber,
     this.assignedstatus,
   });
 
@@ -97,7 +97,6 @@ class AddressData {
       flatnumber: json["flatnumber"]?.toString() ?? "",
       societyname: json["societyname"]?.toString() ?? "",
       galinumber: json["galinumber"]?.toString() ?? "",
-      sector: json["sector"]?.toString() ?? "",
       landmark: json["landmark"]?.toString() ?? "",
       city: json["city"]?.toString() ?? "",
       state: json["state"]?.toString() ?? "",
@@ -118,6 +117,7 @@ class AddressData {
       districtid: json["districtid"] is int ? json["districtid"] : int.tryParse(json["districtid"]?.toString() ?? ""),
       subdivisionid: json["subdivisionid"] is int ? json["subdivisionid"] : int.tryParse(json["subdivisionid"]?.toString() ?? ""),
       subdivisionname: json["subdivisionname"]?.toString(),
+      sectornumber: json["sectornumber"]?.toString(),
       assignedstatus: json["assignedstatus"] is int ? json["assignedstatus"] : int.tryParse(json["assignedstatus"]?.toString() ?? ""),
     );
   }
@@ -132,7 +132,6 @@ class AddressData {
       "flatnumber": flatnumber,
       "societyname": societyname,
       "galinumber": galinumber,
-      "sector": sector,
       "landmark": landmark,
       "city": city,
       "state": state,
@@ -149,6 +148,7 @@ class AddressData {
       "districtid": districtid,
       "subdivisionid": subdivisionid,
       "subdivisionname": subdivisionname,
+      "sectornumber": sectornumber,
       "assignedstatus": assignedstatus,
     };
   }

@@ -362,7 +362,7 @@ class EditAddressController extends GetxController {
       "house_flat_floor_no": houseNoController.text,
       "society_gali_block_no": selectedLocality.value?.localityname ?? addressData?.societyGaliBlockNo ?? addressData?.societyname ?? "",
       "localityid": selectedLocality.value?.id.toString() ?? addressData?.localityid?.toString() ?? "",
-      "sectornumber": selectedSector.value?.sectororvillagename ?? addressData?.sector ?? "",
+      "sectornumber": selectedSector.value?.sectororvillagename ??  "NA",
       "sectorid": selectedSector.value?.id.toString() ?? addressData?.sectorid?.toString() ?? "",
       "landmark": landmarkController.text,
       "stateid": selectedState.value?.id.toString() ?? addressData?.stateid?.toString() ?? "",

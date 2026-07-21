@@ -496,7 +496,7 @@ class PaymentScreen extends StatelessWidget {
                                 "${address.flatnumber.isNotEmpty ? '${address.flatnumber}, ' : ''}"
                                 "${address.housenumber.isNotEmpty ? '${address.housenumber}, ' : ''}"
                                 "${address.societyname.isNotEmpty ? '${address.societyname}, ' : ''}"
-                                "${address.sector.isNotEmpty ? '${address.sector}, ' : ''}"
+                                "${(address.sectornumber ?? "").isNotEmpty ? '${address.sectornumber}, ' : ''}"
                                 "${address.city.isNotEmpty ? '${address.city} ' : ''}"
                                 "${address.pincode.isNotEmpty ? '- ${address.pincode}' : ''}",
                                 style: TextStyle(

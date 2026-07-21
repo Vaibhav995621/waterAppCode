@@ -81,7 +81,7 @@ class EditAddressView extends GetView<EditAddressController> {
 
                     _field("PinCode", controller.pinCodeController),
 
-                    _field("House No / Falt NO", controller.houseNoController),
+                    _field("Flat No / House No", controller.houseNoController),
 
                     _field("Landmark", controller.landmarkController),
 
