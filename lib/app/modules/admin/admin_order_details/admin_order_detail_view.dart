@@ -115,7 +115,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                           _detailRow(
                             "Water Bottle Name",
-                            displayValue(order.waterbottle_name),
+                            displayValue(order.waterbottleName),
                           ),
 
                           _detailRow(
@@ -170,6 +170,18 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                             order.customerDetails.address.fulladdress,
                           ),
 
+                          _detailRow(
+                            "Flat No / House No.",
+                            displayValue(order.customerDetails.address.houseFlatFloorNo.toString()),
+                          ),
+                          _detailRow(
+                            "Gali / Society / Block",
+                            displayValue(order.customerDetails.address.societyGaliBlockNo.toString()),
+                          ),
+                          _detailRow(
+                            "Sector",
+                            displayValue(order.customerDetails.address.sectornumber.toString()),
+                          ),
                           _detailRow(
                             "Landmark",
                             order.customerDetails.address.landmark,

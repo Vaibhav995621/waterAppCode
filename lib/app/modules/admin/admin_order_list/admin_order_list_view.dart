@@ -386,7 +386,7 @@ class AdminOrderListView extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      getCompleteAddress(order.customerDetails.address),
+                                      order.customerDetails.address.fulladdress,
                                       style: TextStyle(
                                         height: 1.2,
                                         fontSize: 12,
@@ -625,42 +625,42 @@ class AdminOrderListView extends StatelessWidget {
       ),
     );
   }
-  String getCompleteAddress(dynamic address) {
+  String getCompleteAddress(Address address) {
     final parts = <String>[];
 
-    if (address.housenumber?.toString().isNotEmpty ?? false) {
-      parts.add("House No. ${address.housenumber}");
+    if (address.housenumber.toString().isNotEmpty ?? false) {
+      parts.add("House No. ${address.houseFlatFloorNo}");
     }
 
-    if (address.flatnumber?.toString().isNotEmpty ?? false) {
+    if (address.flatnumber.toString().isNotEmpty ?? false) {
       parts.add("Flat ${address.flatnumber}");
     }
 
-    if (address.floornumber != null && address.floornumber != 0) {
+    if (address.floornumber != 0) {
       parts.add("Floor ${address.floornumber}");
     }
 
-    if (address.societyname?.toString().isNotEmpty ?? false) {
+    if (address.societyname.toString().isNotEmpty ?? false) {
       parts.add(address.societyname);
     }
 
-    if (address.galinumber?.toString().isNotEmpty ?? false) {
-      parts.add("Gali ${address.galinumber}");
+    if (address.galinumber.toString().isNotEmpty ?? false) {
+      parts.add("Gali ${address.societyGaliBlockNo}");
     }
 
-    if (address.landmark?.toString().isNotEmpty ?? false) {
+    if (address.landmark.toString().isNotEmpty ?? false) {
       parts.add("Near ${address.landmark}");
     }
 
-    if (address.city?.toString().isNotEmpty ?? false) {
+    if (address.city.toString().isNotEmpty ?? false) {
       parts.add(address.city);
     }
 
-    if (address.state?.toString().isNotEmpty ?? false) {
+    if (address.state.toString().isNotEmpty ?? false) {
       parts.add(address.state);
     }
 
-    if (address.pincode?.toString().isNotEmpty ?? false) {
+    if (address.pincode.toString().isNotEmpty ?? false) {
       parts.add(address.pincode);
     }
 

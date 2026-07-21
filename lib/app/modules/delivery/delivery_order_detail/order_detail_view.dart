@@ -113,7 +113,7 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Bottle Details',
               children: [
-                _row('Bottle', displayValue(order.waterbottle_name)),
+                _row('Bottle', displayValue(order.waterbottleName)),
                 _row('Weight', displayValue(order.bottleWeight)),
                 _row('Description', displayValue(order.bottleDescription)),
               ],
@@ -125,13 +125,41 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             _sectionCard(
               title: 'Delivery Address',
               children: [
-                Text(
-                  '${order.customerDetails.address.housenumber}, '
-                  '${order.customerDetails.address.flatnumber}, '
-                  '${order.customerDetails.address.societyname}\n'
-                  '${order.customerDetails.address.galinumber}\n'
-                  '${order.customerDetails.address.landmark}\n'
-                  '${order.customerDetails.address.city}, ${order.customerDetails.address.state} - ${order.customerDetails.address.pincode}',
+                _detailRow(
+                  "Address",
+                  order.customerDetails.address.fulladdress,
+                ),
+
+                _detailRow(
+                  "Flat No / House No.",
+                  displayValue(order.customerDetails.address.houseFlatFloorNo.toString()),
+                ),
+                _detailRow(
+                  "Gali / Society / Block",
+                  displayValue(order.customerDetails.address.societyGaliBlockNo.toString()),
+                ),
+                _detailRow(
+                  "Sector",
+                  displayValue(order.customerDetails.address.sectornumber.toString()),
+                ),
+                _detailRow(
+                  "Landmark",
+                  order.customerDetails.address.landmark,
+                ),
+
+                _detailRow(
+                  "City",
+                  order.customerDetails.address.city,
+                ),
+
+                _detailRow(
+                  "State",
+                  order.customerDetails.address.state,
+                ),
+
+                _detailRow(
+                  "Pincode",
+                  order.customerDetails.address.pincode,
                 ),
               ],
             ),
@@ -151,6 +179,53 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             // Bottom status delivered container has been removed
           ],
         ),
+      ),
+    );
+  }
+  Widget _detailRow(String title, String value, {VoidCallback? onCallTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(title, style: TextStyle(color: Colors.grey.shade600)),
+          ),
+          Expanded(
+            flex: 3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (onCallTap != null && value.isNotEmpty && value != "N/A") ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: onCallTap,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.call,
+                        color: Colors.green,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

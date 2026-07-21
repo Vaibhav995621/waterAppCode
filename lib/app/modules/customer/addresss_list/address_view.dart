@@ -503,13 +503,14 @@ class AddressCard extends StatelessWidget {
                       const SizedBox(height: 6),
 
                       Text(
-                         "",
+                         fullAddress,
 
                         style: TextStyle(
                           color: selected
                               ? Colors.white70
-                              : Colors.grey,
-                          fontSize: 14,
+                              : Colors.grey.shade700,
+                          fontSize: 13,
+                          height: 1.5,
                         ),
                       ),
 

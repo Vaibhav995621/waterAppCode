@@ -133,7 +133,7 @@ class AdminOrderListController extends GetxController {
     // Apply Sector Filter
     if (selectedSector.value.isNotEmpty) {
       tempOrders = tempOrders.where((order) {
-        return order.customerDetails.address.sector.toString().toLowerCase() ==
+        return order.customerDetails.address.sectornumber.toString().toLowerCase() ==
             selectedSector.value.toLowerCase();
       }).toList();
     }
@@ -147,7 +147,7 @@ class AdminOrderListController extends GetxController {
         final mobile = order.customerDetails.mobile.toString().toLowerCase();
         
         final addr = order.customerDetails.address;
-        final sector = addr.sector.toString().toLowerCase();
+        final sector = addr.sectornumber.toString().toLowerCase();
         final fulladdress = addr.fulladdress.toString().toLowerCase();
         final societyname = addr.societyname.toString().toLowerCase();
         final housenumber = addr.housenumber.toString().toLowerCase();

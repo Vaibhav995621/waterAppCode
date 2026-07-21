@@ -378,14 +378,12 @@ class OrdersView extends GetView<OrdersController> {
   String getCompleteAddress(Order order) {
     final addr = order.customerDetails.address;
     final parts = [
-      addr.housenumber,
-      addr.flatnumber,
-      addr.societyname,
-      addr.galinumber,
-      addr.landmark,
-      addr.city,
-      addr.state,
-      addr.pincode
+      addr.fulladdress,
+      // addr.houseFlatFloorNo,
+      // addr.landmark,
+      // addr.city,
+      // addr.state,
+      // addr.pincode
     ].map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e != 'null').toList();
 
     return parts.isEmpty ? "N/A" : parts.join(", ");
@@ -581,7 +579,7 @@ class OrdersView extends GetView<OrdersController> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      "${order.waterbottle_name}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
+                      "${order.waterbottleName}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
                       style: TextStyle(
                         height: 1.2,
                         fontSize: 12,

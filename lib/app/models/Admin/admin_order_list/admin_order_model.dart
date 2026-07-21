@@ -28,7 +28,14 @@ class AdminOrderListModel {
   }
 }
 
+/// Supports both:
+///   - Single order detail response: data = { ...order fields... }
+///   - Order list response:           data = { all_orders: [...], pending_orders: [...], ... }
 class Data {
+  // Single-order detail fields (new API)
+  Order? order;
+
+  // List-based fields (existing order-list API)
   List<Order> allOrders;
   List<Order> pendingOrders;
   List<Order> assignedOrders;
@@ -36,6 +43,7 @@ class Data {
   List<Order> deliveredOrders;
 
   Data({
+    this.order,
     required this.allOrders,
     required this.pendingOrders,
     required this.assignedOrders,
@@ -44,7 +52,12 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
+    // Detect single-order response by presence of 'id' / 'ordernumber' at root
+    final isSingleOrder = json.containsKey('ordernumber') || json.containsKey('id');
+
     return Data(
+      order: isSingleOrder ? Order.fromJson(json) : null,
+
       allOrders: (json['all_orders'] as List? ?? [])
           .map((e) => Order.fromJson(e))
           .toList(),
@@ -70,6 +83,9 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
+    if (order != null) {
+      return order!.toJson();
+    }
     return {
       'all_orders':
       allOrders.map((e) => e.toJson()).toList(),
@@ -103,7 +119,7 @@ class Order {
   String customerName;
   String deliveryPartnerName;
   String statusText;
-  String waterbottle_name;
+  String waterbottleName;
   int deliveryPartnerId;
   CustomerDetails customerDetails;
   DeliveryDetails deliveryDetails;
@@ -136,7 +152,7 @@ class Order {
     required this.deliveryPartnerId,
     required this.customerDetails,
     required this.deliveryDetails,
-    required this.waterbottle_name,
+    required this.waterbottleName,
     required this.bottleWeight,
     required this.bottleOriginalprice,
     required this.bottleDiscountprice,
@@ -149,7 +165,7 @@ class Order {
       id: json['id'] ?? 0,
       customerid: json['customerid'] ?? 0,
       ordernumber: json['ordernumber'] ?? '',
-      waterbottle_name: (json['waterbottle_name'] ?? json['waterbottel_name'] ?? json['waterbottleName'] ?? json['waterbottelName'] ?? json['waterbottlename'] ?? json['waterbottelname'] ?? json['bottle_name'] ?? json['bottel_name'] ?? json['bottleName'] ?? json['bottelName'] ?? json['name'] ?? '').toString(),
+      waterbottleName: (json['waterbottle_name'] ?? json['waterbottel_name'] ?? json['waterbottleName'] ?? json['waterbottelName'] ?? json['waterbottlename'] ?? json['waterbottelname'] ?? json['bottle_name'] ?? json['bottel_name'] ?? json['bottleName'] ?? json['bottelName'] ?? json['name'] ?? '').toString(),
       waterbottleid: json['waterbottleid'] ?? 0,
       price: json['price']?.toString() ?? '',
       quantity: json['quantity'] ?? 0,
@@ -212,7 +228,7 @@ class Order {
       'delivery_partner_id': deliveryPartnerId,
       'customer_details': customerDetails.toJson(),
       'delivery_details': deliveryDetails.toJson(),
-      'waterbottle_name': waterbottle_name,
+      'waterbottle_name': waterbottleName,
       'bottle_weight': bottleWeight,
       'bottle_originalprice': bottleOriginalprice,
       'bottle_discountprice': bottleDiscountprice,
@@ -228,6 +244,7 @@ class CustomerDetails {
   String mobile;
   String email;
   String photo;
+  int planbottlequantity;
   int status;
   DateTime cdate;
   int role;
@@ -239,6 +256,7 @@ class CustomerDetails {
     required this.mobile,
     required this.email,
     required this.photo,
+    required this.planbottlequantity,
     required this.status,
     required this.cdate,
     required this.role,
@@ -254,6 +272,7 @@ class CustomerDetails {
       mobile: json['mobile'] ?? '',
       email: json['email'] ?? '',
       photo: json['photo'] ?? '',
+      planbottlequantity: json['planbottlequantity'] ?? 0,
       status: json['status'] ?? 0,
       cdate: DateTime.tryParse(
         json['cdate'] ?? '',
@@ -273,6 +292,7 @@ class CustomerDetails {
       'mobile': mobile,
       'email': email,
       'photo': photo,
+      'planbottlequantity': planbottlequantity,
       'status': status,
       'cdate': cdate.toIso8601String(),
       'role': role,
@@ -287,13 +307,21 @@ class Address {
   String housenumber;
   String flatnumber;
   String societyname;
-  String galinumber;
-  String sector;
+  int galinumber;          // int (was String)
+  String houseFlatFloorNo; // house_flat_floor_no
+  String societyGaliBlockNo; // society_gali_block_no
+  int localityid;
+  String sectornumber;
+  int sectorid;
   String landmark;
+  int stateid;
+  int districtid;
+  int subdivisionid;
+  String subdivisionname;
   String city;
   String state;
   String pincode;
-  int isDefaultAddress;
+  int isDefaultAddress;    // key: is_default_address
 
   Address({
     required this.fulladdress,
@@ -302,8 +330,16 @@ class Address {
     required this.flatnumber,
     required this.societyname,
     required this.galinumber,
-    required this.sector,
+    required this.houseFlatFloorNo,
+    required this.societyGaliBlockNo,
+    required this.localityid,
+    required this.sectornumber,
+    required this.sectorid,
     required this.landmark,
+    required this.stateid,
+    required this.districtid,
+    required this.subdivisionid,
+    required this.subdivisionname,
     required this.city,
     required this.state,
     required this.pincode,
@@ -316,17 +352,24 @@ class Address {
     return Address(
       fulladdress: json['fulladdress'] ?? '',
       floornumber: json['floornumber'] ?? 0,
-      housenumber: json['housenumber'] ?? '',
-      flatnumber: json['flatnumber'] ?? '',
-      societyname: json['societyname'] ?? '',
-      galinumber: json['galinumber']?.toString() ?? '',
-      sector: json['sector']?.toString() ?? '',
-      landmark: json['landmark'] ?? '',
-      city: json['city'] ?? '',
-      state: json['state'] ?? '',
-      pincode: json['pincode'] ?? '',
-      isDefaultAddress:
-      json['isDefaultAddress'] ?? 0,
+      housenumber: json['housenumber']?.toString() ?? '',
+      flatnumber: json['flatnumber']?.toString() ?? '',
+      societyname: json['societyname']?.toString() ?? '',
+      galinumber: json['galinumber'] ?? 0,
+      houseFlatFloorNo: json['house_flat_floor_no']?.toString() ?? '',
+      societyGaliBlockNo: json['society_gali_block_no']?.toString() ?? '',
+      localityid: json['localityid'] ?? 0,
+      sectornumber: json['sectornumber']?.toString() ?? '',
+      sectorid: json['sectorid'] ?? 0,
+      landmark: json['landmark']?.toString() ?? '',
+      stateid: json['stateid'] ?? 0,
+      districtid: json['districtid'] ?? 0,
+      subdivisionid: json['subdivisionid'] ?? 0,
+      subdivisionname: json['subdivisionname'] ?? '',
+      city: json['city']?.toString() ?? '',
+      state: json['state']?.toString() ?? '',
+      pincode: json['pincode']?.toString() ?? '',
+      isDefaultAddress: json['is_default_address'] ?? json['isDefaultAddress'] ?? 0,
     );
   }
 
@@ -338,12 +381,20 @@ class Address {
       'flatnumber': flatnumber,
       'societyname': societyname,
       'galinumber': galinumber,
-      'sector': sector,
+      'house_flat_floor_no': houseFlatFloorNo,
+      'society_gali_block_no': societyGaliBlockNo,
+      'localityid': localityid,
+      'sectornumber': sectornumber,
+      'sectorid': sectorid,
       'landmark': landmark,
+      'stateid': stateid,
+      'districtid': districtid,
+      'subdivisionid': subdivisionid,
+      'subdivisionname': subdivisionname,
       'city': city,
       'state': state,
       'pincode': pincode,
-      'isDefaultAddress': isDefaultAddress,
+      'is_default_address': isDefaultAddress,
     };
   }
 }

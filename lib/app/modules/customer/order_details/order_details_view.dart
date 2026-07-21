@@ -127,7 +127,7 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
 
                         _detailRow(
                           "Water Bottle Name",
-                          displayValue(order.waterbottle_name),
+                          displayValue(order.waterbottleName),
                         ),
 
                         _detailRow(
@@ -180,22 +180,24 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                   _sectionTitle("Delivery Address"),
                   _buildCard(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        /// Full address summary at the top
+                        _buildFullAddressSummary(order),
+
+                        const Divider(height: 24, thickness: 0.5),
+
                         _detailRow(
-                          "House No.",
-                          displayValue(order.customerDetails.address.housenumber),
+                          "Flat No / House No.",
+                          _buildFlatHouseValue(order),
                         ),
                         _detailRow(
-                          "Flat No.",
-                          displayValue(order.customerDetails.address.flatnumber),
+                          "Gali / Society / Block",
+                          _buildGaliSocietyValue(order),
                         ),
                         _detailRow(
-                          "Society Name",
-                          displayValue(order.customerDetails.address.societyname),
-                        ),
-                        _detailRow(
-                          "Gali / Lane",
-                          displayValue(order.customerDetails.address.galinumber),
+                          "Sector",
+                          displayValue(order.customerDetails.address.sectornumber.toString()),
                         ),
                         _detailRow(
                           "Landmark",
@@ -337,6 +339,79 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
         ],
       ),
       child: child,
+    );
+  }
+
+  /// Helper: combine flat number and house number
+  String _buildFlatHouseValue(Order order) {
+    final flat = displayValue(order.customerDetails.address.houseFlatFloorNo);
+    if (flat != 'N/A') return flat;
+    if (flat != 'N/A') return flat;
+    return 'N/A';
+  }
+
+  /// Helper: combine gali number and society name
+  String _buildGaliSocietyValue(Order order) {
+    final gali = displayValue(order.customerDetails.address.societyGaliBlockNo.toString());
+    if (gali != 'N/A') return gali;
+    if (gali != 'N/A') return gali;
+    return 'N/A';
+  }
+
+  /// Full address summary widget shown at the top of the Delivery Address card
+  Widget _buildFullAddressSummary(Order order) {
+    final addr = order.customerDetails.address;
+    final parts = <String>[];
+
+    final flatHouse = _buildFlatHouseValue(order);
+    if (flatHouse != 'N/A') parts.add(flatHouse);
+
+    final galiSociety = _buildGaliSocietyValue(order);
+    if (galiSociety != 'N/A') parts.add(galiSociety);
+
+    final sector = displayValue(addr.sectornumber.toString());
+    if (sector != 'N/A') parts.add('Sector $sector');
+
+    final landmark = displayValue(addr.landmark);
+    if (landmark != 'N/A') parts.add(landmark);
+
+    final city = displayValue(addr.city);
+    final state = displayValue(addr.state);
+    final pincode = displayValue(addr.pincode);
+
+    final cityStateParts = <String>[];
+    if (city != 'N/A') cityStateParts.add(city);
+    if (state != 'N/A') cityStateParts.add(state);
+    if (pincode != 'N/A') cityStateParts.add(pincode);
+    if (cityStateParts.isNotEmpty) parts.add(cityStateParts.join(', '));
+
+    final fullText = parts.join(', ');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xffEEF4FF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.location_on_rounded, color: Color(0xff1976D2), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              fullText.isEmpty ? 'N/A' : fullText,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xff1A2C56),
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

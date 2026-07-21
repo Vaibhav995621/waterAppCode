@@ -53,11 +53,7 @@ class OrderDetailsController extends GetxController {
     return 'N/A';
   }
 
-  String get galiNumber {
-    final val = orderData?.customerDetails.address.galinumber;
-    if (val != null && val.trim().isNotEmpty) return val;
-    return 'N/A';
-  }
+
 
   String get landmark {
     final val = orderData?.customerDetails.address.landmark;

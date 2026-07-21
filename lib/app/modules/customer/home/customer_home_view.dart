@@ -646,14 +646,14 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
   String getCompleteAddress(Order order) {
     final addr = order.customerDetails.address;
     final parts = [
-      addr.housenumber,
-      addr.flatnumber,
-      addr.societyname,
-      addr.galinumber,
-      addr.landmark,
-      addr.city,
-      addr.state,
-      addr.pincode
+      addr.fulladdress,
+      // addr.flatnumber,
+      // addr.societyname,
+      // addr.galinumber,
+      // addr.landmark,
+      // addr.city,
+      // addr.state,
+      // addr.pincode
     ].map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e != 'null').toList();
 
     return parts.isEmpty ? "N/A" : parts.join(", ");
@@ -848,7 +848,7 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      "${order.waterbottle_name}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
+                      "${order.waterbottleName}${order.bottleWeight.isNotEmpty ? " (${order.bottleWeight})" : ""}",
                       style: TextStyle(
                         height: 1.2,
                         fontSize: 12,

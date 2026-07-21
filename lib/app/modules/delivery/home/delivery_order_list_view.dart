@@ -372,7 +372,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      getCompleteAddress(order.customerDetails.address),
+                     order.customerDetails.address.fulladdress,
                       style: TextStyle(
                         height: 1.2,
                         fontSize: 12,
