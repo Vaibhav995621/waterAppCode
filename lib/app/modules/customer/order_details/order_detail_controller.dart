@@ -104,8 +104,7 @@ class OrderDetailsController extends GetxController {
   }
 
   String get totalAmount =>
-      ((double.tryParse(price) ?? 0) *
-          (int.tryParse(quantity) ?? 1))
+      ((double.tryParse(price) ?? 0))
           .toStringAsFixed(2);
 
   String get deliveryPartnerName {

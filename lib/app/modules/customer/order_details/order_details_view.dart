@@ -226,7 +226,7 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                   _buildCard(
                     child: Column(
                       children: [
-                        _detailRow("Price (Per Bottle)", "₹${order.price}"),
+                        _detailRow("Price (Per Bottle)", "₹${order.bottleDiscountprice}"),
                         _detailRow("Total Quantity", "${order.quantity}"),
                         const Divider(height: 24, thickness: 0.5),
                         Padding(
