@@ -45,6 +45,8 @@ import '../app/modules/customer/booking_order/book_water_screen.dart';
 import '../app/modules/customer/order_details/order_detail_binding.dart';
 import '../app/modules/customer/payment_successs_screen/payment_success_binding.dart';
 import '../app/modules/customer/select_address/select_address_screen.dart';
+import '../app/modules/customer/order_schedule/order_schedule_binding.dart';
+import '../app/modules/customer/order_schedule/order_schedule_view.dart';
 import '../app/modules/customer/subscription_history_list/subscription_history_binding.dart';
 import '../app/modules/customer/subscription_plan/bottle_subscription_screen.dart';
 import '../app/modules/delivery/delivery_order_detail/order_detail_view.dart';
@@ -193,6 +195,11 @@ class AppPages {
       name: AppRoutes.splash,
       page: () => const SplashView(),
       binding: SplashBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.orderSchedule,
+      page: () => const OrderScheduleScreen(),
+      binding: OrderScheduleBinding(),
     ),
   ];
 }

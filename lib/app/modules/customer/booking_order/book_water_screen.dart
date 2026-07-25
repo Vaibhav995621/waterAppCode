@@ -172,6 +172,66 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     ),
 
                     const SizedBox(height: 15),
+
+                    /// SCHEDULE ORDER BANNER
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(AppRoutes.orderSchedule);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffDDF2E6),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xffC5E8D4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined, color: Color(0xff146950)),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Schedule Water Subscription",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff1B4D3E),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Daily, Weekly or Custom delivery days",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xff146950),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xff146950),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                "Schedule",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
                   ],
                 ),
               ),

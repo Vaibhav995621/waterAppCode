@@ -26,4 +26,5 @@ abstract class AppRoutes {
   static const notifications = '/notifications';
   static const verifyOtp = '/verifyOtp';
   static const splash = '/splash';
+  static const orderSchedule = '/orderSchedule';
 }
