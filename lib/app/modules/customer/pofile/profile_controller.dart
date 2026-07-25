@@ -38,7 +38,7 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
-    // getProfile();
+     getProfile();
     super.onInit();
 
   }

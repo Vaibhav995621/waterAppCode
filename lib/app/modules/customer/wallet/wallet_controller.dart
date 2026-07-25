@@ -59,10 +59,6 @@ class WalletController extends GetxController {
     try {
       isLoading.value = true;
       String customerId = AppSession.userId;
-      if (customerId.isEmpty) {
-        customerId = "25";
-      }
-
       final walletResult = await _repo.getWalletDetails(customerId);
       if (walletResult.statusCode == "200" && walletResult.data != null) {
         currentWalletAmount.value = walletResult.data!.currentWalletAmount;
@@ -102,19 +98,13 @@ class WalletController extends GetxController {
           );
         }).toList();
 
-        if (mappedList.isEmpty) {
-          transactions.assignAll(_getDefaultTransactions());
-        } else {
+
           transactions.assignAll(mappedList);
           _calculateStats(mappedList);
-        }
-      } else {
-        transactions.assignAll(_getDefaultTransactions());
+
       }
     } catch (e) {
-      if (transactions.isEmpty) {
-        transactions.assignAll(_getDefaultTransactions());
-      }
+
     } finally {
       isLoading.value = false;
     }
@@ -146,40 +136,6 @@ class WalletController extends GetxController {
     }
   }
 
-  List<WalletTransaction> _getDefaultTransactions() {
-    totalAdded.value = 5500.0;
-    totalSpent.value = 4250.0;
-    return [
-      WalletTransaction(
-        title: "Added Money",
-        subtitle: "From Razorpay",
-        amount: 500.0,
-        date: DateTime.now().subtract(const Duration(hours: 2)),
-        isCredit: true,
-      ),
-      WalletTransaction(
-        title: "Order Payment",
-        subtitle: "Order #ORD1245",
-        amount: 120.0,
-        date: DateTime.now().subtract(const Duration(days: 1)),
-        isCredit: false,
-      ),
-      WalletTransaction(
-        title: "Order Payment",
-        subtitle: "Order #ORD1244",
-        amount: 220.0,
-        date: DateTime.now().subtract(const Duration(days: 2)),
-        isCredit: false,
-      ),
-      WalletTransaction(
-        title: "Added Money",
-        subtitle: "From Razorpay",
-        amount: 1000.0,
-        date: DateTime.now().subtract(const Duration(days: 5)),
-        isCredit: true,
-      ),
-    ];
-  }
 
   void addMoneyToWallet(double amount) {
     if (amount <= 0) {

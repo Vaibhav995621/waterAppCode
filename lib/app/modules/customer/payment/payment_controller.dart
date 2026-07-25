@@ -52,7 +52,7 @@ class PaymentController extends GetxController {
     // Retrieve or initialize SelectAddressController
     addressController = Get.put(SelectAddressController());
 
-    if (hasActiveSubscription) {
+    if (isSubscriptionOrder) {
       selectedMethod.value = 'subscription';
     } else {
       selectedMethod.value = 'cod';

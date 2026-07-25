@@ -54,6 +54,9 @@ class PaymentScreen extends StatelessWidget {
                     /// PAY VIA SUBSCRIPTION CARD
                     Obx(() {
                       final isSelected = controller.selectedMethod.value == 'subscription';
+                      if (!controller.isSubscriptionOrder) {
+                        return const SizedBox.shrink();
+                      }
                       final hasActiveSub = controller.hasActiveSubscription;
                       return GestureDetector(
                         onTap: () => controller.selectPaymentMethod('subscription'),
