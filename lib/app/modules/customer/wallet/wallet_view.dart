@@ -27,7 +27,6 @@ class WalletView extends GetView<WalletController> {
 
                     // HEADER
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
                           onTap: () {
@@ -53,38 +52,19 @@ class WalletView extends GetView<WalletController> {
                             ),
                           ),
                         ),
-                        const Text(
-                          "My Wallet",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xff0A1D5E),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _showInfoDialog(context);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.help_outline_rounded,
-                              color: Color(0xff1976D2),
-                              size: 18,
+                        const Expanded(
+                          child: Center(
+                            child: Text(
+                              "My Wallet",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xff0A1D5E),
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 38), // Balance the back button to center the title
                       ],
                     ),
 
@@ -521,45 +501,7 @@ class WalletView extends GetView<WalletController> {
 
                     const SizedBox(height: 25),
 
-                    // SECURITY BANNER
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.security,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "Your wallet transactions are secured with 256-bit encryption",
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const Text(
-                            "Learn More",
-                            style: TextStyle(
-                              color: Color(0xff1976D2),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    const SizedBox(height: 30),
                   ],
                 ),
               ),
@@ -753,27 +695,6 @@ class WalletView extends GetView<WalletController> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showInfoDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("About Wallet"),
-          content: const Text(
-            "Use your wallet balance to quickly pay for orders. You get 5% instant cashback every time you load money via UPI or card.",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
     );
   }
 }

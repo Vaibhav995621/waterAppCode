@@ -80,7 +80,9 @@ class WalletController extends GetxController {
             );
           }).toList();
           transactions.assignAll(mappedList);
-          _calculateStats(mappedList);
+          _calculateStats(mappedList,
+              apiAdded: walletResult.data!.totalAddAmount,
+              apiSpent: walletResult.data!.totalSpendAmount);
           isLoading.value = false;
           return;
         }
@@ -118,18 +120,30 @@ class WalletController extends GetxController {
     }
   }
 
-  void _calculateStats(List<WalletTransaction> list) {
-    double added = 0.0;
-    double spent = 0.0;
-    for (var tx in list) {
-      if (tx.isCredit) {
-        added += tx.amount;
-      } else {
-        spent += tx.amount;
+  void _calculateStats(List<WalletTransaction> list, {double? apiAdded, double? apiSpent}) {
+    if (apiAdded != null && apiAdded > 0) {
+      totalAdded.value = apiAdded;
+    } else {
+      double added = 0.0;
+      for (var tx in list) {
+        if (tx.isCredit) {
+          added += tx.amount;
+        }
       }
+      totalAdded.value = added > 0 ? added : 5500.0;
     }
-    totalAdded.value = added > 0 ? added : 5500.0;
-    totalSpent.value = spent > 0 ? spent : 4250.0;
+
+    if (apiSpent != null && apiSpent > 0) {
+      totalSpent.value = apiSpent;
+    } else {
+      double spent = 0.0;
+      for (var tx in list) {
+        if (!tx.isCredit) {
+          spent += tx.amount;
+        }
+      }
+      totalSpent.value = spent > 0 ? spent : 4250.0;
+    }
   }
 
   List<WalletTransaction> _getDefaultTransactions() {

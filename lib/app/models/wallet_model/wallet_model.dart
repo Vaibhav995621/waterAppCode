@@ -23,11 +23,15 @@ class GetWalletModel {
 class WalletData {
   dynamic customerId;
   double currentWalletAmount;
+  double totalSpendAmount;
+  double totalAddAmount;
   List<WalletTransactionItem> transactions;
 
   WalletData({
     required this.customerId,
     required this.currentWalletAmount,
+    required this.totalSpendAmount,
+    required this.totalAddAmount,
     required this.transactions,
   });
 
@@ -35,6 +39,16 @@ class WalletData {
     double amount = 0.0;
     if (json["currentwalletamount"] != null) {
       amount = double.tryParse(json["currentwalletamount"].toString()) ?? 0.0;
+    }
+
+    double totalSpend = 0.0;
+    if (json["totalspendamount"] != null) {
+      totalSpend = double.tryParse(json["totalspendamount"].toString()) ?? 0.0;
+    }
+
+    double totalAdd = 0.0;
+    if (json["totaladdamount"] != null) {
+      totalAdd = double.tryParse(json["totaladdamount"].toString()) ?? 0.0;
     }
 
     List<WalletTransactionItem> txList = [];
@@ -47,6 +61,8 @@ class WalletData {
     return WalletData(
       customerId: json["customer_id"] ?? json["customerid"],
       currentWalletAmount: amount,
+      totalSpendAmount: totalSpend,
+      totalAddAmount: totalAdd,
       transactions: txList,
     );
   }
@@ -69,24 +85,45 @@ class WalletTransactionItem {
 
   factory WalletTransactionItem.fromJson(Map<String, dynamic> json) {
     double amt = 0.0;
-    if (json["amount"] != null) {
-      amt = double.tryParse(json["amount"].toString()) ?? 0.0;
-    } else if (json["totalamount"] != null) {
-      amt = double.tryParse(json["totalamount"].toString()) ?? 0.0;
-    }
-
     bool credit = true;
-    if (json["is_credit"] != null) {
-      credit = json["is_credit"] == true || json["is_credit"].toString() == "1";
-    } else if (json["type"] != null) {
-      credit = json["type"].toString().toLowerCase() == "credit";
+
+    // Check for orderamount/remainamount structure
+    if (json["orderamount"] != null || json["remainamount"] != null) {
+      double orderAmt = 0.0;
+      if (json["orderamount"] != null) {
+        orderAmt = double.tryParse(json["orderamount"].toString()) ?? 0.0;
+      }
+      double remainAmt = 0.0;
+      if (json["remainamount"] != null) {
+        remainAmt = double.tryParse(json["remainamount"].toString()) ?? 0.0;
+      }
+
+      if (orderAmt > 0) {
+        amt = orderAmt;
+        credit = false;
+      } else {
+        amt = remainAmt;
+        credit = true;
+      }
+    } else {
+      if (json["amount"] != null) {
+        amt = double.tryParse(json["amount"].toString()) ?? 0.0;
+      } else if (json["totalamount"] != null) {
+        amt = double.tryParse(json["totalamount"].toString()) ?? 0.0;
+      }
+
+      if (json["is_credit"] != null) {
+        credit = json["is_credit"] == true || json["is_credit"].toString() == "1";
+      } else if (json["type"] != null) {
+        credit = json["type"].toString().toLowerCase() == "credit";
+      }
     }
 
     return WalletTransactionItem(
       title: json["title"]?.toString() ?? (credit ? "Added Money" : "Order Payment"),
       subtitle: json["subtitle"]?.toString() ?? (json["trans_id"] != null ? "Tx: ${json['trans_id']}" : ""),
       amount: amt,
-      date: json["date"]?.toString() ?? json["trans_date"]?.toString() ?? "",
+      date: json["date"]?.toString() ?? json["trans_date"]?.toString() ?? json["cdate"]?.toString() ?? "",
       isCredit: credit,
     );
   }
