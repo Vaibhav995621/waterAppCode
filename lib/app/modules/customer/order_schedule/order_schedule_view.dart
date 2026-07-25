@@ -14,7 +14,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
     final controller = Get.put(OrderScheduleController());
 
     return Scaffold(
-      backgroundColor: const Color(0xffF2F6F3),
+      backgroundColor: const Color(0xffF4F7FC),
       body: SafeArea(
         child: Column(
           children: [
@@ -31,7 +31,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                         Icon(
                           Icons.arrow_back_ios_new,
                           size: 18,
-                          color: Color(0xff1B4D3E),
+                          color: Color(0xff1976D2),
                         ),
                         SizedBox(width: 4),
                         Text(
@@ -39,57 +39,11 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xff1B4D3E),
+                            color: Color(0xff1976D2),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.search,
-                          color: Color(0xff1B4D3E),
-                          size: 24,
-                        ),
-                      ),
-                      Obx(
-                        () => Stack(
-                          children: [
-                            IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
-                                Icons.shopping_cart_outlined,
-                                color: Color(0xff1B4D3E),
-                                size: 24,
-                              ),
-                            ),
-                            if (controller.cartItemCount.value > 0)
-                              Positioned(
-                                right: 6,
-                                top: 6,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff4CAF50),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    "${controller.cartItemCount.value}",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -158,7 +112,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 height: 54,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff146950),
+                    backgroundColor: const Color(0xff1976D2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -189,9 +143,9 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xffDDF2E6),
+        color: const Color(0xffEEF5FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xffC5E8D4)),
+        border: Border.all(color: const Color(0xffD0E6FF)),
       ),
       child: Row(
         children: [
@@ -223,7 +177,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xff146950),
+                      color: const Color(0xff1976D2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
@@ -253,13 +207,13 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
-                    color: Color(0xff1B4D3E),
+                    color: Color(0xff0A1D5E),
                   ),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff146950),
+                    backgroundColor: const Color(0xff1976D2),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -295,7 +249,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: Color(0xff1B4D3E),
+            color: Color(0xff0A1D5E),
           ),
         ),
         const SizedBox(height: 10),
@@ -344,7 +298,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? const Color(0xff1B4D3E) : Colors.grey.shade700,
+              color: isSelected ? const Color(0xff0A1D5E) : Colors.grey.shade700,
             ),
           ),
         ),
@@ -368,7 +322,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xff1B4D3E),
+                  color: Color(0xff0A1D5E),
                 ),
               ),
               const SizedBox(height: 6),
@@ -435,7 +389,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xff1B4D3E),
+                  color: Color(0xff0A1D5E),
                 ),
               ),
               const SizedBox(height: 6),
@@ -507,7 +461,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: Color(0xff1B4D3E),
+            color: Color(0xff0A1D5E),
           ),
         ),
         const SizedBox(height: 6),
@@ -560,7 +514,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Color(0xff1B4D3E),
+            color: Color(0xff0A1D5E),
           ),
         ),
         const SizedBox(height: 10),
@@ -590,7 +544,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? const Color(0xff1B4D3E) : Colors.grey.shade700,
+                      color: isSelected ? const Color(0xff0A1D5E) : Colors.grey.shade700,
                     ),
                   ),
                 ),
@@ -612,7 +566,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Color(0xff1B4D3E),
+            color: Color(0xff0A1D5E),
           ),
         ),
         const SizedBox(height: 10),
@@ -655,7 +609,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? const Color(0xff1B4D3E) : Colors.black87,
+                        color: isSelected ? const Color(0xff0A1D5E) : Colors.black87,
                       ),
                     ),
                   ),
@@ -680,14 +634,14 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
       ),
       child: const Row(
         children: [
-          Icon(Icons.check_circle_outline, color: Color(0xff4CAF50), size: 22),
+          Icon(Icons.check_circle_outline, color: Color(0xff1976D2), size: 22),
           SizedBox(width: 10),
           Expanded(
             child: Text(
               "Daily Delivery: Water jar will be delivered every single day during your subscription period.",
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xff1B4D3E),
+                color: Color(0xff0A1D5E),
                 height: 1.3,
               ),
             ),
@@ -725,7 +679,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 Icon(
                   feat['icon'] as IconData,
                   size: 20,
-                  color: const Color(0xff146950),
+                  color: const Color(0xff1976D2),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -767,7 +721,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: isSelected ? const Color(0xff146950) : Colors.transparent,
+                          color: isSelected ? const Color(0xff1976D2) : Colors.transparent,
                           width: 2.0,
                         ),
                       ),
@@ -777,7 +731,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? const Color(0xff146950) : Colors.grey.shade600,
+                        color: isSelected ? const Color(0xff1976D2) : Colors.grey.shade600,
                       ),
                     ),
                   ),
