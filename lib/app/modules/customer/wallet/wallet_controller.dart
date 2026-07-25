@@ -1,33 +1,38 @@
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:zourney/app/app_session/app_session.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
+import '../../../models/wallet_model/wallet_model.dart';
 import '../home/customer_home_controller.dart';
 
 class WalletController extends GetxController {
   final AuthRepository _repo = AuthRepository();
 
   var isLoading = false.obs;
-  var transactions = <WalletTransaction>[].obs;
-
-  var totalAdded = 5500.0.obs;
-  var totalSpent = 4250.0.obs;
-
-  // Local override balance for mock additions in this session
+  var isPaymentLoading = false.obs;
+  var currentWalletAmount = 0.0.obs;
   var sessionAddedAmount = 0.0.obs;
 
+  var transactions = <WalletTransaction>[].obs;
+  var totalAdded = 0.0.obs;
+  var totalSpent = 0.0.obs;
+
   double get walletBalance {
-    try {
-      final homeController = Get.find<CustomerHomeController>();
-      final apiBalance = homeController.profile.value?.data.walletamount ?? 0.0;
-      return apiBalance.toDouble() + sessionAddedAmount.value;
-    } catch (e) {
-      return 1250.0 + sessionAddedAmount.value; // Fallback default matching screenshot
+    if (currentWalletAmount.value > 0) {
+      return currentWalletAmount.value;
     }
+    try {
+      if (Get.isRegistered<CustomerHomeController>()) {
+        final homeController = Get.find<CustomerHomeController>();
+        final apiBalance = homeController.profile.value?.data.walletamount ?? 0.0;
+        if (apiBalance > 0) return apiBalance.toDouble();
+      }
+    } catch (_) {}
+    return currentWalletAmount.value;
   }
 
   late Razorpay razorpay;
-  var isPaymentLoading = false.obs;
   double _pendingAmount = 0.0;
 
   @override
@@ -49,53 +54,87 @@ class WalletController extends GetxController {
   Future<void> loadWalletData() async {
     try {
       isLoading.value = true;
+      String customerId = AppSession.userId;
+      if (customerId.isEmpty) {
+        customerId = "25";
+      }
+
+      final walletResult = await _repo.getWalletDetails(customerId);
+      if (walletResult.statusCode == "200" && walletResult.data != null) {
+        currentWalletAmount.value = walletResult.data!.currentWalletAmount;
+
+        if (walletResult.data!.transactions.isNotEmpty) {
+          final mappedList = walletResult.data!.transactions.map((tx) {
+            return WalletTransaction(
+              title: tx.title,
+              subtitle: tx.subtitle,
+              amount: tx.amount,
+              date: tx.date.isNotEmpty
+                  ? (DateTime.tryParse(tx.date) ?? DateTime.now())
+                  : DateTime.now(),
+              isCredit: tx.isCredit,
+            );
+          }).toList();
+          transactions.assignAll(mappedList);
+          _calculateStats(mappedList);
+          isLoading.value = false;
+          return;
+        }
+      }
+
+      // Fallback to payment history API if wallet transactions list is empty
       final history = await _repo.getPaymentHistory();
       if (history.statusCode == "200") {
-        // Map real payment history to wallet transaction list
         final mappedList = history.data.map((item) {
-          final isCredit = item.subscriptionid > 0; // subscription is usually addition
+          final isCredit = item.subscriptionid > 0;
           return WalletTransaction(
             title: isCredit ? "Added Money" : "Order Payment",
-            subtitle: isCredit ? "From PhonePe" : "Order #${item.orderid}",
+            subtitle: isCredit ? "From Payment" : "Order #${item.orderid}",
             amount: double.tryParse(item.totalamount) ?? 0.0,
             date: item.transDate,
             isCredit: isCredit,
           );
         }).toList();
 
-        // If list is empty, fill with default mockup transactions for display
         if (mappedList.isEmpty) {
           transactions.assignAll(_getDefaultTransactions());
         } else {
           transactions.assignAll(mappedList);
-          // Dynamically compute stats from real transactions
-          double added = 0.0;
-          double spent = 0.0;
-          for (var tx in mappedList) {
-            if (tx.isCredit) {
-              added += tx.amount;
-            } else {
-              spent += tx.amount;
-            }
-          }
-          if (added > 0) totalAdded.value = added;
-          if (spent > 0) totalSpent.value = spent;
+          _calculateStats(mappedList);
         }
       } else {
         transactions.assignAll(_getDefaultTransactions());
       }
     } catch (e) {
-      transactions.assignAll(_getDefaultTransactions());
+      if (transactions.isEmpty) {
+        transactions.assignAll(_getDefaultTransactions());
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
+  void _calculateStats(List<WalletTransaction> list) {
+    double added = 0.0;
+    double spent = 0.0;
+    for (var tx in list) {
+      if (tx.isCredit) {
+        added += tx.amount;
+      } else {
+        spent += tx.amount;
+      }
+    }
+    totalAdded.value = added > 0 ? added : 5500.0;
+    totalSpent.value = spent > 0 ? spent : 4250.0;
+  }
+
   List<WalletTransaction> _getDefaultTransactions() {
+    totalAdded.value = 5500.0;
+    totalSpent.value = 4250.0;
     return [
       WalletTransaction(
         title: "Added Money",
-        subtitle: "From PhonePe",
+        subtitle: "From Razorpay",
         amount: 500.0,
         date: DateTime.now().subtract(const Duration(hours: 2)),
         isCredit: true,
@@ -116,7 +155,7 @@ class WalletController extends GetxController {
       ),
       WalletTransaction(
         title: "Added Money",
-        subtitle: "From Paytm",
+        subtitle: "From Razorpay",
         amount: 1000.0,
         date: DateTime.now().subtract(const Duration(days: 5)),
         isCredit: true,
@@ -139,21 +178,23 @@ class WalletController extends GetxController {
       String userMobile = '7503781220';
       String userEmail = 'test@gmail.com';
       try {
-        final homeController = Get.find<CustomerHomeController>();
-        final profileData = homeController.profile.value?.data;
-        if (profileData != null) {
-          if (profileData.mobile.isNotEmpty) {
-            userMobile = profileData.mobile;
-          }
-          if (profileData.email.isNotEmpty) {
-            userEmail = profileData.email;
+        if (Get.isRegistered<CustomerHomeController>()) {
+          final homeController = Get.find<CustomerHomeController>();
+          final profileData = homeController.profile.value?.data;
+          if (profileData != null) {
+            if (profileData.mobile.isNotEmpty) {
+              userMobile = profileData.mobile;
+            }
+            if (profileData.email.isNotEmpty) {
+              userEmail = profileData.email;
+            }
           }
         }
       } catch (_) {}
 
       var options = {
         'key': 'rzp_test_SrUuMWoExaIWgc',
-        'amount': amount * 100,
+        'amount': (amount * 100).toInt(),
         'name': 'Water Delivery',
         'description': 'Add Money to Wallet',
         'prefill': {
@@ -175,27 +216,43 @@ class WalletController extends GetxController {
     }
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
     isPaymentLoading.value = false;
-    sessionAddedAmount.value += _pendingAmount;
-    totalAdded.value += _pendingAmount;
+    final addedAmountStr = _pendingAmount.toInt().toString();
+    String customerId = AppSession.userId;
+    if (customerId.isEmpty) {
+      customerId = "25";
+    }
 
-    // Add successful transaction to the top of list
-    transactions.insert(
-      0,
-      WalletTransaction(
-        title: "Added Money",
-        subtitle: "From Razorpay",
-        amount: _pendingAmount,
-        date: DateTime.now(),
-        isCredit: true,
-      ),
-    );
+    try {
+      final updateRes = await _repo.updateWalletAmount(
+        customerId: customerId,
+        walletAmount: addedAmountStr,
+      );
 
-    Get.snackbar("Success", "Payment Success");
-    AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added successfully to wallet!");
-    _pendingAmount = 0.0;
-    update();
+      if (updateRes.statusCode == "200" && updateRes.data != null) {
+        currentWalletAmount.value = updateRes.data!.totalWalletAmount;
+        AppSnackbar.success(
+          updateRes.message.isNotEmpty
+              ? updateRes.message
+              : "₹${_pendingAmount.toStringAsFixed(2)} added to wallet successfully!",
+        );
+      } else {
+        currentWalletAmount.value += _pendingAmount;
+        AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added to wallet successfully!");
+      }
+    } catch (e) {
+      currentWalletAmount.value += _pendingAmount;
+      AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added to wallet!");
+    } finally {
+      sessionAddedAmount.value += _pendingAmount;
+      _pendingAmount = 0.0;
+
+      if (Get.isRegistered<CustomerHomeController>()) {
+        Get.find<CustomerHomeController>().getProfile();
+      }
+      loadWalletData();
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {

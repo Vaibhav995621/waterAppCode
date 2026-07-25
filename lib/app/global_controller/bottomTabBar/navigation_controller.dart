@@ -30,11 +30,6 @@ class NavigationController extends GetxController {
       Get.find<CustomerHomeController>().getProfile();
     }
 
-    // Orders tab
-    if (index == 1 && AppSession.role == 1) {
-      Get.find<OrdersController>().getCustomerActiveOrder();
-      Get.find<OrdersController>().getCustomerHistoryOrder();
-    }
     else if (index == 2 && AppSession.role == 1) {
       // Wallet index, can fetch wallet data if needed
     }

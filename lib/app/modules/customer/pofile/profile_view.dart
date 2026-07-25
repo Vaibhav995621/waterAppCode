@@ -186,6 +186,16 @@ class ProfileView extends GetView<ProfileController> {
                             );
                           },
                         ): SizedBox.shrink(),
+                        AppSession.role  == 1 ?
+                        cardTile(
+                          Icons.location_on,
+                          "My Orders",
+                              () {
+                            Get.toNamed(
+                              AppRoutes.orderScreen,
+                            );
+                          },
+                        ): SizedBox.shrink(),
                         AppSession.role  == 1 || AppSession.role  == 3?
                         cardTile(
                           Icons.payment,

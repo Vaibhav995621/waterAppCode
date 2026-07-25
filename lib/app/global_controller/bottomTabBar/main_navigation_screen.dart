@@ -26,7 +26,6 @@ class MainNavigationScreen extends StatelessWidget {
     Get.put(NavigationController());
     Get.put(CustomerHomeController());
     Get.put(ProfileController());
-    Get.put(OrdersController());
     Get.put(BookWaterController());
     Get.put(WalletController());
     Get.put(DeliveryOrderListController());
@@ -41,7 +40,6 @@ class MainNavigationScreen extends StatelessWidget {
       screens = [
         CustomerHomeScreen(),
         BookWaterScreen(),
-        OrdersView(),
         WalletView(),
         ProfileView(),
       ];
@@ -110,11 +108,6 @@ class MainNavigationScreen extends StatelessWidget {
             icon: Icon(Icons.book),
             activeIcon: Icon(Icons.assignment),
             label: 'Book Now',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            activeIcon: Icon(Icons.assignment),
-            label: 'Orders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_balance_wallet_outlined),

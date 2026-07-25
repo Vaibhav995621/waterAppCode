@@ -30,6 +30,8 @@ class ApiEndpoints {
   static const subscriptionList = "getsubscriptionplan";
   static const buySubscription = "savepayentbycustomerid";
   static const paymentHistory = "paymenthistorybycustmerid";
+  static const getWalletByCustomerId = "getwalletbycustomerid";
+  static const updateWalletByCustomerId = "updatewalletbycustomerid";
 
   static const adminDashboard = "dashboard";
   static const subscriptionHistoryList = "getsubscriptionhistorybycustomerid";

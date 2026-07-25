@@ -15,10 +15,12 @@ class WalletView extends GetView<WalletController> {
         child: Obx(() {
           return Stack(
             children: [
-              SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
+              RefreshIndicator(
+                onRefresh: () => controller.loadWalletData(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 15),
@@ -561,6 +563,7 @@ class WalletView extends GetView<WalletController> {
                   ],
                 ),
               ),
+            ),
               if (controller.isPaymentLoading.value)
                 Positioned.fill(
                   child: Container(

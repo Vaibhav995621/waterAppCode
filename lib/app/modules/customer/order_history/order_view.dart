@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../global_controller/bottomTabBar/navigation_controller.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import 'orders_controller.dart';
 
@@ -11,55 +12,58 @@ class OrdersView extends GetView<OrdersController> {
   const OrdersView({super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF4F7FC),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
 
-      body: Stack(
-        children: [
-
-          /// Background circles
-          Positioned(
-            top: -80,
-            left: -60,
-            child: Container(
-              height: 180,
-              width: 180,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xff62B5F8),
-              ),
-            ),
-          ),
-
-          Positioned(
-            top: -80,
-            right: -90,
-            child: Container(
-              height: 250,
-              width: 250,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xff6B67F6),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                const Text(
-                  "My Orders",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff1A2C56),
+            // HEADER
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                        Get.back();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Color(0xff1976D2),
+                        size: 18,
+                      ),
+                    ),
                   ),
-                ),
+                  const Text(
+                    "My Orders",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xff0A1D5E),
+                    ),
+                  ),
+                  const SizedBox(width: 38),
+                ],
+              ),
+            ),
 
-                const SizedBox(height: 10),
+            const SizedBox(height: 15),
 
                 /// Toggle Card
                 Padding(
@@ -164,13 +168,11 @@ class OrdersView extends GetView<OrdersController> {
                       );
                     }),
                   ),
-                )
+                ),
               ],
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        );
   }
 
   /// 🔘 Toggle Button (GetX)
