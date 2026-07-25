@@ -542,7 +542,9 @@ Future<SubscriptionModel> getSubscriptionList() async {
   Future<PaymentSuccessModel> buySubscription(
       String totalAmount,
       String transId,
-      String subscriptionId
+      String subscriptionId,
+      String paymentmode
+
   ) async {
     try {
       final response = await _api.post(
@@ -552,7 +554,8 @@ Future<SubscriptionModel> getSubscriptionList() async {
           "orderid": 0,
           "subscriptionid" :subscriptionId,
           "totalamount": totalAmount,
-          "trans_id": transId
+          "trans_id": transId,
+          "paymentmode" : paymentmode
         },
         tokenRequired: false,
         headers: {
@@ -1160,5 +1163,8 @@ Future<SubscriptionModel> getSubscriptionList() async {
       throw Exception(message);
     }
   }
+
+
+
 }
 

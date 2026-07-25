@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:zourney/app/app_session/app_session.dart';
+import '../../../../routes/app_routes.dart';
+import '../../../../utlis/constants/api_endpoints.dart';
+import '../../../../utlis/network/api_provider.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
+import '../../../models/payment_model/payment_success_model.dart';
 import '../../../models/wallet_model/wallet_model.dart';
 import '../home/customer_home_controller.dart';
 
@@ -221,7 +225,7 @@ class WalletController extends GetxController {
     final addedAmountStr = _pendingAmount.toInt().toString();
     String customerId = AppSession.userId;
     if (customerId.isEmpty) {
-      customerId = "25";
+      customerId = AppSession.userId;
     }
 
     try {
@@ -241,6 +245,7 @@ class WalletController extends GetxController {
         currentWalletAmount.value += _pendingAmount;
         AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added to wallet successfully!");
       }
+      saveWalletAmountHistory(addedAmountStr,response.paymentId.toString(),"");
     } catch (e) {
       currentWalletAmount.value += _pendingAmount;
       AppSnackbar.success("₹${_pendingAmount.toStringAsFixed(2)} added to wallet!");
@@ -263,6 +268,45 @@ class WalletController extends GetxController {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     Get.snackbar("Wallet", response.walletName ?? "");
+  }
+  Future<bool> saveWalletAmountHistory(
+      String totalAmount,
+      String transId,
+      String subscriptionId
+      ) async {
+    try {
+      isLoading.value = true;
+      final response =
+      await _repo.buySubscription(totalAmount,transId, subscriptionId,"3");
+      isLoading.value = false;
+      if (response.statusCode == "201") {
+        AppSnackbar.error(response.message);
+        return false;
+      }
+      if (response.statusCode == "200") {
+        isLoading.value = false;
+        Get.toNamed(
+          AppRoutes.paymentSuccess,
+          arguments: {
+            "amount": totalAmount,
+            "type": "subscription_purchase",
+          },
+        );
+      }
+      return true;
+    } catch (e) {
+      isLoading.value = false;
+      AppSnackbar.error(
+        e.toString().replaceAll(
+          "Exception: ",
+          "",
+        ),
+      );
+      return false;
+
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
 

@@ -163,7 +163,7 @@ class BottleSubscriptionController extends GetxController {
     try {
       isLoading.value = true;
       final response =
-      await _repo.buySubscription(totalAmount,transId, subscriptionId);
+      await _repo.buySubscription(totalAmount,transId, subscriptionId,"2");
       isLoading.value = false;
       if (response.statusCode == "201") {
         AppSnackbar.error(response.message);
