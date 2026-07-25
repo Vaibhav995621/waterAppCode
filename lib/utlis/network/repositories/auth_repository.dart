@@ -578,7 +578,6 @@ Future<SubscriptionModel> getSubscriptionList() async {
       String totalAmount,
       String transId,
       String orderId,
-      String paymentstatus
       ) async {
     try {
       final response = await _api.post(
@@ -589,7 +588,6 @@ Future<SubscriptionModel> getSubscriptionList() async {
           "subscriptionid" :0,
           "totalamount": totalAmount,
           "trans_id": transId,
-          "paymentstatus" : paymentstatus
         },
         tokenRequired: false,
         headers: {

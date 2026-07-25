@@ -511,12 +511,14 @@ class PaymentScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                "${address.flatnumber.isNotEmpty ? '${address.flatnumber}, ' : ''}"
-                                "${address.housenumber.isNotEmpty ? '${address.housenumber}, ' : ''}"
-                                "${address.societyname.isNotEmpty ? '${address.societyname}, ' : ''}"
-                                "${(address.sectornumber ?? "").isNotEmpty ? '${address.sectornumber}, ' : ''}"
-                                "${address.city.isNotEmpty ? '${address.city} ' : ''}"
-                                "${address.pincode.isNotEmpty ? '- ${address.pincode}' : ''}",
+                                address.fullAddress.isNotEmpty
+                                    ? address.fullAddress
+                                    : "${address.flatnumber.isNotEmpty ? '${address.flatnumber}, ' : ''}"
+                                      "${address.housenumber.isNotEmpty ? '${address.housenumber}, ' : ''}"
+                                      "${address.societyname.isNotEmpty ? '${address.societyname}, ' : ''}"
+                                      "${(address.sectornumber ?? "").isNotEmpty ? '${address.sectornumber}, ' : ''}"
+                                      "${address.city.isNotEmpty ? '${address.city} ' : ''}"
+                                      "${address.pincode.isNotEmpty ? '- ${address.pincode}' : ''}",
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey.shade600,

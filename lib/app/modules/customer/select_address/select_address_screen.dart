@@ -236,27 +236,15 @@ class SelectAddressScreen extends StatelessWidget {
 
                                       children: [
                                         Text(
-                                          item.societyname,
-
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-
-                                            color: selected
-                                                ? Colors.white
-                                                : Colors.black,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 8),
-
-                                        Text(
                                           item.fullAddress,
 
                                           style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.3,
                                             color: selected
                                                 ? Colors.white
-                                                : Colors.black54,
+                                                : Colors.black87,
                                           ),
                                         ),
                                       ],

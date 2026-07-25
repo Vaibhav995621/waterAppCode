@@ -18,6 +18,7 @@ class PaymentController extends GetxController {
   late DateTime deliveryDate;
   late String deliveryTime;
   late int plantype;
+  String onlinePaymentMode= "1";
 
   late Razorpay razorpay;
   late Map<String, dynamic> addOrderMap;
@@ -131,7 +132,6 @@ class PaymentController extends GetxController {
         price,
         transId,
         orderId,
-        status,
       );
       addressController.isPaymentLoading.value = false;
       if (response.statusCode == "201") {
@@ -146,7 +146,7 @@ class PaymentController extends GetxController {
           deliveryDate,
           deliveryTime,
           addressController.selectedId.value.toString(),
-          paymentMode.toString(),
+          onlinePaymentMode,
           status,
           transId,
           plantype,
@@ -301,9 +301,6 @@ class PaymentController extends GetxController {
               "type": isCod ? "cod" : (isWallet ? "wallet" : "subscription"),
             },
           );
-        } else {
-          // Pay Now (Online Payment) -> launch Razorpay in PaymentController
-          makePayment(double.tryParse(price) ?? 0.0);
         }
         return true;
       }
