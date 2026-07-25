@@ -546,7 +546,7 @@ Future<SubscriptionModel> getSubscriptionList() async {
   ) async {
     try {
       final response = await _api.post(
-        ApiEndpoints.buySubscription, // change endpoint if needed
+        ApiEndpoints.savePaymentByCustomerId, // change endpoint if needed
         {
           "customerid": AppSession.userId,
           "orderid": 0,
@@ -577,17 +577,19 @@ Future<SubscriptionModel> getSubscriptionList() async {
   Future<PaymentSuccessModel> orderPayment(
       String totalAmount,
       String transId,
-      String orderId
+      String orderId,
+      String paymentstatus
       ) async {
     try {
       final response = await _api.post(
-        ApiEndpoints.buySubscription, // change endpoint if needed
+        ApiEndpoints.savePaymentByCustomerId, // change endpoint if needed
         {
           "customerid": AppSession.userId,
           "orderid": orderId,
           "subscriptionid" :0,
           "totalamount": totalAmount,
-          "trans_id": transId
+          "trans_id": transId,
+          "paymentstatus" : paymentstatus
         },
         tokenRequired: false,
         headers: {

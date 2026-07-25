@@ -51,329 +51,347 @@ class PaymentScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// SUBSCRIPTION PAYMENT CARD
-                    if (controller.isSubscriptionOrder)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        margin: const EdgeInsets.only(bottom: 24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xffFF9F1C),
-                            width: 2,
+                    /// PAY VIA SUBSCRIPTION CARD
+                    Obx(() {
+                      final isSelected = controller.selectedMethod.value == 'subscription';
+                      final hasActiveSub = controller.hasActiveSubscription;
+                      return GestureDetector(
+                        onTap: () => controller.selectPaymentMethod('subscription'),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xffFF9F1C)
+                                  : Colors.grey.shade200,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xffFFF7ED),
-                              ),
-                              child: const Icon(
-                                Icons.star_rounded,
-                                color: Color(0xffFF9F1C),
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Active Subscription Plan",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xff2D3A5A),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "Order will be deducted from your plan balance",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: Color(0xffFF9F1C),
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    /// WALLET CARD
-                    if (!controller.isSubscriptionOrder)
-                      Obx(() {
-                        final isSelected = controller.selectedMethod.value == 'wallet';
-                        final walletBal = controller.walletBalance;
-                        return GestureDetector(
-                          onTap: () => controller.selectPaymentMethod('wallet'),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xffFF9F1C)
-                                    : Colors.grey.shade200,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? const Color(0xffFFF7ED)
+                                      : const Color(0xffF1F3F6),
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isSelected
-                                        ? const Color(0xffFFF7ED)
-                                        : const Color(0xffF1F3F6),
-                                  ),
-                                  child: Icon(
-                                    Icons.account_balance_wallet_outlined,
-                                    color: isSelected
-                                        ? const Color(0xffFF9F1C)
-                                        : Colors.grey.shade600,
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Wallet",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff2D3A5A),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        "Pay using your wallet balance (Balance: ₹${walletBal.toStringAsFixed(2)})",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  isSelected
-                                      ? Icons.radio_button_checked
-                                      : Icons.radio_button_off,
+                                child: Icon(
+                                  Icons.star_rounded,
                                   color: isSelected
                                       ? const Color(0xffFF9F1C)
-                                      : Colors.grey.shade400,
+                                      : Colors.grey.shade600,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Pay via Subscription",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2D3A5A),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      hasActiveSub
+                                          ? "Pay using your active subscription plan"
+                                          : "No active subscription plan available",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: hasActiveSub
+                                            ? Colors.grey.shade600
+                                            : Colors.redAccent.shade200,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                isSelected
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_off,
+                                color: isSelected
+                                    ? const Color(0xffFF9F1C)
+                                    : Colors.grey.shade400,
+                                size: 24,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+
+                    /// WALLET CARD
+                    Obx(() {
+                      final isSelected = controller.selectedMethod.value == 'wallet';
+                      final walletBal = controller.walletBalance;
+                      return GestureDetector(
+                        onTap: () => controller.selectPaymentMethod('wallet'),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xffFF9F1C)
+                                  : Colors.grey.shade200,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? const Color(0xffFFF7ED)
+                                      : const Color(0xffF1F3F6),
+                                ),
+                                child: Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  color: isSelected
+                                      ? const Color(0xffFF9F1C)
+                                      : Colors.grey.shade600,
                                   size: 24,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Wallet",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2D3A5A),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Pay using your wallet balance (Balance: ₹${walletBal.toStringAsFixed(2)})",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                isSelected
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_off,
+                                color: isSelected
+                                    ? const Color(0xffFF9F1C)
+                                    : Colors.grey.shade400,
+                                size: 24,
+                              ),
+                            ],
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    }),
 
                     /// CASH ON DELIVERY CARD
-                    if (!controller.isSubscriptionOrder)
-                      Obx(() {
-                        final isSelected = controller.selectedMethod.value == 'cod';
-                        return GestureDetector(
-                          onTap: () => controller.selectPaymentMethod('cod'),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xff2E7D32)
-                                    : Colors.grey.shade200,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                    Obx(() {
+                      final isSelected = controller.selectedMethod.value == 'cod';
+                      return GestureDetector(
+                        onTap: () => controller.selectPaymentMethod('cod'),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xff2E7D32)
+                                  : Colors.grey.shade200,
+                              width: isSelected ? 2 : 1,
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isSelected
-                                        ? const Color(0xffE8F5E9)
-                                        : const Color(0xffF1F3F6),
-                                  ),
-                                  child: Icon(
-                                    Icons.inventory_2_outlined,
-                                    color: isSelected
-                                        ? const Color(0xff2E7D32)
-                                        : Colors.grey.shade600,
-                                    size: 24,
-                                  ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? const Color(0xffE8F5E9)
+                                      : const Color(0xffF1F3F6),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Cash on Delivery",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff2D3A5A),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        "Pay when you receive your order",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  isSelected
-                                      ? Icons.radio_button_checked
-                                      : Icons.radio_button_off,
+                                child: Icon(
+                                  Icons.inventory_2_outlined,
                                   color: isSelected
                                       ? const Color(0xff2E7D32)
-                                      : Colors.grey.shade400,
+                                      : Colors.grey.shade600,
                                   size: 24,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Cash on Delivery",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2D3A5A),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Pay when you receive your order",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                isSelected
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_off,
+                                color: isSelected
+                                    ? const Color(0xff2E7D32)
+                                    : Colors.grey.shade400,
+                                size: 24,
+                              ),
+                            ],
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    }),
 
                     /// PAY NOW CARD
-                    if (!controller.isSubscriptionOrder)
-                      Obx(() {
-                        final isSelected = controller.selectedMethod.value == 'pay_now';
-                        return GestureDetector(
-                          onTap: () => controller.selectPaymentMethod('pay_now'),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xff6E6AF8)
-                                    : Colors.grey.shade200,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                    Obx(() {
+                      final isSelected = controller.selectedMethod.value == 'pay_now';
+                      return GestureDetector(
+                        onTap: () => controller.selectPaymentMethod('pay_now'),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xff6E6AF8)
+                                  : Colors.grey.shade200,
+                              width: isSelected ? 2 : 1,
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isSelected
-                                        ? const Color(0xffEEEDFD)
-                                        : const Color(0xffF1F3F6),
-                                  ),
-                                  child: Icon(
-                                    Icons.credit_card_outlined,
-                                    color: isSelected
-                                        ? const Color(0xff6E6AF8)
-                                        : Colors.grey.shade600,
-                                    size: 24,
-                                  ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? const Color(0xffEEEDFD)
+                                      : const Color(0xffF1F3F6),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Pay Now",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff2D3A5A),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        "Pay securely using UPI, Card,\nNet Banking and more",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  isSelected
-                                      ? Icons.radio_button_checked
-                                      : Icons.radio_button_off,
+                                child: Icon(
+                                  Icons.credit_card_outlined,
                                   color: isSelected
                                       ? const Color(0xff6E6AF8)
-                                      : Colors.grey.shade400,
+                                      : Colors.grey.shade600,
                                   size: 24,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Pay Now",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2D3A5A),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Pay securely using UPI, Card,\nNet Banking and more",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                isSelected
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_off,
+                                color: isSelected
+                                    ? const Color(0xff6E6AF8)
+                                    : Colors.grey.shade400,
+                                size: 24,
+                              ),
+                            ],
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    }),
 
                     /// DELIVERY ADDRESS CARD
                     Obx(() {
@@ -531,35 +549,34 @@ class PaymentScreen extends StatelessWidget {
                     }),
 
                     /// SECURE BANNER
-                    if (!controller.isSubscriptionOrder)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffFAFBFD),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade100),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.shield_outlined,
-                              color: Colors.grey.shade600,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Your payment information is 100% secure",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffFAFBFD),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade100),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            color: Colors.grey.shade600,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "Your payment information is 100% secure",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -567,7 +584,7 @@ class PaymentScreen extends StatelessWidget {
 
             /// BOTTOM NAVIGATION BAR
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -579,35 +596,44 @@ class PaymentScreen extends StatelessWidget {
                 ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        controller.isSubscriptionOrder ? "Plan Status" : "Total Amount",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.isSubscriptionOrder ? "Active Plan" : "₹${controller.price}",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff2D3A5A),
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: Obx(() {
+                      final isSubSelected = controller.selectedMethod.value == 'subscription';
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            isSubSelected ? "Plan Status" : "Total Amount",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              isSubSelected ? "Active Plan" : "₹${controller.price}",
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff2D3A5A),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
+                  const SizedBox(width: 12),
                   Obx(() {
                     final isPaymentLoading = controller.addressController.isPaymentLoading.value;
                     return SizedBox(
-                      width: 170,
-                      height: 54,
+                      width: 150,
+                      height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff6E6AF8),
@@ -618,7 +644,7 @@ class PaymentScreen extends StatelessWidget {
                         ),
                         onPressed: isPaymentLoading
                             ? null
-                            : () => controller.processPayment(),
+                            : () => controller.processPayment(""),
                         child: isPaymentLoading
                             ? const SizedBox(
                                 height: 20,
