@@ -271,7 +271,7 @@ class WalletView extends GetView<WalletController> {
                                     ),
                                     const SizedBox(height: 3),
                                     Text(
-                                      "₹${controller.totalSpent.value.toStringAsFixed(2)}",
+                                      "- ₹${controller.totalSpent.value.toStringAsFixed(2)}",
                                       style: const TextStyle(
                                         color: Color(0xffE65100),
                                         fontSize: 16,
@@ -440,6 +440,7 @@ class WalletView extends GetView<WalletController> {
                                   ],
                                 ),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(10),
@@ -474,24 +475,41 @@ class WalletView extends GetView<WalletController> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            "${tx.subtitle} • ${DateFormat("dd MMM yyyy, hh:mm a").format(tx.date)}",
+                                            DateFormat("dd MMM yyyy, hh:mm a").format(tx.date),
                                             style: TextStyle(
                                               color: Colors.grey.shade600,
                                               fontSize: 11,
                                             ),
                                           ),
+                                          const SizedBox(height: 8),
                                         ],
                                       ),
                                     ),
-                                    Text(
-                                      "${tx.isCredit ? '+' : '-'} ₹${tx.amount.toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 15,
-                                        color: tx.isCredit
-                                            ? const Color(0xff2E7D32)
-                                            : const Color(0xffC62828),
-                                      ),
+                                    const SizedBox(width: 8),
+                                    // ── Right side: net amount + txn id ────────
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "${tx.isCredit ? '+' : '-'} ₹${tx.amount.toStringAsFixed(2)}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15,
+                                            color: tx.isCredit
+                                                ? const Color(0xff2E7D32)
+                                                : const Color(0xffC62828),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "ID #${tx.id}",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -693,6 +711,45 @@ class WalletView extends GetView<WalletController> {
               fontSize: 13,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Small colored chip that shows a label + amount value.
+  /// Used inside the transaction tile to display totalAmount, orderAmount, remainAmount.
+  Widget _buildDetailChip({
+    required String label,
+    required String value,
+    required Color bgColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "$label: ",
+              style: TextStyle(
+                fontSize: 10,
+                color: textColor.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: TextStyle(
+                fontSize: 10,
+                color: textColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

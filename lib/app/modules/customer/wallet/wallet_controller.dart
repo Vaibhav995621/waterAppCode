@@ -61,24 +61,26 @@ class WalletController extends GetxController {
       String customerId = AppSession.userId;
       final walletResult = await _repo.getWalletDetails(customerId);
       if (walletResult.statusCode == "200" && walletResult.data != null) {
-        currentWalletAmount.value = walletResult.data!.currentWalletAmount;
+        currentWalletAmount.value = walletResult.data?.currentWalletAmount ?? 0.0;
+        totalSpent.value = walletResult.data?.totalSpendAmount ?? 0.0;
+        totalAdded.value = walletResult.data?.totalAddAmount ?? 0.0;
 
         if (walletResult.data!.transactions.isNotEmpty) {
           final mappedList = walletResult.data!.transactions.map((tx) {
             return WalletTransaction(
+              id: tx.id,
+              userId: tx.userId,
+              totalAmount: tx.totalAmount,
+              orderAmount: tx.orderAmount,
+              remainAmount: tx.remainAmount,
               title: tx.title,
               subtitle: tx.subtitle,
               amount: tx.amount,
-              date: tx.date.isNotEmpty
-                  ? (DateTime.tryParse(tx.date) ?? DateTime.now())
-                  : DateTime.now(),
+              date: tx.date,
               isCredit: tx.isCredit,
             );
           }).toList();
           transactions.assignAll(mappedList);
-          _calculateStats(mappedList,
-              apiAdded: walletResult.data!.totalAddAmount,
-              apiSpent: walletResult.data!.totalSpendAmount);
           isLoading.value = false;
           return;
         }
@@ -87,6 +89,7 @@ class WalletController extends GetxController {
       // Fallback to payment history API if wallet transactions list is empty
       final history = await _repo.getPaymentHistory();
       if (history.statusCode == "200") {
+
         final mappedList = history.data.map((item) {
           final isCredit = item.subscriptionid > 0;
           return WalletTransaction(
@@ -97,10 +100,7 @@ class WalletController extends GetxController {
             isCredit: isCredit,
           );
         }).toList();
-
-
-          transactions.assignAll(mappedList);
-          _calculateStats(mappedList);
+        transactions.assignAll(mappedList);
 
       }
     } catch (e) {
@@ -110,31 +110,6 @@ class WalletController extends GetxController {
     }
   }
 
-  void _calculateStats(List<WalletTransaction> list, {double? apiAdded, double? apiSpent}) {
-    if (apiAdded != null && apiAdded > 0) {
-      totalAdded.value = apiAdded;
-    } else {
-      double added = 0.0;
-      for (var tx in list) {
-        if (tx.isCredit) {
-          added += tx.amount;
-        }
-      }
-      totalAdded.value = added > 0 ? added : 5500.0;
-    }
-
-    if (apiSpent != null && apiSpent > 0) {
-      totalSpent.value = apiSpent;
-    } else {
-      double spent = 0.0;
-      for (var tx in list) {
-        if (!tx.isCredit) {
-          spent += tx.amount;
-        }
-      }
-      totalSpent.value = spent > 0 ? spent : 4250.0;
-    }
-  }
 
 
   void addMoneyToWallet(double amount) {
@@ -259,7 +234,7 @@ class WalletController extends GetxController {
           AppRoutes.paymentSuccess,
           arguments: {
             "amount": totalAmount,
-            "type": "subscription_purchase",
+            "type": "wallet_recharge",
           },
         );
       }
@@ -281,6 +256,14 @@ class WalletController extends GetxController {
 }
 
 class WalletTransaction {
+  /// Raw API fields from the transactions array
+  final int id;
+  final int userId;
+  final double totalAmount;
+  final double orderAmount;
+  final double remainAmount;
+
+  /// Display/computed fields
   final String title;
   final String subtitle;
   final double amount;
@@ -288,6 +271,11 @@ class WalletTransaction {
   final bool isCredit;
 
   WalletTransaction({
+    this.id = 0,
+    this.userId = 0,
+    this.totalAmount = 0.0,
+    this.orderAmount = 0.0,
+    this.remainAmount = 0.0,
     required this.title,
     required this.subtitle,
     required this.amount,

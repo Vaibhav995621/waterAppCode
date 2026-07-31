@@ -115,6 +115,9 @@ class PaymentSuccessView
                       } else if (controller.type.value == "wallet") {
                         titleText = "Order Confirmed!";
                       }
+                      else if (controller.type.value == "wallet_recharge") {
+                        titleText = "Wallet  Recharged!";
+                      }
                       return Text(
                         titleText,
                         style: const TextStyle(
@@ -139,6 +142,8 @@ class PaymentSuccessView
                         descText = "Your subscription plan has been activated successfully.";
                       } else if (controller.type.value == "wallet") {
                         descText = "Your order has been confirmed. Amount deducted from your wallet.";
+                      }else if (controller.type.value == "wallet_recharge") {
+                        descText = "Your recharge has been confirmed. Amount Added to your wallet.";
                       }
                       return Text(
                         descText,

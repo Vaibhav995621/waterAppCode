@@ -256,7 +256,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                       ),
                     if (order.status == 0)
                       SizedBox(height: 10,),
-                    if (order.status == 0)
+                    if (order.status == 0 || order.status == 2)
                       SizedBox(
                       width: double.infinity,
                       height: 55,
