@@ -102,10 +102,6 @@ class AdminOrderListController extends GetxController {
     List<Order> tempOrders = [];
 
     switch (activeTab.value) {
-      case 'Pending':
-        tempOrders.addAll(data.pendingOrders);
-        break;
-
       case 'Assigned':
         tempOrders.addAll(data.assignedOrders);
         break;
@@ -115,14 +111,7 @@ class AdminOrderListController extends GetxController {
         break;
 
       case 'Cancelled':
-        tempOrders.addAll(
-          data.allOrders.where(
-            (order) =>
-                order.status == 3 ||
-                order.status == 5 ||
-                order.statusText.toLowerCase() == 'cancelled',
-          ),
-        );
+        tempOrders.addAll(data.cancelledOrders);
         break;
 
       default:

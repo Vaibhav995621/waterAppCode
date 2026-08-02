@@ -27,20 +27,16 @@ class ProfileController extends GetxController {
   /// Profile data
   Rx<ProfileModel?> profile = Rx<ProfileModel?>(null);
 
-  String get userName =>
-      profile.value?.data.fullname ?? "No Name";
+  String get userName => profile.value?.data.fullname ?? "No Name";
 
-  String get phone =>
-      profile.value?.data.mobile ?? "";
+  String get phone => profile.value?.data.mobile ?? "";
 
-  String get image =>
-      profile.value?.data.photo ?? "";
+  String get image => profile.value?.data.photo ?? "";
 
   @override
   void onInit() {
-     getProfile();
+    getProfile();
     super.onInit();
-
   }
 
   Future<void> pickImage(ImageSource source) async {
@@ -60,9 +56,7 @@ class ProfileController extends GetxController {
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Color(0xffffffff),
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
         ),
         child: Wrap(
           children: [
@@ -91,9 +85,7 @@ class ProfileController extends GetxController {
   void showImagePreviewDialog(File imageFile) {
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           "Adjust & Preview Picture",
           textAlign: TextAlign.center,
@@ -122,10 +114,7 @@ class ProfileController extends GetxController {
                           minScale: 0.5,
                           maxScale: 5.0,
                           boundaryMargin: const EdgeInsets.all(90),
-                          child: Image.file(
-                            imageFile,
-                            fit: BoxFit.contain,
-                          ),
+                          child: Image.file(imageFile, fit: BoxFit.contain),
                         ),
                       ),
                     ),
@@ -153,10 +142,7 @@ class ProfileController extends GetxController {
             const Text(
               "Do you want to set this image as your profile picture?",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: 14),
             ),
           ],
         ),
@@ -170,7 +156,10 @@ class ProfileController extends GetxController {
                   },
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -212,31 +201,37 @@ class ProfileController extends GetxController {
 
   Future<File?> _cropImage() async {
     try {
-      final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return null;
-      
+
       final rawImage = await boundary.toImage(pixelRatio: 3.0);
       final int width = rawImage.width;
       final int height = rawImage.height;
-      
+
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
-      
+
       final path = Path()
         ..addOval(Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()));
       canvas.clipPath(path);
-      
+
       canvas.drawImage(rawImage, Offset.zero, Paint());
-      
+
       final picture = recorder.endRecording();
       final circularImage = await picture.toImage(width, height);
-      
-      final byteData = await circularImage.toByteData(format: ui.ImageByteFormat.png);
+
+      final byteData = await circularImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
       if (byteData == null) return null;
       final pngBytes = byteData.buffer.asUint8List();
-      
+
       final tempDir = Directory.systemTemp;
-      final file = File('${tempDir.path}/profile_crop_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+        '${tempDir.path}/profile_crop_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
       await file.writeAsBytes(pngBytes);
       return file;
     } catch (e) {
@@ -250,8 +245,7 @@ class ProfileController extends GetxController {
     try {
       isLoading.value = true;
       var custId = AppSession.userId;
-      final user =
-      await _repo.getUserProfile(custId);
+      final user = await _repo.getUserProfile(custId);
 
       if (user.statusCode == '201') {
         AppSnackbar.error(user.message);
@@ -266,23 +260,20 @@ class ProfileController extends GetxController {
           image: user.data.photo,
           name: user.data.fullname ?? '',
           role: user.data.role,
-          planType: user.data.plandetail.id
+          planType: user.data.plandetail.id,
+          usertype: user.data.usertype,
         );
       }
       update();
 
       return true;
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
       return false;
     } finally {
       isLoading.value = false;
     }
   }
-
-
 
   Future<bool> updateProfile() async {
     try {
@@ -305,16 +296,12 @@ class ProfileController extends GetxController {
         PaintingBinding.instance.imageCache.clearLiveImages();
         await getProfile();
 
-        AppSnackbar.success(
-          user.message ?? "Profile updated",
-        );
+        AppSnackbar.success(user.message ?? "Profile updated");
       }
 
       return true;
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
       return false;
     } finally {
       isLoading.value = false;
@@ -339,16 +326,12 @@ class ProfileController extends GetxController {
       if (user.statusCode == '200') {
         // Refresh the profile details to make sure everything is fully populated
         await getProfile();
-        AppSnackbar.success(
-          user.message ?? "Profile updated successfully",
-        );
+        AppSnackbar.success(user.message ?? "Profile updated successfully");
       }
 
       return true;
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
       return false;
     } finally {
       isLoading.value = false;
@@ -358,16 +341,16 @@ class ProfileController extends GetxController {
   void logout() {
     print("Logout");
     AppSession.saveUser(
-        userId: '',
-        token: '',
-        image: '',
-        name:  '',
-        role: -1,
-        planType: -1,
+      userId: '',
+      token: '',
+      image: '',
+      name: '',
+      role: -1,
+      planType: -1,
+      usertype: -1,
     );
 
-    Get.offAllNamed(AppRoutes. login);
-
+    Get.offAllNamed(AppRoutes.login);
   }
 }
 
@@ -379,14 +362,17 @@ class CropOverlayPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     // Outer rectangle path covering the preview container
-    final outerPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final outerPath = Path()
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // Inner circle cutout in the center
     final innerPath = Path()
-      ..addOval(Rect.fromCircle(
-        center: Offset(size.width / 2, size.height / 2),
-        radius: size.width / 2,
-      ));
+      ..addOval(
+        Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: size.width / 2,
+        ),
+      );
 
     // Combine outer and inner path to create transparent circle cutout overlay
     final path = Path.combine(PathOperation.difference, outerPath, innerPath);
@@ -397,7 +383,11 @@ class CropOverlayPainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.8)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 2, borderPaint);
+    canvas.drawCircle(
+      Offset(size.width / 2, size.height / 2),
+      size.width / 2,
+      borderPaint,
+    );
   }
 
   @override

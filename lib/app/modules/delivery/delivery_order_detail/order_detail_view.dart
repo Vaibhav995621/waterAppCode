@@ -84,30 +84,97 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
             const SizedBox(height: 16),
 
             /// CUSTOMER
-            _sectionCard(
-              title: 'Customer Details',
-              children: [
-                _row('Name', order.customerDetails.fullname),
-                _rowWithAction(
-                  'Mobile',
-                  order.customerDetails.mobile,
-                  icon: const Icon(Icons.call, color: Color(0xff6E6AF8), size: 18),
-                  onTap: () async {
-                    final Uri launchUri = Uri(
-                      scheme: 'tel',
-                      path: order.customerDetails.mobile,
-                    );
-                    if (await canLaunchUrl(launchUri)) {
-                      await launchUrl(launchUri);
-                    } else {
-                      Get.snackbar("Error", "Could not launch call dialer");
-                    }
-                  },
-                ),
-              ],
-            ),
+            if (order.customerDetails.id > 0) ...[
+              _sectionCard(
+                title: 'Customer Details',
+                children: [
+                  // Photo
+                  if (order.customerDetails.photo.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Center(
+                        child: CircleAvatar(
+                          radius: 34,
+                          backgroundColor: const Color(0xffEDE7F6),
+                          backgroundImage: NetworkImage(
+                            order.customerDetails.photo,
+                          ),
+                          onBackgroundImageError: (_, _) {},
+                        ),
+                      ),
+                    ),
+                  _row('Name', order.customerDetails.fullname),
+                  _rowWithAction(
+                    'Mobile',
+                    order.customerDetails.mobile,
+                    icon: const Icon(Icons.call, color: Color(0xff6E6AF8), size: 18),
+                    onTap: () async {
+                      final Uri launchUri = Uri(
+                        scheme: 'tel',
+                        path: order.customerDetails.mobile,
+                      );
+                      if (await canLaunchUrl(launchUri)) {
+                        await launchUrl(launchUri);
+                      } else {
+                        Get.snackbar("Error", "Could not launch call dialer");
+                      }
+                    },
+                  ),
+                  _row('Email', order.customerDetails.email),
+                  _row('Plan Bottles',
+                      order.customerDetails.planbottlequantity.toString()),
+                ],
+              ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              /// ADDRESS
+              _sectionCard(
+                title: 'Delivery Address',
+                children: [
+                  _detailRow(
+                    "Address",
+                    displayValue(order.customerDetails.address.fulladdress),
+                  ),
+
+                  _detailRow(
+                    "Flat No / House No.",
+                    displayValue(
+                        order.customerDetails.address.houseFlatFloorNo.toString()),
+                  ),
+                  _detailRow(
+                    "Gali / Society / Block",
+                    displayValue(
+                        order.customerDetails.address.societyGaliBlockNo.toString()),
+                  ),
+                  _detailRow(
+                    "Sector",
+                    displayValue(order.customerDetails.address.sectornumber.toString()),
+                  ),
+                  _detailRow(
+                    "Landmark",
+                    displayValue(order.customerDetails.address.landmark),
+                  ),
+
+                  _detailRow(
+                    "City",
+                    displayValue(order.customerDetails.address.city),
+                  ),
+
+                  _detailRow(
+                    "State",
+                    displayValue(order.customerDetails.address.state),
+                  ),
+
+                  _detailRow(
+                    "Pincode",
+                    displayValue(order.customerDetails.address.pincode),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+            ],
 
             /// PRODUCT
             _sectionCard(
@@ -116,51 +183,6 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
                 _row('Bottle', displayValue(order.waterbottleName)),
                 _row('Weight', displayValue(order.bottleWeight)),
                 _row('Description', displayValue(order.bottleDescription)),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            /// ADDRESS
-            _sectionCard(
-              title: 'Delivery Address',
-              children: [
-                _detailRow(
-                  "Address",
-                  order.customerDetails.address.fulladdress,
-                ),
-
-                _detailRow(
-                  "Flat No / House No.",
-                  displayValue(order.customerDetails.address.houseFlatFloorNo.toString()),
-                ),
-                _detailRow(
-                  "Gali / Society / Block",
-                  displayValue(order.customerDetails.address.societyGaliBlockNo.toString()),
-                ),
-                _detailRow(
-                  "Sector",
-                  displayValue(order.customerDetails.address.sectornumber.toString()),
-                ),
-                _detailRow(
-                  "Landmark",
-                  order.customerDetails.address.landmark,
-                ),
-
-                _detailRow(
-                  "City",
-                  order.customerDetails.address.city,
-                ),
-
-                _detailRow(
-                  "State",
-                  order.customerDetails.address.state,
-                ),
-
-                _detailRow(
-                  "Pincode",
-                  order.customerDetails.address.pincode,
-                ),
               ],
             ),
 

@@ -35,8 +35,8 @@ class LoginController extends GetxController {
     if (v.isEmpty) return AppStrings.pleaseEnterMobile;
     if (v.length < 6) return AppStrings.mobileMinLength;
     return null;
-
   }
+
   String? validatePassword(String? val) {
     final v = passwordController.text.trim();
 
@@ -68,10 +68,7 @@ class LoginController extends GetxController {
         return false;
       }
 
-      final user = await _repo.login(
-        phone,
-        password,
-      );
+      final user = await _repo.login(phone, password);
 
       if (user.statusCode != "200") {
         AppSnackbar.error(user.message);
@@ -85,20 +82,18 @@ class LoginController extends GetxController {
         name: user.data.fullname,
         role: user.data.role,
         planType: user.data.plandetail.id,
+        usertype: user.data.usertype,
       );
 
       Get.offAll(() => const MainNavigationScreen());
       return true;
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
       return false;
     } finally {
       progress?.dismiss();
     }
   }
-
 
   @override
   void onClose() {

@@ -46,24 +46,24 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                                   ),
                                 ),
                               ),
-
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade100,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  order.statusText,
-                                  style: TextStyle(
-                                    color: Colors.green.shade800,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
+                              _buildPaymentModeChip(order.paymentmode),
+                              // Container(
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 12,
+                              //     vertical: 6,
+                              //   ),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.green.shade100,
+                              //     borderRadius: BorderRadius.circular(20),
+                              //   ),
+                              //   child: Text(
+                              //     getPaymentStatusText(order.paymentstatus),
+                              //     style: TextStyle(
+                              //       color: Colors.green.shade800,
+                              //       fontWeight: FontWeight.w600,
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           ),
 
@@ -130,80 +130,115 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                           _detailRow(
                             "Payment Status",
-                            order.paymentstatus,
+                            getPaymentStatusText(order.paymentstatus),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    /// CUSTOMER DETAILS — only show when we have real data
+                    if (order.customerDetails.id > 0) ...
+                      [
+                        const SizedBox(height: 16),
 
-                    /// CUSTOMER DETAILS
-                    _sectionTitle("Customer Information"),
+                        _sectionTitle("Customer Information"),
 
-                    _buildCard(
-                      child: Column(
-                        children: [
-                          _detailRow("Name", order.customerDetails.fullname),
+                        _buildCard(
+                          child: Column(
+                            children: [
+                              // Photo
+                              if (order.customerDetails.photo.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Center(
+                                    child: CircleAvatar(
+                                      radius: 36,
+                                      backgroundColor: const Color(0xffEDE7F6),
+                                      backgroundImage: NetworkImage(
+                                        order.customerDetails.photo,
+                                      ),
+                                      onBackgroundImageError: (_, _) {},
+                                      child: order.customerDetails.photo.isEmpty
+                                          ? const Icon(
+                                              Icons.person,
+                                              size: 36,
+                                              color: Color(0xff5E35B1),
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                ),
 
-                          _detailRow(
-                            "Mobile",
-                            order.customerDetails.mobile,
-                            onCallTap: () => makePhoneCall(order.customerDetails.mobile),
+                              _detailRow("Name", order.customerDetails.fullname),
+
+                              _detailRow(
+                                "Mobile",
+                                order.customerDetails.mobile,
+                                onCallTap: () =>
+                                    makePhoneCall(order.customerDetails.mobile),
+                              ),
+
+                              _detailRow("Email", order.customerDetails.email),
+
+                              _detailRow(
+                                "Plan Bottles",
+                                order.customerDetails.planbottlequantity.toString(),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          _detailRow("Email", order.customerDetails.email),
-                        ],
-                      ),
-                    ),
+                        const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
+                        /// ADDRESS
+                        _sectionTitle("Delivery Address"),
 
-                    /// ADDRESS
-                    _sectionTitle("Delivery Address"),
+                        _buildCard(
+                          child: Column(
+                            children: [
+                              _detailRow(
+                                "Address",
+                                displayValue(order.customerDetails.address.fulladdress),
+                              ),
 
-                    _buildCard(
-                      child: Column(
-                        children: [
-                          _detailRow(
-                            "Address",
-                            order.customerDetails.address.fulladdress,
-                          ),
+                              _detailRow(
+                                "Flat No / House No.",
+                                displayValue(
+                                    order.customerDetails.address.houseFlatFloorNo),
+                              ),
+                              _detailRow(
+                                "Gali / Society / Block",
+                                displayValue(
+                                    order.customerDetails.address.societyGaliBlockNo),
+                              ),
+                              _detailRow(
+                                "Sector",
+                                displayValue(
+                                    order.customerDetails.address.sectornumber),
+                              ),
+                              _detailRow(
+                                "Landmark",
+                                displayValue(order.customerDetails.address.landmark),
+                              ),
 
-                          _detailRow(
-                            "Flat No / House No.",
-                            displayValue(order.customerDetails.address.houseFlatFloorNo.toString()),
-                          ),
-                          _detailRow(
-                            "Gali / Society / Block",
-                            displayValue(order.customerDetails.address.societyGaliBlockNo.toString()),
-                          ),
-                          _detailRow(
-                            "Sector",
-                            displayValue(order.customerDetails.address.sectornumber.toString()),
-                          ),
-                          _detailRow(
-                            "Landmark",
-                            order.customerDetails.address.landmark,
-                          ),
+                              _detailRow(
+                                "City",
+                                displayValue(order.customerDetails.address.city),
+                              ),
 
-                          _detailRow(
-                            "City",
-                            order.customerDetails.address.city,
-                          ),
+                              _detailRow(
+                                "State",
+                                displayValue(order.customerDetails.address.state),
+                              ),
 
-                          _detailRow(
-                            "State",
-                            order.customerDetails.address.state,
+                              _detailRow(
+                                "Pincode",
+                                displayValue(order.customerDetails.address.pincode),
+                              ),
+                            ],
                           ),
-
-                          _detailRow(
-                            "Pincode",
-                            order.customerDetails.address.pincode,
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      ],
 
                     const SizedBox(height: 16),
 
@@ -338,6 +373,21 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
     return value;
   }
 
+  String getPaymentStatusText(String status) {
+    switch (status.trim()) {
+      case '0':
+        return 'COD';
+      case '1':
+        return 'online';
+      case '2':
+        return 'subscribe';
+      case '3':
+        return 'wallet';
+      default:
+        return status;
+    }
+  }
+
   Widget _infoTile(String title, String value) {
     return Column(
       children: [
@@ -449,4 +499,37 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
       ),
     );
   }
+
+  Widget _buildPaymentModeChip
+      (int mode) {
+    final Map<int, _PaymentModeInfo> modeMap = {
+      0: _PaymentModeInfo('COD', const Color(0xffE65100), const Color(0xffFFF3E0)),
+      1: _PaymentModeInfo('Online', const Color(0xff2E7D32), const Color(0xffE8F5E9)),
+      2: _PaymentModeInfo('Subscribed', const Color(0xffC62828), const Color(0xffFFEBEE)),
+      3: _PaymentModeInfo('Wallet', const Color(0xff6A1B9A), const Color(0xffF3E5F5)),
+    };
+    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: info.bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        info.label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: info.fg,
+        ),
+      ),
+    );
+  }
+
+}
+class _PaymentModeInfo {
+  final String label;
+  final Color fg;
+  final Color bg;
+  const _PaymentModeInfo(this.label, this.fg, this.bg);
 }

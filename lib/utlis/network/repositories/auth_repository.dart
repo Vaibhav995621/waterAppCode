@@ -325,6 +325,7 @@ class AuthRepository {
       final response = await _api.post(
         ApiEndpoints.getBottleList,
         {
+          "usertype" : AppSession.usertype
         },
         tokenRequired: false,
         headers: {

@@ -28,11 +28,12 @@ class SubscriptionData {
   int orderid;
   int subscriptionid;
   String totalamount;
+  int paymentmode; // 2 = Subscription, 3 = Wallet Top-up
   String transId;
   DateTime transDate;
   int status;
-  OrderDetails? orderDetails; // Changed from String to Object?
-  SubscriptionDetails? subscriptionDetails; // Changed to Nullable?
+  OrderDetails? orderDetails;
+  SubscriptionDetails? subscriptionDetails;
 
   SubscriptionData({
     required this.id,
@@ -40,12 +41,19 @@ class SubscriptionData {
     required this.orderid,
     required this.subscriptionid,
     required this.totalamount,
+    required this.paymentmode,
     required this.transId,
     required this.transDate,
     required this.status,
     this.orderDetails,
     this.subscriptionDetails,
   });
+
+  /// Returns true if this transaction is a wallet top-up (paymentmode == 3)
+  bool get isWalletTopUp => paymentmode == 3;
+
+  /// Returns true if this transaction is a subscription purchase (paymentmode == 2)
+  bool get isSubscription => paymentmode == 2;
 
   factory SubscriptionData.fromJson(Map<String, dynamic> json) {
     return SubscriptionData(
@@ -54,6 +62,7 @@ class SubscriptionData {
       orderid: json['orderid'] ?? 0,
       subscriptionid: json['subscriptionid'] ?? 0,
       totalamount: json['totalamount']?.toString() ?? '0',
+      paymentmode: json['paymentmode'] ?? 0,
       transId: json['trans_id'] ?? 'N/A',
       transDate: json['trans_date'] != null
           ? (DateTime.tryParse(json['trans_date']) ?? DateTime.now())

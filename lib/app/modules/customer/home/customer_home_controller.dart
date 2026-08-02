@@ -12,8 +12,7 @@ import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 class CustomerHomeController extends GetxController {
   final AuthRepository _repo = AuthRepository();
 
-  Rxn<ProfileModel> profile =
-  Rxn<ProfileModel>();
+  Rxn<ProfileModel> profile = Rxn<ProfileModel>();
 
   var isLoadingOrders = false.obs;
   RxList<Order> activeOrders = <Order>[].obs;
@@ -27,17 +26,13 @@ class CustomerHomeController extends GetxController {
   var quantity = "".obs;
   var deliveryTime = "".obs;
 
-
   RxString bottles = "".obs;
   RxInt originalPrice = 0.obs;
   RxInt discountedPrice = 0.obs;
 
-  double get perBottlePrice =>
-      discountedPrice.value / 15;
-  int get savedAmount =>
-      originalPrice.value - discountedPrice.value;
+  double get perBottlePrice => discountedPrice.value / 15;
 
-
+  int get savedAmount => originalPrice.value - discountedPrice.value;
 
   @override
   void onInit() {
@@ -58,12 +53,10 @@ class CustomerHomeController extends GetxController {
     Get.snackbar("Orders", "Opening all orders");
   }
 
-
   Future<bool> getProfile() async {
     try {
       var custId = AppSession.userId;
-      final user =
-      await _repo.getUserProfile(custId);
+      final user = await _repo.getUserProfile(custId);
 
       if (user.statusCode == '201') {
         AppSnackbar.error(user.message);
@@ -77,19 +70,17 @@ class CustomerHomeController extends GetxController {
           image: user.data.photo,
           name: user.data.fullname ?? '',
           role: user.data.role,
-          planType: user.data.plandetail.id
+          planType: user.data.plandetail.id,
+          usertype: user.data.usertype,
         );
         profile.value = user;
       }
       update();
       return true;
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
       return false;
-    } finally {
-    }
+    } finally {}
   }
 
   Future<void> getActiveOrders() async {
@@ -101,9 +92,7 @@ class CustomerHomeController extends GetxController {
         activeOrders.assignAll(response.data);
       }
     } catch (e) {
-      AppSnackbar.error(
-        e.toString().replaceAll("Exception: ", ""),
-      );
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
     } finally {
       isLoadingOrders.value = false;
     }

@@ -15,19 +15,23 @@ class AdminOrderListView extends StatelessWidget {
     AdminOrderListController(),
   );
 
-  final List<String> tabs = const ['Assigned', 'Delivered', 'Cancelled'];
+  final List<String> tabs = const [
+    'Assigned',
+    'Delivered',
+    'Cancelled',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: const Color(0xffF0F2F8),
       body: Column(
         children: [
           buildHeader(),
 
-          /// Search
+          /// Search + Filter Row
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Row(
               children: [
                 Expanded(
@@ -38,10 +42,11 @@ class AdminOrderListView extends StatelessWidget {
                     },
                     decoration: InputDecoration(
                       hintText: "Search Name, Phone, Address, Sector...",
-                      prefixIcon: const Icon(Icons.search),
+                      hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      prefixIcon: const Icon(Icons.search, size: 20),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: BorderSide.none,
@@ -51,24 +56,19 @@ class AdminOrderListView extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Obx(() {
-                  final isFilterActive =
-                      controller.selectedSector.value.isNotEmpty;
+                  final isFilterActive = controller.selectedSector.value.isNotEmpty;
                   return InkWell(
-                    onTap: () {
-                      _showSectorFilterBottomSheet(context);
-                    },
+                    onTap: () => _showSectorFilterBottomSheet(context),
                     borderRadius: BorderRadius.circular(14),
                     child: Container(
                       height: 48,
                       width: 48,
                       decoration: BoxDecoration(
-                        color: isFilterActive
-                            ? const Color(0xff5E35B1)
-                            : Colors.white,
+                        color: isFilterActive ? const Color(0xff5E35B1) : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -85,12 +85,13 @@ class AdminOrderListView extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(height: 10),
+
           /// Tabs
           SizedBox(
-            height: 45,
+            height: 40,
             child: Obx(() {
               final selectedTab = controller.activeTab.value;
-
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 scrollDirection: Axis.horizontal,
@@ -102,15 +103,13 @@ class AdminOrderListView extends StatelessWidget {
                   return GestureDetector(
                     onTap: () => controller.changeTab(tab),
                     child: Container(
-                      margin: const EdgeInsets.only(right: 10),
+                      margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 10,
+                        horizontal: 16,
+                        vertical: 9,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xff5E35B1)
-                            : Colors.white,
+                        color: isSelected ? const Color(0xff5E35B1) : Colors.white,
                         borderRadius: BorderRadius.circular(25),
                         border: Border.all(
                           color: isSelected
@@ -123,6 +122,7 @@ class AdminOrderListView extends StatelessWidget {
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black87,
                           fontWeight: FontWeight.w600,
+                          fontSize: 12.5,
                         ),
                       ),
                     ),
@@ -131,13 +131,42 @@ class AdminOrderListView extends StatelessWidget {
               );
             }),
           ),
-          const SizedBox(height: 12),
+
+          const SizedBox(height: 10),
+
+          /// Order Count Badge
+          Obx(() {
+            final count = controller.orders.length;
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 6),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff5E35B1).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "$count order${count == 1 ? '' : 's'}",
+                      style: const TextStyle(
+                        color: Color(0xff5E35B1),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
 
           /// Order List
           Expanded(
             child: Obx(() {
               final isLoading = controller.isLoading.value;
-              List<Order> orders = controller.orders.toList();
+              final List<Order> orders = controller.orders.toList();
+
               if (isLoading) {
                 return _buildShimmerLoading();
               }
@@ -149,11 +178,27 @@ class AdminOrderListView extends StatelessWidget {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: const Center(
-                          child: Text(
-                            "No Orders Found",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.inbox_outlined, size: 56, color: Colors.grey.shade300),
+                              const SizedBox(height: 12),
+                              Text(
+                                "No Orders Found",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Pull down to refresh",
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -165,242 +210,16 @@ class AdminOrderListView extends StatelessWidget {
               return RefreshIndicator(
                 onRefresh: () => controller.getOrdersApi(controller.selectedSector.value),
                 child: ListView.builder(
-                itemCount: orders.length,
-                key: PageStorageKey(controller.activeTab.value),
-                physics: const ClampingScrollPhysics(),
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: true,
-                addSemanticIndexes: false,
-                cacheExtent: 1000,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                itemBuilder: (context, index) {
-                  final order = orders[index];
-                  final customerName = safeValue(order.customerDetails.fullname);
-                  final customerMobile = safeValue(order.customerDetails.mobile);
-                  final deliveryName = safeValue(order.deliveryDetails.deliveryPartnerName);
-                  final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
-                  return InkWell(
-                    onTap: () async {
-                      final result = await Get.toNamed(
-                        AppRoutes.adminOrderDetail,
-                        arguments: order,
-                      );
-                      if (result == true) {
-                        controller.getOrdersApi(controller.selectedSector.value);
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.grey.shade100,
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(.03),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /// Header: Order ID + Status
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "#${safeValue(order.ordernumber)}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xff1A2C56),
-                                  ),
-                                ),
-                              ),
-                              buildStatusChip(order.paymentstatus),
-                            ],
-                          ),
-
-                            const Divider(height: 16, thickness: 0.5),
-
-                            /// Details Row (Price, Qty, Date & Time)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Price
-                                Row(
-                                  children: [
-                                    const Icon(Icons.currency_rupee, size: 14, color: Colors.green),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      "₹${safeValue(order.price)}",
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                                // Qty
-                                Row(
-                                  children: [
-                                    const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blue),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      "Qty: ${safeValue(order.quantity)}",
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                                // Date & Time
-                                Flexible(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          "${formatDate(order.deliverydate)} | ${safeValue(order.deliverytime)}",
-                                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            /// Contacts Block (Customer & Delivery Partner side-by-side)
-                            Row(
-                              children: [
-                                // Customer
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: (customerMobile != "N/A" && customerMobile.isNotEmpty)
-                                        ? () => makePhoneCall(customerMobile)
-                                        : null,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.person_outline, size: 14, color: Color(0xff5E35B1)),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                              customerName,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: (customerMobile != "N/A" && customerMobile.isNotEmpty)
-                                                    ? const Color(0xff5E35B1)
-                                                    : Colors.black87,
-                                                decoration: (customerMobile != "N/A" && customerMobile.isNotEmpty)
-                                                    ? TextDecoration.underline
-                                                    : TextDecoration.none,
-                                              ),
-                                            ),
-                                          ),
-                                          if (customerMobile != "N/A" && customerMobile.isNotEmpty)
-                                            const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Delivery Partner
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
-                                        ? () => makePhoneCall(deliveryMobile)
-                                        : null,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                              deliveryName != "N/A" ? deliveryName : "Unassigned",
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: deliveryName != "N/A"
-                                                    ? ((deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
-                                                        ? Colors.blue.shade700
-                                                        : Colors.black87)
-                                                    : Colors.grey,
-                                                decoration: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
-                                                    ? TextDecoration.underline
-                                                    : TextDecoration.none,
-                                              ),
-                                            ),
-                                          ),
-                                          if (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
-                                            const Icon(Icons.phone_in_talk_outlined, size: 14, color: Colors.green),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 8),
-
-                            /// Address Box (very clean and compact)
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffF4F7FC),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.location_on_outlined, color: Colors.red, size: 14),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      order.customerDetails.address.fulladdress,
-                                      style: TextStyle(
-                                        height: 1.2,
-                                        fontSize: 12,
-                                        color: Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                  itemCount: orders.length,
+                  key: PageStorageKey(controller.activeTab.value),
+                  physics: const ClampingScrollPhysics(),
+                  addAutomaticKeepAlives: false,
+                  addRepaintBoundaries: true,
+                  addSemanticIndexes: false,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    return _buildOrderCard(context, order);
                   },
                 ),
               );
@@ -411,126 +230,295 @@ class AdminOrderListView extends StatelessWidget {
     );
   }
 
-  Widget buildHeader() {
-    return Container(
-      height: 120,
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xff4527A0), Color(0xff5E35B1)],
+  Widget _buildOrderCard(BuildContext context, Order order) {
+    final customerName = safeValue(order.customerDetails.fullname);
+    final customerMobile = safeValue(order.customerDetails.mobile);
+    final deliveryName = safeValue(order.deliveryDetails.deliveryPartnerName);
+    final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
+
+    return InkWell(
+      onTap: () async {
+        final result = await Get.toNamed(
+          AppRoutes.adminOrderDetail,
+          arguments: order,
+        );
+        if (result == true) {
+          controller.getOrdersApi(controller.selectedSector.value);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade100, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-      ),
-      child: const Row(
-        children: [
-          Spacer(),
-          Text(
-            "Order List",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Spacer(),
-        ],
-      ),
-    );
-  }
-  
-
-  String formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy').format(date);
-  }
-
-  Widget buildContactCard({
-    required String name,
-    required String mobile,
-    required String imageUrl,
-  }) {
-
-    final displayName =
-    (name.trim().isNotEmpty) ? name: "N/A";
-
-    final displayMobile =
-    (mobile.trim().isNotEmpty) ? mobile: "N/A";
-    return (displayName != 'N/A'|| displayMobile != 'N/A') ? Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: Image.network(
-              imageUrl,
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return CircleAvatar(
-                  radius: 22,
-                  child: const Icon(Icons.person),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
-                Text(mobile),
-              ],
-            ),
-          ),
-
-          InkWell(
-            onTap: () => makePhoneCall(mobile),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.call, color: Colors.green),
-            ),
-          ),
-        ],
-      ),
-    ): SizedBox.shrink();
-  }
-
-  Widget buildInfoTile(IconData icon, String title, String value) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SizedBox(
-        height:90,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 20),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            /// ── Top Header ── Order number + Order Status chip
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "#${safeValue(order.ordernumber)}",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff1A2C56),
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                  _buildPaymentModeChip(order.paymentmode),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Divider(height: 14, thickness: 0.5),
+            ),
+
+            /// ── Bottle Info Row ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  const Icon(Icons.water_drop_outlined, size: 14, color: Color(0xff5E35B1)),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      "${safeValue(order.waterbottleName)}  •  ${safeValue(order.bottleWeight)} liter",
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff3A3A5C),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            /// ── Price / Qty / Date row ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Price + Payment mode
+                  Row(
+                    children: [
+                      const SizedBox(width: 2),
+                      Text(
+                        safeValue("Price: "),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Color(0xff2E7D32),
+                        ),
+                      ),
+                      Text(
+                        "₹${safeValue(order.price)}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Color(0xff2E7D32),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                  ),
+                  // Qty
+                  Row(
+                    children: [
+                      const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blueGrey),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Qty: ${safeValue(order.quantity)}",
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  // Date
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.calendar_today_outlined, size: 13, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            formatDate(order.deliverydate),
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// ── Contacts Block ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  // Customer
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                          ? () => makePhoneCall(customerMobile)
+                          : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffF4F0FF),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person_outline, size: 14, color: Color(0xff5E35B1)),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                customerName,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                      ? const Color(0xff5E35B1)
+                                      : Colors.black87,
+                                  decoration: (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                            if (customerMobile != "N/A" && customerMobile.isNotEmpty)
+                              const Icon(Icons.phone_in_talk_outlined, size: 13, color: Colors.green),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Delivery Partner
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                          ? () => makePhoneCall(deliveryMobile)
+                          : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.local_shipping_outlined, size: 14, color: Colors.blueGrey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                deliveryName != "N/A" ? deliveryName : "Unassigned",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: deliveryName != "N/A"
+                                      ? ((deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                          ? Colors.blue.shade700
+                                          : Colors.black87)
+                                      : Colors.grey.shade400,
+                                  decoration: (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                            if (deliveryMobile != "N/A" && deliveryMobile.isNotEmpty)
+                              const Icon(Icons.phone_in_talk_outlined, size: 13, color: Colors.green),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            /// ── Address ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                decoration: BoxDecoration(
+                  color: const Color(0xffF4F7FC),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.location_on_outlined, color: Colors.redAccent, size: 14),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        order.customerDetails.address.fulladdress.isNotEmpty
+                            ? order.customerDetails.address.fulladdress
+                            : "Address not available",
+                        style: TextStyle(
+                          height: 1.3,
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (order.customerDetails.address.sectornumber.isNotEmpty &&
+                        order.customerDetails.address.sectornumber != '0')
+                      Container(
+                        margin: const EdgeInsets.only(left: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xff5E35B1).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          "Sec ${order.customerDetails.address.sectornumber}",
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xff5E35B1),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -538,31 +526,148 @@ class AdminOrderListView extends StatelessWidget {
     );
   }
 
-  String safeValue(dynamic value) {
-    if (value == null || value.toString().trim().isEmpty) {
-      return "N/A";
-    }
-    return value.toString();
+  Widget buildHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xff4527A0), Color(0xff7B1FA2)],
+        ),
+      ),
+      child: Obx(() {
+        final data = controller.orderResponse.value?.data;
+        final totalAll = data?.allOrders.length ?? 0;
+        final totalPending = data?.pendingOrders.length ?? 0;
+        final totalAssigned = data?.assignedOrders.length ?? 0;
+        final totalDelivered = data?.deliveredOrders.length ?? 0;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                SizedBox(height: 30,),
+                Text(
+                  "Order List",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                Spacer(),
+              ],
+            ),
+          ],
+        );
+      }),
+    );
   }
 
-  Future<void> makePhoneCall(String phoneNumber) async {
-    if (phoneNumber.isEmpty || phoneNumber == "N/A") return;
-
-    final Uri uri = Uri.parse('tel:$phoneNumber');
-
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint("Unable to call: $e");
-    }
+  Widget _buildHeaderStat(String label, int count, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$count",
+          style: TextStyle(
+            color: color,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.75),
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 
-  Widget buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+  String formatDate(DateTime date) {
+    return DateFormat('dd MMM yyyy').format(date);
+  }
+
+  /// Payment mode chip: 0=COD, 1=Online, 2=Subscribe, 3=Wallet
+  Widget _buildPaymentModeChip
+      (int mode) {
+    final Map<int, _PaymentModeInfo> modeMap = {
+      0: _PaymentModeInfo('COD', const Color(0xffE65100), const Color(0xffFFF3E0)),
+      1: _PaymentModeInfo('Online', const Color(0xff2E7D32), const Color(0xffE8F5E9)),
+      2: _PaymentModeInfo('Subscribed', const Color(0xffC62828), const Color(0xffFFEBEE)),
+      3: _PaymentModeInfo('Wallet', const Color(0xff6A1B9A), const Color(0xffF3E5F5)),
+    };
+    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: info.bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Text(
-        title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        info.label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: info.fg,
+        ),
+      ),
+    );
+  }
+
+  /// Order status_text chip
+  Widget _buildOrderStatusChip(String statusText) {
+    Color bgColor;
+    Color textColor;
+
+    switch (statusText.toLowerCase()) {
+      case 'pending':
+        bgColor = Colors.orange.shade50;
+        textColor = Colors.orange.shade700;
+        break;
+      case 'assigned & pickup':
+      case 'assigned':
+        bgColor = Colors.blue.shade50;
+        textColor = Colors.blue.shade700;
+        break;
+      case 'out for delivery':
+        bgColor = Colors.purple.shade50;
+        textColor = Colors.purple.shade700;
+        break;
+      case 'delivered':
+        bgColor = Colors.green.shade50;
+        textColor = Colors.green.shade700;
+        break;
+      case 'cancelled':
+        bgColor = Colors.red.shade50;
+        textColor = Colors.red.shade700;
+        break;
+      default:
+        bgColor = Colors.grey.shade100;
+        textColor = Colors.grey.shade700;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        statusText.isEmpty ? 'N/A' : statusText,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -576,31 +681,19 @@ class AdminOrderListView extends StatelessWidget {
         bgColor = Colors.orange.shade100;
         textColor = Colors.orange.shade800;
         break;
-
       case 'assigned':
         bgColor = Colors.blue.shade100;
         textColor = Colors.blue.shade800;
         break;
-
       case 'out for delivery':
         bgColor = Colors.purple.shade100;
         textColor = Colors.purple.shade800;
         break;
-
       case 'delivered':
         bgColor = Colors.green.shade100;
         textColor = Colors.green.shade800;
         break;
-
       case 'cancelled':
-        bgColor = Colors.red.shade100;
-        textColor = Colors.red.shade800;
-        break;
-      case 'cancelled':
-        bgColor = Colors.red.shade100;
-        textColor = Colors.red.shade800;
-        break;
-      case 'Failed':
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
         break;
@@ -625,48 +718,23 @@ class AdminOrderListView extends StatelessWidget {
       ),
     );
   }
-  String getCompleteAddress(Address address) {
-    final parts = <String>[];
 
-    if (address.housenumber.toString().isNotEmpty ?? false) {
-      parts.add("House No. ${address.houseFlatFloorNo}");
+  String safeValue(dynamic value) {
+    if (value == null || value.toString().trim().isEmpty) {
+      return "N/A";
     }
-
-    if (address.flatnumber.toString().isNotEmpty ?? false) {
-      parts.add("Flat ${address.flatnumber}");
-    }
-
-    if (address.floornumber != 0) {
-      parts.add("Floor ${address.floornumber}");
-    }
-
-    if (address.societyname.toString().isNotEmpty ?? false) {
-      parts.add(address.societyname);
-    }
-
-    if (address.galinumber.toString().isNotEmpty ?? false) {
-      parts.add("Gali ${address.societyGaliBlockNo}");
-    }
-
-    if (address.landmark.toString().isNotEmpty ?? false) {
-      parts.add("Near ${address.landmark}");
-    }
-
-    if (address.city.toString().isNotEmpty ?? false) {
-      parts.add(address.city);
-    }
-
-    if (address.state.toString().isNotEmpty ?? false) {
-      parts.add(address.state);
-    }
-
-    if (address.pincode.toString().isNotEmpty ?? false) {
-      parts.add(address.pincode);
-    }
-
-    return parts.where((e) => e.trim().isNotEmpty).join(", ");
+    return value.toString();
   }
 
+  Future<void> makePhoneCall(String phoneNumber) async {
+    if (phoneNumber.isEmpty || phoneNumber == "N/A") return;
+    final Uri uri = Uri.parse('tel:$phoneNumber');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint("Unable to call: $e");
+    }
+  }
 
   void _showSectorFilterBottomSheet(BuildContext context) {
     if (controller.sectors.isEmpty) {
@@ -733,7 +801,7 @@ class AdminOrderListView extends StatelessWidget {
               ),
               const SizedBox(height: 15),
 
-              /// Local Search Sector TextField
+              /// Search
               TextField(
                 onChanged: (val) => localSearchQuery.value = val,
                 decoration: InputDecoration(
@@ -761,15 +829,12 @@ class AdminOrderListView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(20.0),
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xff5E35B1),
-                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xff5E35B1)),
                         ),
                       ),
                     );
                   }
 
-                  // Local filter of sector names
                   final query = localSearchQuery.value.trim().toLowerCase();
                   final filtered = controller.sectors
                       .where((s) => s.toLowerCase().contains(query))
@@ -795,30 +860,20 @@ class AdminOrderListView extends StatelessWidget {
                         Divider(color: Colors.grey.shade100, height: 1),
                     itemBuilder: (context, index) {
                       final sector = filtered[index];
-                      final isSelected =
-                          controller.selectedSector.value == sector;
+                      final isSelected = controller.selectedSector.value == sector;
 
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                         title: Text(
                           "Sector $sector",
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? const Color(0xff5E35B1)
-                                : Colors.black87,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? const Color(0xff5E35B1) : Colors.black87,
                           ),
                         ),
                         trailing: isSelected
-                            ? const Icon(
-                                Icons.check_circle,
-                                color: Color(0xff5E35B1),
-                              )
+                            ? const Icon(Icons.check_circle, color: Color(0xff5E35B1))
                             : null,
                         onTap: () {
                           controller.selectedSector.value = sector;
@@ -851,7 +906,7 @@ class AdminOrderListView extends StatelessWidget {
             border: Border.all(color: Colors.grey.shade200),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -860,145 +915,70 @@ class AdminOrderListView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// Top Row: Order ID & Status
+              /// Order ID & Status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 90,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 70,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
+                  _shimmerBox(90, 16),
+                  _shimmerBox(80, 22, radius: 20),
                 ],
               ),
               const SizedBox(height: 8),
-              const Divider(height: 16, thickness: 0.5),
+              const Divider(height: 12, thickness: 0.5),
 
-              /// Middle Details (Price, Qty, Date)
+              /// Bottle info
+              _shimmerBox(140, 13),
+              const SizedBox(height: 10),
+
+              /// Price / Qty / Date
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 50,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 40,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 100,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
+                  _shimmerBox(60, 14),
+                  _shimmerBox(50, 14),
+                  _shimmerBox(80, 14),
                 ],
               ),
               const SizedBox(height: 12),
 
-              /// Customer Info Placeholders
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(
-                  width: 180,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(
-                  width: 220,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              /// Bottom Buttons (e.g. Call)
+              /// Contacts
               Row(
                 children: [
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 80,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _shimmerBox(double.infinity, 38, radius: 10)),
                   const SizedBox(width: 8),
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      width: 80,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _shimmerBox(double.infinity, 38, radius: 10)),
                 ],
               ),
+              const SizedBox(height: 10),
+
+              /// Address
+              _shimmerBox(double.infinity, 30, radius: 8),
             ],
           ),
         );
       },
     );
   }
+
+  Widget _shimmerBox(double width, double height, {double radius = 4}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentModeInfo {
+  final String label;
+  final Color fg;
+  final Color bg;
+  const _PaymentModeInfo(this.label, this.fg, this.bg);
 }

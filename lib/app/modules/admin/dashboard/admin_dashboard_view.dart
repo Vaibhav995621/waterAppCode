@@ -138,8 +138,8 @@ class AdminDashboardView extends StatelessWidget {
                                     childAspectRatio: 1.45,
                                     children: [
                                       StatsCard(
-                                        title: "Total Orders",
-                                        value: controller.totalOrders.value
+                                        title: "Active Orders",
+                                        value: controller.activeOrders.value
                                             .toString(),
                                         colors: const [
                                           Color(0xff42A5F5),
@@ -147,8 +147,8 @@ class AdminDashboardView extends StatelessWidget {
                                         ],
                                       ),
                                       StatsCard(
-                                        title: "Active Orders",
-                                        value: controller.activeOrders.value
+                                        title: "Delivered Orders",
+                                        value: controller.completedOrders.value
                                             .toString(),
                                         colors: const [
                                           Color(0xff66BB6A),
@@ -156,12 +156,11 @@ class AdminDashboardView extends StatelessWidget {
                                         ],
                                       ),
                                       StatsCard(
-                                        title: "Completed Orders",
-                                        value: controller.completedOrders.value
-                                            .toString(),
+                                        title: "Cancel Orders",
+                                        value: controller.cancelledOrders.value.toString(),
                                         colors: const [
-                                          Color(0xffFFB74D),
-                                          Color(0xffEF6C00),
+                                          Color(0xffEF5350), // Light Red
+                                          Color(0xffC62828), // Dark Red
                                         ],
                                       ),
                                       StatsCard(

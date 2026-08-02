@@ -43,7 +43,7 @@ class Data {
   DateTime modifiedDate;
   Address address;
   Plandetail plandetail;
-
+  int usertype;
   Data({
     required this.id,
     required this.plantype,
@@ -61,6 +61,7 @@ class Data {
     required this.modifiedDate,
     required this.address,
     required this.plandetail,
+    required this.usertype
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
@@ -84,6 +85,7 @@ class Data {
       address: Address.fromJson(json["address"] ?? {}),
       plandetail:
       Plandetail.fromJson(json["plandetail"] ?? {}),
+        usertype : json["usertype"] ?? 0
     );
   }
 
@@ -106,6 +108,7 @@ class Data {
       modifiedDate.toIso8601String(),
       "address": address.toJson(),
       "plandetail": plandetail.toJson(),
+      "usertype": usertype
     };
   }
 }

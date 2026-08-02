@@ -369,7 +369,8 @@ class RegisterController extends GetxController {
               image: user.data.photo,
               name: user.data.fullname,
               role: user.data.role,
-              planType: user.data.plandetail.id
+              planType: user.data.plandetail.id,
+              usertype : user.data.usertype
           );
           Get.offAll(() => const MainNavigationScreen());
         }

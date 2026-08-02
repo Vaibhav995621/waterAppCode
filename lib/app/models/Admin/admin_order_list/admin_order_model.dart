@@ -41,6 +41,7 @@ class Data {
   List<Order> assignedOrders;
   List<Order> outForDeliveryOrders;
   List<Order> deliveredOrders;
+  List<Order> cancelledOrders;
 
   Data({
     this.order,
@@ -49,6 +50,7 @@ class Data {
     required this.assignedOrders,
     required this.outForDeliveryOrders,
     required this.deliveredOrders,
+    required this.cancelledOrders,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,11 @@ class Data {
       (json['delivered_orders'] as List? ?? [])
           .map((e) => Order.fromJson(e))
           .toList(),
+
+      cancelledOrders:
+      (json['cancelled_orders'] as List? ?? [])
+          .map((e) => Order.fromJson(e))
+          .toList(),
     );
   }
 
@@ -97,11 +104,15 @@ class Data {
       outForDeliveryOrders.map((e) => e.toJson()).toList(),
       'delivered_orders':
       deliveredOrders.map((e) => e.toJson()).toList(),
+      'cancelled_orders':
+      cancelledOrders.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class Order {
+  // paymentmode: 0=Cash, 1=UPI, 2=Card, 3=Online
+  int paymentmode;
   int id;
   int customerid;
   String ordernumber;
@@ -143,6 +154,7 @@ class Order {
     required this.addressid,
     required this.assignedto,
     required this.paymentstatus,
+    required this.paymentmode,
     required this.status,
     required this.cdate,
     required this.modifiedDate,
@@ -177,6 +189,7 @@ class Order {
       addressid: json['addressid'] ?? 0,
       assignedto: json['assignedto'] ?? 0,
       paymentstatus: json['paymentstatus'] ?? '0',
+      paymentmode: json['paymentmode'] ?? 0,
       status: json['status'] ?? 0,
       cdate: DateTime.tryParse(
         json['cdate'] ?? '',
@@ -218,6 +231,7 @@ class Order {
       'deliverytime': deliverytime,
       'addressid': addressid,
       'assignedto': assignedto,
+      'paymentmode': paymentmode,
       'paymentstatus': paymentstatus,
       'status': status,
       'cdate': cdate.toIso8601String(),

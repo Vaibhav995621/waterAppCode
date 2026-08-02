@@ -10,7 +10,8 @@ class AppSession {
     required String name,
     required String image,
     required int role,
-    required int planType
+    required int planType,
+    required int usertype
   }) async {
     await _box.write('user', {
       'userId': userId,
@@ -18,7 +19,8 @@ class AppSession {
       'name': name,
       'image' : image,
       'role': role,
-      'planType' : planType
+      'planType' : planType,
+      'usertype': usertype
     });
 
     await _box.save(); // force flush
@@ -31,7 +33,8 @@ class AppSession {
 
   static String get userId =>
       user['userId']?.toString() ?? '';
-
+  static int get usertype =>
+      user['usertype'] ?? 0;
   static String get token =>
       _box.read('fcmToken')?.toString() ?? '';
 

@@ -38,7 +38,7 @@ class OrdersController extends GetxController {
   Future<bool> getCustomerActiveOrder() async {
     try {
       isLoading.value = true;
-
+      activeOrders.value = [];
       final data = await _repo.getActiveOrderList(AppSession.userId);
 
       /// ❌ API Error
@@ -67,7 +67,7 @@ class OrdersController extends GetxController {
   Future<bool> getCustomerHistoryOrder() async {
     try {
       isLoading.value = true;
-
+      historyOrders.value = [];
       final data = await _repo.getOrderHistoryList(AppSession.userId);
 
       /// ❌ API Error
