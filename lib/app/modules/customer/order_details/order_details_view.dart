@@ -72,7 +72,7 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                getStatusText(order.status),
+                                getPaymentStatusText(order.paymentstatus),
                                 style: TextStyle(
                                   color: statusColor,
                                   fontWeight: FontWeight.w600,
@@ -503,18 +503,18 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
     }
   }
 
-  String getStatusText(int status) {
-    switch (status) {
-      case 0:
-        return 'Pending';
-      case 1:
-        return 'Assigned';
-      case 2:
-        return 'Delivered';
-      case 3:
-        return 'Cancelled';
+  String getPaymentStatusText(String status) {
+    switch (status.trim()) {
+      case '0':
+        return 'COD';
+      case '1':
+        return 'online';
+      case '2':
+        return 'subscribe';
+      case '3':
+        return 'wallet';
       default:
-        return 'Pending';
+        return status;
     }
   }
 
