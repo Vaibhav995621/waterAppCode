@@ -112,6 +112,129 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
                     const SizedBox(height: 20),
 
+                    /// DELIVERY ADDRESS & FLOOR DETAILS
+                    _sectionTitle("Delivery Address & Floor"),
+
+                    Obx(
+                      () {
+                        final addr = controller
+                            .addressController.selectedAddress.value;
+                        final floorNum = controller.floor;
+                        final hasLift = controller.isLiftAvailable;
+                        final rate = controller.floorCharges;
+
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      addr != null &&
+                                              addr.fullAddress.isNotEmpty
+                                          ? addr.fullAddress
+                                          : "No address selected",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Get.toNamed(AppRoutes.selectAddress);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(50, 30),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text("Change"),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 12),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      floorNum == 0
+                                          ? "Ground Floor (0)"
+                                          : "Floor $floorNum",
+                                      style: TextStyle(
+                                        color: Colors.blue.shade800,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: hasLift
+                                          ? Colors.green.shade50
+                                          : Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          hasLift
+                                              ? Icons.elevator
+                                              : Icons.stairs,
+                                          size: 14,
+                                          color: hasLift
+                                              ? Colors.green.shade800
+                                              : Colors.orange.shade800,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          hasLift
+                                              ? "Lift Available (Free)"
+                                              : "No Lift (₹$rate/floor)",
+                                          style: TextStyle(
+                                            color: hasLift
+                                                ? Colors.green.shade800
+                                                : Colors.orange.shade800,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
                     /// DATE
                     _sectionTitle("Delivery Date"),
 
@@ -179,7 +302,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                         Get.toNamed(AppRoutes.orderSchedule);
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: const Color(0xffDDF2E6),
                           borderRadius: BorderRadius.circular(12),
@@ -187,7 +311,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_month_outlined, color: Color(0xff146950)),
+                            const Icon(Icons.calendar_month_outlined,
+                                color: Color(0xff146950)),
                             const SizedBox(width: 12),
                             const Expanded(
                               child: Column(
@@ -212,7 +337,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
                                 color: const Color(0xff146950),
                                 borderRadius: BorderRadius.circular(20),
@@ -229,6 +355,114 @@ class BookWaterScreen extends GetView<BookWaterController> {
                           ],
                         ),
                       ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// PRICE BREAKDOWN
+                    Obx(
+                      () {
+                        if (controller.isLoading.value ||
+                            controller.bottleList.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        final hasLift = controller.isLiftAvailable;
+                        final floorNum = controller.floor;
+                        final rate = controller.floorCharges;
+
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Price Breakdown",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Divider(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Bottle Price (₹${controller.price} × ${controller.quantity.value})",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700),
+                                  ),
+                                  Text(
+                                    "₹${controller.bottleSubtotal}",
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    hasLift
+                                        ? "Floor Charges (Lift Available)"
+                                        : "Floor Charges ($floorNum floor${floorNum == 1 ? '' : 's'} × ₹$rate)",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700),
+                                  ),
+                                  Text(
+                                    hasLift
+                                        ? "₹0"
+                                        : "₹${controller.floorTotal}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: hasLift ? Colors.green : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Total Amount",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    "₹${controller.total}",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 15),
@@ -259,6 +493,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                 "deliverydate": controller.selectedDate.value,
                                 "deliverytime": controller.selectedTime.value,
                                 "plantype": controller.bottle.plantype,
+                                "floor": controller.floor,
+                                "floorCharges": controller.floorCharges,
                               },
                             );
                           }

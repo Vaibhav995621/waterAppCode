@@ -18,6 +18,8 @@ class PaymentController extends GetxController {
   late DateTime deliveryDate;
   late String deliveryTime;
   late int plantype;
+  int floor = 0;
+  int floorCharges = 0;
   String onlinePaymentMode= "1";
 
   late Razorpay razorpay;
@@ -42,6 +44,8 @@ class PaymentController extends GetxController {
         : DateTime.now();
     deliveryTime = args["deliverytime"] ?? "";
     plantype = args["plantype"] ?? 0;
+    floor = args["floor"] ?? 0;
+    floorCharges = args["floorCharges"] ?? 0;
 
     // Initialize Razorpay
     razorpay = Razorpay();
@@ -276,6 +280,8 @@ class PaymentController extends GetxController {
       "paymentmode": paymentmode,
       "paymentstatus": paymentstatus,
       "trans_id" : trans_id,
+      "floor": floor.toString(),
+      "floorcharges": floorCharges.toString(),
     };
     try {
       addressController.isPaymentLoading.value = true;

@@ -215,7 +215,14 @@ class RegisterScreen extends GetView<RegisterController> {
                               null,
                             ),
 
+                            _liftAvailableField(context),
 
+                            _numericField(
+                              "Floor Number",
+                              controller
+                                  .floorNumberController,
+                              null,
+                            ),
 
                             _field(
                               "Landmark",
@@ -711,6 +718,118 @@ class RegisterScreen extends GetView<RegisterController> {
               ),
             );
           }),
+        ],
+      ),
+    );
+  }
+
+  Widget _numericField(
+      String label,
+      TextEditingController controller,
+      String? Function(String?)? validator,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextFormField(
+            controller: controller,
+            validator: validator,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: "Enter $label",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _liftAvailableField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Lift Available",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(() => Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  registerController.isLiftAvailable.value = "1";
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      registerController.isLiftAvailable.value == "1"
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: Theme.of(context).primaryColor,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Yes",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 30),
+              GestureDetector(
+                onTap: () {
+                  registerController.isLiftAvailable.value = "0";
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      registerController.isLiftAvailable.value == "0"
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: Theme.of(context).primaryColor,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "No",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )),
         ],
       ),
     );

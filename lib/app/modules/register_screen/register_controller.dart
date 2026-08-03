@@ -27,8 +27,12 @@ class RegisterController extends GetxController {
   final stateController = TextEditingController();
   final cityController = TextEditingController();
   final pinCodeController = TextEditingController();
+  final floorNumberController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
+  // Lift Available ("1" = Yes, "0" = No)
+  RxString isLiftAvailable = "0".obs;
 
   // State Dropdown
   RxList<StateData> states = <StateData>[].obs;
@@ -353,6 +357,10 @@ class RegisterController extends GetxController {
           subdivisionName: selectedSubdivision.value?.subdivisionname ?? societyController.text.trim(),
           sectorId: selectedSector.value?.id.toString() ?? "",
           localityId: selectedLocality.value?.id.toString() ?? "",
+          floorNumber: floorNumberController.text.trim().isEmpty
+              ? ""
+              : floorNumberController.text.trim(),
+          isLiftAvailable: isLiftAvailable.value,
         );
 
         /// ✅ Handle API-level failure
@@ -390,6 +398,7 @@ class RegisterController extends GetxController {
   void onClose() {
     fullNameController.dispose();
     mobileController.dispose();
+    floorNumberController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.onClose();

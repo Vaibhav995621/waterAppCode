@@ -6,8 +6,13 @@ import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 import '../../../models/bottel_model/botle_model.dart';
 
+import '../select_address/select_address_controller.dart';
+
 class BookWaterController extends GetxController {
   final AuthRepository _repo = AuthRepository();
+  final SelectAddressController addressController =
+      Get.put(SelectAddressController());
+
   final RxList<BottleData> bottleList = <BottleData>[].obs;
   late BottleData bottle;
   final RxBool isLoading = false.obs;
@@ -16,12 +21,31 @@ class BookWaterController extends GetxController {
   final selectedDate = DateTime.now().obs;
   final selectedTime = "10:00 AM - 12:00 PM".obs;
 
+  /// Floor charge per floor from selected bottle (BottleModel)
+  int get floorCharges {
+    if (bottleList.isEmpty) return 0;
+    final b = bottleList.firstWhereOrNull(
+      (e) => e.id == selectedBottle.value,
+    );
+    return b?.floorChanges ?? 0;
+  }
 
+  /// Floor number from selected address (AddressData)
+  int get floor {
+    final selectedAddr = addressController.selectedAddress.value;
+    return selectedAddr?.floornumber ?? 0;
+  }
+
+  /// Returns true if lift is available for the selected address (isLiftAvailable == 1)
+  bool get isLiftAvailable {
+    final selectedAddr = addressController.selectedAddress.value;
+    return (selectedAddr?.isLiftAvailable ?? 0) == 1;
+  }
 
   int get price {
     if (bottleList.isEmpty) return 0;
-     bottle = bottleList.firstWhereOrNull(
-          (e) => e.id == selectedBottle.value,
+    bottle = bottleList.firstWhereOrNull(
+      (e) => e.id == selectedBottle.value,
     )!;
     return int.tryParse(
       bottle.discountprice ?? "0",
@@ -29,7 +53,18 @@ class BookWaterController extends GetxController {
         0;
   }
 
-  int get total => price * quantity.value;
+  int get bottleSubtotal => price * quantity.value;
+
+  /// Floor charges apply ONLY if lift is NOT available.
+  /// If lift is available (isLiftAvailable == true), floor charges are 0.
+  int get floorTotal {
+    if (isLiftAvailable) {
+      return 0;
+    }
+    return floor * floorCharges;
+  }
+
+  int get total => bottleSubtotal + floorTotal;
 
   @override
   void onInit() {

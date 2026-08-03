@@ -201,6 +201,9 @@ class AuthRepository {
     required String districtId,
     required String subdivisionId,
     required String subdivisionName,
+    required String floorNumber,
+    required String isLiftAvailable,
+
     String sectorId = '',
     String localityId = '',
   }) async {
@@ -231,8 +234,8 @@ class AuthRepository {
           "sectorid": sectorId,
           "localityid": localityId,
           "fcm_token" : AppSession.token,
-          "fmc_token" : AppSession.token,
-          "kcm_token" : AppSession.token
+          "floornumber": floorNumber,
+          "is_lift_available": isLiftAvailable,
         },
         tokenRequired: false,
         headers: {

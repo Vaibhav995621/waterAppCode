@@ -17,10 +17,13 @@ class EditAddressController extends GetxController {
 
   final addressController = TextEditingController();
   final houseNoController = TextEditingController();
+  final floorNumberController = TextEditingController();
   final landmarkController = TextEditingController();
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
+
+  RxBool isLiftAvailable = false.obs;
 
   // Dropdown lists and reactive selections
   RxList<StateData> states = <StateData>[].obs;
@@ -65,8 +68,12 @@ class EditAddressController extends GetxController {
     addressController.text = addressData?.fullAddress ?? "";
     landmarkController.text = addressData?.landmark ?? "";
     pinCodeController.text = addressData?.pincode ?? "";
+    floorNumberController.text =
+        (addressData?.floornumber ?? 0) > 0 ? addressData!.floornumber.toString() : "";
+    isLiftAvailable.value = addressData?.isLiftAvailable == 1;
 
-    final displayHouse = addressData?.houseFlatFloorNo != null && addressData!.houseFlatFloorNo!.isNotEmpty
+    final displayHouse = addressData?.houseFlatFloorNo != null &&
+            addressData!.houseFlatFloorNo!.isNotEmpty
         ? addressData!.houseFlatFloorNo!
         : addressData?.housenumber ?? "";
 
@@ -75,7 +82,9 @@ class EditAddressController extends GetxController {
     // 1. Find and select State
     if (addressData?.stateid != null || addressData?.state != null) {
       final state = states.firstWhereOrNull(
-        (s) => s.id == addressData?.stateid || s.statename.toLowerCase() == addressData?.state.toLowerCase(),
+        (s) =>
+            s.id == addressData?.stateid ||
+            s.statename.toLowerCase() == addressData?.state.toLowerCase(),
       );
       if (state != null) {
         selectedState.value = state;
@@ -85,22 +94,30 @@ class EditAddressController extends GetxController {
         // 2. Find and select District
         if (addressData?.districtid != null || addressData?.city != null) {
           final district = districts.firstWhereOrNull(
-            (d) => d.id == addressData?.districtid || d.districtname.toLowerCase() == addressData?.city.toLowerCase(),
+            (d) =>
+                d.id == addressData?.districtid ||
+                d.districtname.toLowerCase() == addressData?.city.toLowerCase(),
           );
           if (district != null) {
             selectedDistrict.value = district;
             cityController.text = district.districtname;
-            await fetchSubdivisions(state.id.toString(), district.id.toString());
+            await fetchSubdivisions(
+                state.id.toString(), district.id.toString());
 
             // 3. Find and select Subdivision
-            if (addressData?.subdivisionid != null || addressData?.subdivisionname != null) {
+            if (addressData?.subdivisionid != null ||
+                addressData?.subdivisionname != null) {
               final subdivision = subdivisions.firstWhereOrNull(
-                (sub) => sub.id == addressData?.subdivisionid || sub.subdivisionname.toLowerCase() == addressData?.subdivisionname?.toLowerCase(),
+                (sub) =>
+                    sub.id == addressData?.subdivisionid ||
+                    sub.subdivisionname.toLowerCase() ==
+                        addressData?.subdivisionname?.toLowerCase(),
               );
               if (subdivision != null) {
                 selectedSubdivision.value = subdivision;
                 pinCodeController.text = subdivision.pincode;
-                await fetchSectors(state.id.toString(), district.id.toString(), subdivision.id.toString());
+                await fetchSectors(state.id.toString(), district.id.toString(),
+                    subdivision.id.toString());
 
                 // 4. Find and select Sector
                 if (addressData?.sectorid != null) {
@@ -109,15 +126,25 @@ class EditAddressController extends GetxController {
                   );
                   if (sector != null) {
                     selectedSector.value = sector;
-                    await fetchLocalities(state.id.toString(), district.id.toString(), subdivision.id.toString(), sector.id.toString());
+                    await fetchLocalities(
+                        state.id.toString(),
+                        district.id.toString(),
+                        subdivision.id.toString(),
+                        sector.id.toString());
 
                     // 5. Find and select Locality
-                    if (addressData?.localityid != null || addressData?.societyGaliBlockNo != null || addressData?.societyname != null) {
-                      final targetLocalityName = (addressData?.societyGaliBlockNo?.isNotEmpty ?? false)
-                          ? addressData?.societyGaliBlockNo
-                          : addressData?.societyname;
+                    if (addressData?.localityid != null ||
+                        addressData?.societyGaliBlockNo != null ||
+                        addressData?.societyname != null) {
+                      final targetLocalityName =
+                          (addressData?.societyGaliBlockNo?.isNotEmpty ?? false)
+                              ? addressData?.societyGaliBlockNo
+                              : addressData?.societyname;
                       final locality = localities.firstWhereOrNull(
-                        (loc) => loc.id == addressData?.localityid || loc.localityname.toLowerCase() == targetLocalityName?.toLowerCase(),
+                        (loc) =>
+                            loc.id == addressData?.localityid ||
+                            loc.localityname.toLowerCase() ==
+                                targetLocalityName?.toLowerCase(),
                       );
                       if (locality != null) {
                         selectedLocality.value = locality;
@@ -207,7 +234,8 @@ class EditAddressController extends GetxController {
       final districtId = selectedDistrict.value?.id.toString();
       final subdivisionId = selectedSubdivision.value?.id.toString();
       if (stateId != null && districtId != null && subdivisionId != null) {
-        fetchLocalities(stateId, districtId, subdivisionId, sector.id.toString());
+        fetchLocalities(
+            stateId, districtId, subdivisionId, sector.id.toString());
       }
     }
   }
@@ -267,7 +295,8 @@ class EditAddressController extends GetxController {
     }
   }
 
-  Future<void> fetchSectors(String stateId, String districtId, String subdivisionId) async {
+  Future<void> fetchSectors(
+      String stateId, String districtId, String subdivisionId) async {
     try {
       isSectorLoading.value = true;
       final response = await _repo.getSectorsList(
@@ -287,7 +316,8 @@ class EditAddressController extends GetxController {
     }
   }
 
-  Future<void> fetchLocalities(String stateId, String districtId, String subdivisionId, String sectorId) async {
+  Future<void> fetchLocalities(String stateId, String districtId,
+      String subdivisionId, String sectorId) async {
     try {
       isLocalityLoading.value = true;
       final response = await _repo.getLocalityList(
@@ -315,6 +345,10 @@ class EditAddressController extends GetxController {
       "userid": AppSession.userId,
       "fulladdress": addressController.text,
       "house_flat_floor_no": houseNoController.text,
+      "floornumber": floorNumberController.text.trim().isEmpty
+          ? "0"
+          : floorNumberController.text.trim(),
+      "is_lift_available": isLiftAvailable.value ? "1" : "0",
       "society_gali_block_no": selectedLocality.value?.localityname ?? "",
       "localityid": selectedLocality.value?.id.toString() ?? "",
       "sectornumber": selectedSector.value?.sectororvillagename ?? "",
@@ -340,6 +374,7 @@ class EditAddressController extends GetxController {
       if (res.statusCode == '201') {
         AppSnackbar.error(res.message);
       }
+
       /// ✅ Navigation
       if (res.statusCode == "200") {
         Get.back(result: true);
@@ -360,15 +395,34 @@ class EditAddressController extends GetxController {
       "userid": addressData?.userid.toString() ?? AppSession.userId,
       "fulladdress": addressController.text,
       "house_flat_floor_no": houseNoController.text,
-      "society_gali_block_no": selectedLocality.value?.localityname ?? addressData?.societyGaliBlockNo ?? addressData?.societyname ?? "",
-      "localityid": selectedLocality.value?.id.toString() ?? addressData?.localityid?.toString() ?? "",
-      "sectornumber": selectedSector.value?.sectororvillagename ??  "NA",
-      "sectorid": selectedSector.value?.id.toString() ?? addressData?.sectorid?.toString() ?? "",
+      "floornumber": floorNumberController.text.trim().isEmpty
+          ? (addressData?.floornumber.toString() ?? "0")
+          : floorNumberController.text.trim(),
+      "is_lift_available": isLiftAvailable.value ? "1" : "0",
+      "society_gali_block_no": selectedLocality.value?.localityname ??
+          addressData?.societyGaliBlockNo ??
+          addressData?.societyname ??
+          "",
+      "localityid": selectedLocality.value?.id.toString() ??
+          addressData?.localityid?.toString() ??
+          "",
+      "sectornumber": selectedSector.value?.sectororvillagename ?? "NA",
+      "sectorid": selectedSector.value?.id.toString() ??
+          addressData?.sectorid?.toString() ??
+          "",
       "landmark": landmarkController.text,
-      "stateid": selectedState.value?.id.toString() ?? addressData?.stateid?.toString() ?? "",
-      "districtid": selectedDistrict.value?.id.toString() ?? addressData?.districtid?.toString() ?? "",
-      "subdivisionid": selectedSubdivision.value?.id.toString() ?? addressData?.subdivisionid?.toString() ?? "",
-      "subdivisionname": selectedSubdivision.value?.subdivisionname ?? addressData?.subdivisionname ?? "",
+      "stateid": selectedState.value?.id.toString() ??
+          addressData?.stateid?.toString() ??
+          "",
+      "districtid": selectedDistrict.value?.id.toString() ??
+          addressData?.districtid?.toString() ??
+          "",
+      "subdivisionid": selectedSubdivision.value?.id.toString() ??
+          addressData?.subdivisionid?.toString() ??
+          "",
+      "subdivisionname": selectedSubdivision.value?.subdivisionname ??
+          addressData?.subdivisionname ??
+          "",
       "city": cityController.text,
       "state": stateController.text,
       "pincode": pinCodeController.text,
@@ -385,6 +439,7 @@ class EditAddressController extends GetxController {
       if (res.statusCode == '201') {
         AppSnackbar.error(res.message);
       }
+
       /// ✅ Navigation
       if (res.statusCode == "200") {
         Get.back(result: true);
@@ -401,6 +456,7 @@ class EditAddressController extends GetxController {
   void onClose() {
     addressController.dispose();
     houseNoController.dispose();
+    floorNumberController.dispose();
     landmarkController.dispose();
     cityController.dispose();
     stateController.dispose();
