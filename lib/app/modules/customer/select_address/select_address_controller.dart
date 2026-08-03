@@ -32,10 +32,50 @@ class SelectAddressController extends GetxController {
     getAddressList();
   }
 
+  void refreshAddress() async {
+    await getAddressList();
+    addressList.refresh();
+  }
+
   void selectAddress(int id) {
     selectedId.value = id;
-    selectedAddress.value = addressList.firstWhere((e) => e.id == id);
+    selectedAddress.value = addressList.firstWhereOrNull((e) => e.id == id);
     setAsDefault.value = selectedAddress.value?.isDefault == 1;
+  }
+
+  /// DELETE ADDRESS
+  Future<void> deleteAddress(int index) async {
+    try {
+      final id = addressList[index].id;
+
+      final data = await _repo.deleteAddress(
+        customerId: AppSession.userId.toString(),
+        addressId: id.toString(),
+      );
+
+      if (data.statusCode == "200") {
+        addressList.removeWhere((e) => e.id == id);
+
+        if (selectedId.value == id) {
+          if (addressList.isNotEmpty) {
+            selectedId.value = addressList.first.id!;
+            selectedAddress.value = addressList.first;
+          } else {
+            selectedId.value = -1;
+            selectedAddress.value = null;
+          }
+        }
+
+        addressList.refresh();
+        AppSnackbar.success(data.message);
+      } else {
+        AppSnackbar.error(data.message);
+      }
+    } catch (e) {
+      AppSnackbar.error(
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    }
   }
 
   Future<bool> getAddressList() async {

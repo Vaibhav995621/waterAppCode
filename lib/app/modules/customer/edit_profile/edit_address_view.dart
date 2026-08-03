@@ -118,7 +118,7 @@ class EditAddressView extends GetView<EditAddressController> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: const Color(0xffEEF4FF),
                     borderRadius: BorderRadius.circular(12),
@@ -136,7 +136,7 @@ class EditAddressView extends GetView<EditAddressController> {
                     Text(
                       "Is Lift Available?",
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xff1A2C56),
                       ),
@@ -145,7 +145,7 @@ class EditAddressView extends GetView<EditAddressController> {
                     Text(
                       "Enable if the building has an active lift",
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.grey,
                       ),
                     ),
