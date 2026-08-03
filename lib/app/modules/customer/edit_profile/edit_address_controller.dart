@@ -346,9 +346,9 @@ class EditAddressController extends GetxController {
       "fulladdress": addressController.text,
       "house_flat_floor_no": houseNoController.text,
       "floornumber": floorNumberController.text.trim().isEmpty
-          ? "0"
-          : floorNumberController.text.trim(),
-      "is_lift_available": isLiftAvailable.value ? "1" : "0",
+          ? 0
+          : int.parse(floorNumberController.text.trim()),
+      "is_lift_available": isLiftAvailable.value ? 1 : 0,
       "society_gali_block_no": selectedLocality.value?.localityname ?? "",
       "localityid": selectedLocality.value?.id.toString() ?? "",
       "sectornumber": selectedSector.value?.sectororvillagename ?? "",
@@ -396,9 +396,9 @@ class EditAddressController extends GetxController {
       "fulladdress": addressController.text,
       "house_flat_floor_no": houseNoController.text,
       "floornumber": floorNumberController.text.trim().isEmpty
-          ? (addressData?.floornumber.toString() ?? "0")
-          : floorNumberController.text.trim(),
-      "is_lift_available": isLiftAvailable.value ? "1" : "0",
+          ? (addressData?.floornumber ?? 0)
+          : int.parse(floorNumberController.text.trim()),
+      "is_lift_available": isLiftAvailable.value ? 1 : 0,
       "society_gali_block_no": selectedLocality.value?.localityname ??
           addressData?.societyGaliBlockNo ??
           addressData?.societyname ??

@@ -55,13 +55,12 @@ class BookWaterController extends GetxController {
 
   int get bottleSubtotal => price * quantity.value;
 
-  /// Floor charges apply ONLY if lift is NOT available.
-  /// If lift is available (isLiftAvailable == true), floor charges are 0.
   int get floorTotal {
     if (isLiftAvailable) {
       return 0;
     }
-    return floor * floorCharges;
+    // Multiply floor charges by quantity to reflect per-bottle floor fees
+    return floor * floorCharges * quantity.value;
   }
 
   int get total => bottleSubtotal + floorTotal;

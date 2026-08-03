@@ -109,7 +109,113 @@ class BookWaterScreen extends GetView<BookWaterController> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 15),
 
+                    Obx(
+                          () {
+                        if (controller.isLoading.value ||
+                            controller.bottleList.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        final hasLift = controller.isLiftAvailable;
+                        final floorNum = controller.floor;
+                        final rate = controller.floorCharges;
+
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Price Breakdown",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Divider(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Bottle Price (₹${controller.price} × ${controller.quantity.value})",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700),
+                                  ),
+                                  Text(
+                                    "₹${controller.bottleSubtotal}",
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    hasLift
+                                        ? "Floor Charges (Lift Available)"
+                                        : "Floor Charges ($floorNum floor${floorNum == 1 ? '' : 's'} × ₹$rate)",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700),
+                                  ),
+                                  Text(
+                                    hasLift
+                                        ? "₹0"
+                                        : "₹${controller.floorTotal}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: hasLift ? Colors.green : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Total Amount",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    "₹${controller.total}",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    /// PRICE BREAKDOWN
                     const SizedBox(height: 20),
 
                     /// DELIVERY ADDRESS & FLOOR DETAILS
@@ -294,6 +400,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                       ),
                     ),
 
+
                     const SizedBox(height: 15),
 
                     /// SCHEDULE ORDER BANNER
@@ -359,113 +466,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
                     const SizedBox(height: 15),
 
-                    /// PRICE BREAKDOWN
-                    Obx(
-                      () {
-                        if (controller.isLoading.value ||
-                            controller.bottleList.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        final hasLift = controller.isLiftAvailable;
-                        final floorNum = controller.floor;
-                        final rate = controller.floorCharges;
 
-                        return Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Price Breakdown",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Divider(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Bottle Price (₹${controller.price} × ${controller.quantity.value})",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700),
-                                  ),
-                                  Text(
-                                    "₹${controller.bottleSubtotal}",
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    hasLift
-                                        ? "Floor Charges (Lift Available)"
-                                        : "Floor Charges ($floorNum floor${floorNum == 1 ? '' : 's'} × ₹$rate)",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700),
-                                  ),
-                                  Text(
-                                    hasLift
-                                        ? "₹0"
-                                        : "₹${controller.floorTotal}",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: hasLift ? Colors.green : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Total Amount",
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    "₹${controller.total}",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
 
-                    const SizedBox(height: 15),
                   ],
                 ),
               ),
