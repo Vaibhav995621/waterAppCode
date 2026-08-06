@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
-import '../../../../routes/app_routes.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import 'bottle_subscription_controller.dart';
 
@@ -98,7 +96,9 @@ class BottleSubscriptionScreen extends StatelessWidget {
                             controller.subscriptionList.length,
                             (index) {
                               final plan = controller.subscriptionList[index];
-                              String price = plan.price;
+                              double basePrice = controller.getBasePrice(plan);
+                              double floorCharge = controller.getFloorCharge(plan);
+                              double totalPrice = controller.getTotalPrice(plan);
                               String bottles = plan.bottlequantity.toString();
                               String oldPrice = plan.originalprice;
                               String save = plan.totalsave.toString();
@@ -112,7 +112,9 @@ class BottleSubscriptionScreen extends StatelessWidget {
                                   bottles: bottles,
                                   save: save,
                                   oldPrice: oldPrice,
-                                  price: price,
+                                  price: basePrice.toStringAsFixed(0),
+                                  floorCharge: floorCharge,
+                                  totalPrice: totalPrice,
                                   perBottle: perBottle,
                                   color: Colors.blue,
                                   selected:
@@ -123,6 +125,10 @@ class BottleSubscriptionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 10),
+
+                      _buildPriceSummary(),
 
                       const SizedBox(height: 20),
 
@@ -154,20 +160,15 @@ class BottleSubscriptionScreen extends StatelessWidget {
                       onPressed: controller.isLoadingPayment.value
                           ? null
                           : () {
-                              double price =
-                                  double.tryParse(
-                                    controller
-                                        .subscriptionList[controller
-                                            .selectedPlan
-                                            .value]
-                                        .price,
-                                  ) ??
-                                  0.0;
-                              if(price >0) {
+                              if (controller.subscriptionList.isEmpty) return;
+                              final plan = controller.subscriptionList[
+                                  controller.selectedPlan.value];
+                              double price = controller.getTotalPrice(plan);
+                              if (price > 0) {
                                 controller.makePayment(price);
-                              } else{
+                              } else {
                                 AppSnackbar.error(
-                                  'Plant amount not valid'
+                                  'Plan amount not valid',
                                 );
                               }
                             },
@@ -318,6 +319,8 @@ class BottleSubscriptionScreen extends StatelessWidget {
     required String save,
     required String oldPrice,
     required String price,
+    required double floorCharge,
+    required double totalPrice,
     required String perBottle,
     required Color color,
     required bool selected,
@@ -359,7 +362,7 @@ class BottleSubscriptionScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(width: 20),
+            const SizedBox(width: 16),
 
             Expanded(
               child: Column(
@@ -378,8 +381,8 @@ class BottleSubscriptionScreen extends StatelessWidget {
 
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: 10,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xffE8F8EE),
@@ -390,31 +393,134 @@ class BottleSubscriptionScreen extends StatelessWidget {
                       style: const TextStyle(
                         color: Color(0xff16A34A),
                         fontWeight: FontWeight.w700,
+                        fontSize: 12,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        "₹$price",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: color,
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xffE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Original Price:",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "₹$price",
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xff0D1B52),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "₹$oldPrice",
-                        style: const TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                          color: Colors.grey,
-                          fontSize: 14,
+                        const SizedBox(height: 3),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     const Expanded(
+                        //       child: Text(
+                        //         "Per Floor Charge:",
+                        //         style: TextStyle(
+                        //           fontSize: 11,
+                        //           color: Colors.grey,
+                        //         ),
+                        //         overflow: TextOverflow.ellipsis,
+                        //       ),
+                        //     ),
+                        //     const SizedBox(width: 4),
+                        //     Text(
+                        //       "₹${(int.tryParse(bottles) ?? 0) * 3}/floor",
+                        //       style: const TextStyle(
+                        //         fontSize: 11,
+                        //         fontWeight: FontWeight.w600,
+                        //         color: Color(0xff475569),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+                        const SizedBox(height: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Floor Price:",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              controller.isLiftAvailable.value
+                                  ? "₹0 (Lift)"
+                                  : "₹${floorCharge.toStringAsFixed(0)}",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: controller.isLiftAvailable.value
+                                    ? const Color(0xff16A34A)
+                                    : const Color(0xff2563EB),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Divider(height: 1, thickness: 1),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Total Charges:",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xff0D1B52),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "₹${totalPrice.toStringAsFixed(0)}",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: color,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -443,28 +549,28 @@ class BottleSubscriptionScreen extends StatelessWidget {
 
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 16,
+                    horizontal: 14,
+                    vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     children: [
                       Text(
                         "₹$perBottle",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: color,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         "per bottle",
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: color,
                           fontWeight: FontWeight.w600,
                         ),
@@ -478,6 +584,126 @@ class BottleSubscriptionScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+
+
+  Widget _buildPriceSummary() {
+    return Obx(() {
+      if (controller.subscriptionList.isEmpty) return const SizedBox.shrink();
+      final index = controller.selectedPlan.value;
+      if (index < 0 || index >= controller.subscriptionList.length) {
+        return const SizedBox.shrink();
+      }
+
+      final plan = controller.subscriptionList[index];
+      final basePrice = controller.getBasePrice(plan);
+      final floorCharge = controller.getFloorCharge(plan);
+      final totalPrice = controller.getTotalPrice(plan);
+      final floor = controller.selectedFloor.value;
+      final bottles = plan.bottlequantity;
+      final hasLift = controller.isLiftAvailable.value;
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xffE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Price Summary",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Color(0xff0D1B52),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Base Plan ($bottles Bottles)",
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                Text(
+                  "₹${basePrice.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Color(0xff0D1B52),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    hasLift
+                        ? "Floor Charge (Lift Available)"
+                        : (floor > 0
+                            ? "Floor Charge ($floor Floor${floor > 1 ? 's' : ''} × $bottles Bottles × ₹3)"
+                            : "Floor Charge (Ground Floor)"),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+                Text(
+                  hasLift || floor == 0
+                      ? "₹0"
+                      : "+ ₹${floorCharge.toStringAsFixed(0)}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: hasLift || floor == 0
+                        ? const Color(0xff16A34A)
+                        : const Color(0xff2563EB),
+                  ),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Divider(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Total Amount",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xff0D1B52),
+                  ),
+                ),
+                Text(
+                  "₹${totalPrice.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xff6B67F6),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildFeatures() {

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -10,6 +9,10 @@ import '../../../models/subcription_model/subcription_model.dart';
 
 class BottleSubscriptionController extends GetxController {
   final selectedPlan = 0.obs;
+  final selectedFloor = 0.obs;
+  final isLiftAvailable = false.obs;
+  final double floorPricePerBottle = 3.0;
+
   final AuthRepository _repo = AuthRepository();
   RxList<SubscriptionData> subscriptionList =
       <SubscriptionData>[].obs;
@@ -18,11 +21,26 @@ class BottleSubscriptionController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isLoadingPayment = false.obs;
 
+  double getBasePrice(SubscriptionData plan) {
+    return double.tryParse(plan.price) ?? 0.0;
+  }
+
+  double getFloorCharge(SubscriptionData plan) {
+    if (isLiftAvailable.value) {
+      return 0.0;
+    }
+    return selectedFloor.value * plan.bottlequantity * floorPricePerBottle;
+  }
+
+  double getTotalPrice(SubscriptionData plan) {
+    return getBasePrice(plan) + getFloorCharge(plan);
+  }
 
   @override
   void onInit() {
     super.onInit();
     getSubscribePlanList();
+    getDefaultAddressFloor();
     razorpay = Razorpay();
     razorpay.on(
       Razorpay.EVENT_PAYMENT_SUCCESS,
@@ -36,6 +54,28 @@ class BottleSubscriptionController extends GetxController {
       Razorpay.EVENT_EXTERNAL_WALLET,
       _handleExternalWallet,
     );
+  }
+
+  Future<void> getDefaultAddressFloor() async {
+    try {
+      final response =
+          await _repo.getAddressList(customerId: AppSession.userId);
+      if (response.statusCode == "200" && response.data.isNotEmpty) {
+        final defaultAddress = response.data.firstWhereOrNull(
+          (e) => e.isDefault == 1,
+        );
+        if (defaultAddress != null) {
+          selectedFloor.value = defaultAddress.floornumber;
+          isLiftAvailable.value = defaultAddress.isLiftAvailable == 1;
+        } else {
+          final first = response.data.first;
+          selectedFloor.value = first.floornumber;
+          isLiftAvailable.value = first.isLiftAvailable == 1;
+        }
+      }
+    } catch (_) {
+      // Fallback: selectedFloor remains 0
+    }
   }
 
   void makePayment(double paymentAmount) {
@@ -82,11 +122,13 @@ class BottleSubscriptionController extends GetxController {
       "Payment Success",
     );
     print(response.paymentId);
-    if ((response.paymentId ?? '').isNotEmpty) {
+    if ((response.paymentId ?? '').isNotEmpty && subscriptionList.isNotEmpty) {
+      final selected = subscriptionList[selectedPlan.value];
+      final totalPaid = getTotalPrice(selected).toStringAsFixed(2);
       buySubscribePlan(
-        subscriptionList[selectedPlan.value].price,
+        totalPaid,
         response.paymentId ?? '',
-        subscriptionList[selectedPlan.value].id.toString(),
+        selected.id.toString(),
       );
     } else {
       AppSnackbar.error(
