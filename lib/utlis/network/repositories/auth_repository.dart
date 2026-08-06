@@ -614,6 +614,26 @@ Future<SubscriptionModel> getSubscriptionList() async {
     }
   }
 
+  Future<dynamic> saveSchedule(Map<String, dynamic> body) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.saveSchedule,
+        body,
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh",
+        },
+      );
+      return response;
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+      throw Exception(message);
+    }
+  }
+
 
 
   Future<PaymentHistoryModel> getPaymentHistory() async {

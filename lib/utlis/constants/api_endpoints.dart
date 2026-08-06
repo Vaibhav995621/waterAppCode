@@ -28,6 +28,7 @@ class ApiEndpoints {
 
 
   static const subscriptionList = "getsubscriptionplan";
+  static const saveSchedule = "saveschedule";
   static const savePaymentByCustomerId = "savepayentbycustomerid";
   static const paymentHistory = "paymenthistorybycustmerid";
   static const getWalletByCustomerId = "getwalletbycustomerid";

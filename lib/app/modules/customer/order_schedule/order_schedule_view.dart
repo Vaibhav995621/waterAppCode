@@ -58,7 +58,7 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // PROMO BANNER CARD
-                    _buildPromoBanner(),
+                    _buildPromoBanner(controller),
 
                     const SizedBox(height: 20),
 
@@ -90,6 +90,11 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
 
                     const SizedBox(height: 24),
 
+                    // SCHEDULE SUMMARY CARD (TOTAL QUANTITY & AMOUNT)
+                    _buildSummaryCard(controller),
+
+                    const SizedBox(height: 24),
+
                     // PRODUCT FEATURES SCROLL ROW
                     _buildProductFeaturesRow(),
 
@@ -110,23 +115,34 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
               child: SizedBox(
                 width: double.infinity,
                 height: 54,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff1976D2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1976D2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
                     ),
-                    elevation: 2,
-                  ),
-                  onPressed: () => controller.addToCart(),
-                  child: const Text(
-                    "ADD TO CART",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                      color: Colors.white,
-                    ),
+                    onPressed: controller.isLoading.value ? null : () => controller.saveSchedule(),
+                    child: controller.isLoading.value
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Text(
+                            "SAVE SCHEDULE  |  ₹${controller.calculateTotalAmount().toStringAsFixed(1)}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -138,105 +154,239 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
   }
 
   // 1. PROMO BANNER
-  Widget _buildPromoBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xffEEF5FF),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xffD0E6FF)),
-      ),
-      child: Row(
-        children: [
-          // Bottle image / illustration
-          Container(
-            width: 70,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(
-                  Icons.water_drop,
-                  size: 48,
-                  color: Color(0xff29B6F6),
-                ),
-                Positioned(
-                  bottom: 6,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff1976D2),
-                      borderRadius: BorderRadius.circular(8),
+  Widget _buildPromoBanner(OrderScheduleController controller) {
+    return Obx(() {
+      final bottle = controller.bottleData.value;
+      final photoUrl = bottle?.photo;
+      final bottleName = bottle?.bottlename ?? "Subscribe once.\nStay hydrated daily.";
+      final priceStr = controller.unitprice.value;
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffEEF5FF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xffD0E6FF)),
+        ),
+        child: Row(
+          children: [
+            // Bottle image / illustration
+            Container(
+              width: 70,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: photoUrl != null && photoUrl.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        photoUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (ctx, err, stack) {
+                          return const Icon(Icons.water_drop, size: 44, color: Color(0xff29B6F6));
+                        },
+                      ),
+                    )
+                  : Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          Icons.water_drop,
+                          size: 48,
+                          color: Color(0xff29B6F6),
+                        ),
+                        Positioned(
+                          bottom: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff1976D2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              "20L Jar",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
+            ),
+
+            const SizedBox(width: 16),
+
+            // Banner Text & Button
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bottleName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                      color: Color(0xff0A1D5E),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Price: ₹$priceStr / jar",
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xff1976D2),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1976D2),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () => controller.saveSchedule(),
                     child: const Text(
-                      "20L Jar",
+                      "SUBSCRIBE NOW",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                )
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // SCHEDULE SUMMARY CARD (Calculated Total Quantity & Total Amount)
+  Widget _buildSummaryCard(OrderScheduleController controller) {
+    return Obx(() {
+      final totalQty = controller.calculateTotalQuantity();
+      final totalAmt = controller.calculateTotalAmount();
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xffD0E6FF)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Schedule Summary",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff0A1D5E),
+              ),
+            ),
+            const Divider(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Order Qty (per delivery)",
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                ),
+                Text(
+                  "${controller.cartItemCount.value} Jar(s)",
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Banner Text & Button
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Unit Price",
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                ),
+                Text(
+                  "₹${controller.unitprice.value}",
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Total Quantity (${controller.getDurationDays()} days)",
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                ),
+                Text(
+                  "$totalQty Jar(s)",
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff1976D2),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Subscribe once.\nStay hydrated daily.",
+                  "Total Amount",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    height: 1.2,
                     color: Color(0xff0A1D5E),
                   ),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff1976D2),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    "SUBSCRIBE NOW",
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                Text(
+                  "₹${totalAmt.toStringAsFixed(1)}",
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff1976D2),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   // 2. SUBSCRIPTION TYPE SELECTOR (DAILY / WEEKLY / CUSTOM)

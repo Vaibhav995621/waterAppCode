@@ -406,7 +406,28 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     /// SCHEDULE ORDER BANNER
                     GestureDetector(
                       onTap: () {
-                        Get.toNamed(AppRoutes.orderSchedule);
+                        BottleData? selectedBottleData;
+                        if (controller.bottleList.isNotEmpty) {
+                          selectedBottleData = controller.bottleList.firstWhereOrNull(
+                            (e) => e.id == controller.selectedBottle.value,
+                          ) ?? controller.bottleList.first;
+                        }
+
+                        int addressId = controller.addressController.selectedAddress.value?.id ??
+                            (controller.addressController.selectedId.value > 0
+                                ? controller.addressController.selectedId.value
+                                : 0);
+
+                        Get.toNamed(
+                          AppRoutes.orderSchedule,
+                          arguments: {
+                            "bottle": selectedBottleData,
+                            "waterbottleid": controller.selectedBottle.value.toString(),
+                            "orderquantity": controller.quantity.value.toString(),
+                            "unitprice": controller.price.toString(),
+                            "addressid": addressId,
+                          },
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
