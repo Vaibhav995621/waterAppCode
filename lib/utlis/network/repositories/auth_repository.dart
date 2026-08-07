@@ -28,6 +28,7 @@ import '../../../app/models/register_model/subdivision_list_model.dart';
 import '../../../app/models/register_model/register_sector_list_model.dart';
 import '../../../app/models/register_model/register_locality_list_model.dart';
 import '../../../app/models/wallet_model/wallet_model.dart';
+import '../../../app/models/schedule_model/schedule_list_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -1188,7 +1189,44 @@ Future<SubscriptionModel> getSubscriptionList() async {
     }
   }
 
+  Future<ScheduleListModel> getAllScheduleList() async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getAllScheduleList,
+        {},
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+      return ScheduleListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] ?? "Network error";
+      throw Exception(message);
+    }
+  }
 
+  Future<ScheduleListModel> getScheduleListByCustomerId(String customerId) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.getScheduleListByCustomerId,
+        {
+          "customerid": customerId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+      return ScheduleListModel.fromJson(response);
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] ?? "Network error";
+      throw Exception(message);
+    }
+  }
 
 }
-

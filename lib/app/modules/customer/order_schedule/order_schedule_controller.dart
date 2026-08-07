@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
+import '../../../../routes/app_routes.dart';
 import '../../../app_session/app_session.dart';
 import '../../../models/bottel_model/botle_model.dart';
+import '../../../models/address_model/addresss_model.dart';
 
 class OrderScheduleController extends GetxController {
   final AuthRepository _repo = AuthRepository();
@@ -15,6 +17,11 @@ class OrderScheduleController extends GetxController {
   var orderquantity = "1".obs;
   var unitprice = "8".obs;
   var addressid = 0.obs;
+
+  // Floor details
+  var floor = 0.obs;
+  var floorCharges = 0.obs;
+  var isLiftAvailable = false.obs;
 
   var isLoading = false.obs;
 
@@ -69,6 +76,9 @@ class OrderScheduleController extends GetxController {
         if (bottleData.value!.discountprice != null) {
           unitprice.value = bottleData.value!.discountprice.toString();
         }
+        if (bottleData.value!.floorChanges != null) {
+          floorCharges.value = bottleData.value!.floorChanges!;
+        }
       }
       if (args['waterbottleid'] != null) {
         waterbottleid.value = args['waterbottleid'].toString();
@@ -83,19 +93,39 @@ class OrderScheduleController extends GetxController {
       if (args['addressid'] != null && args['addressid'] != 0) {
         addressid.value = int.tryParse(args['addressid'].toString()) ?? 0;
       }
+      if (args['floor'] != null) {
+        floor.value = int.tryParse(args['floor'].toString()) ?? 0;
+      }
+      if (args['floorCharges'] != null) {
+        floorCharges.value = int.tryParse(args['floorCharges'].toString()) ?? 0;
+      }
+      if (args['isLiftAvailable'] != null) {
+        if (args['isLiftAvailable'] is bool) {
+          isLiftAvailable.value = args['isLiftAvailable'] as bool;
+        } else {
+          isLiftAvailable.value = args['isLiftAvailable'].toString() == '1' ||
+              args['isLiftAvailable'].toString().toLowerCase() == 'true';
+        }
+      }
     }
   }
 
   Future<void> fetchDefaultAddress() async {
-    if (addressid.value != 0) return;
     try {
       final response = await _repo.getAddressList(customerId: AppSession.userId);
       if (response.statusCode == "200" && response.data.isNotEmpty) {
-        final defaultAddr = response.data.firstWhereOrNull((e) => e.isDefault == 1);
-        if (defaultAddr != null && defaultAddr.id != null) {
-          addressid.value = defaultAddr.id!;
-        } else if (response.data.first.id != null) {
-          addressid.value = response.data.first.id!;
+        AddressData? targetAddr;
+        if (addressid.value != 0) {
+          targetAddr = response.data.firstWhereOrNull((e) => e.id == addressid.value);
+        }
+        targetAddr ??= response.data.firstWhereOrNull((e) => e.isDefault == 1) ?? response.data.first;
+
+        if (targetAddr != null) {
+          if (addressid.value == 0 && targetAddr.id != null) {
+            addressid.value = targetAddr.id!;
+          }
+          floor.value = targetAddr.floornumber;
+          isLiftAvailable.value = (targetAddr.isLiftAvailable ?? 0) == 1;
         }
       }
     } catch (e) {
@@ -159,37 +189,59 @@ class OrderScheduleController extends GetxController {
     updateEndDateBasedOnDuration();
   }
 
-  int calculateTotalQuantity() {
-    if (startDate.value == null || endDate.value == null) return 0;
+  List<String> getMatchingDates() {
+    if (startDate.value == null || endDate.value == null) return [];
 
-    int totalDeliveryDays = 0;
+    List<String> matchingDates = [];
     DateTime current = DateTime(startDate.value!.year, startDate.value!.month, startDate.value!.day);
     DateTime end = DateTime(endDate.value!.year, endDate.value!.month, endDate.value!.day);
     final DateFormat dayFormatter = DateFormat('EEE');
+    final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
 
     while (!current.isAfter(end)) {
       if (selectedType.value == 'Daily') {
-        totalDeliveryDays++;
+        matchingDates.add(dateFormatter.format(current));
       } else if (selectedType.value == 'Weekly') {
         String dayName = dayFormatter.format(current);
         if (selectedDays.contains(dayName)) {
-          totalDeliveryDays++;
+          matchingDates.add(dateFormatter.format(current));
         }
       } else if (selectedType.value == 'Custom') {
         if (selectedCustomDates.contains(current.day)) {
-          totalDeliveryDays++;
+          matchingDates.add(dateFormatter.format(current));
         }
       }
       current = current.add(const Duration(days: 1));
     }
 
-    return totalDeliveryDays * cartItemCount.value;
+    return matchingDates;
   }
 
-  double calculateTotalAmount() {
+  int getDeliveryCount() {
+    return getMatchingDates().length;
+  }
+
+  int calculateTotalQuantity() {
+    return getDeliveryCount() * cartItemCount.value;
+  }
+
+  int calculateFloorChargesPerDelivery() {
+    if (isLiftAvailable.value) return 0;
+    return floor.value * floorCharges.value * cartItemCount.value;
+  }
+
+  int calculateTotalFloorCharges() {
+    return getDeliveryCount() * calculateFloorChargesPerDelivery();
+  }
+
+  double calculateBottleSubtotal() {
     int totalQty = calculateTotalQuantity();
     double price = double.tryParse(unitprice.value) ?? 0.0;
     return totalQty * price;
+  }
+
+  double calculateTotalAmount() {
+    return calculateBottleSubtotal() + calculateTotalFloorCharges();
   }
 
   Future<void> saveSchedule() async {
@@ -214,10 +266,10 @@ class OrderScheduleController extends GetxController {
     String subTypeValue = "";
     if (selectedType.value == 'Weekly') {
       subTypeInt = 2;
-      subTypeValue = selectedDays.join(',');
+      subTypeValue = getMatchingDates().join(',');
     } else if (selectedType.value == 'Custom') {
       subTypeInt = 3;
-      subTypeValue = selectedCustomDates.join(',');
+      subTypeValue = getMatchingDates().join(',');
     } else {
       subTypeInt = 1;
       subTypeValue = "";
@@ -229,12 +281,10 @@ class OrderScheduleController extends GetxController {
       return;
     }
 
-    double price = double.tryParse(unitprice.value) ?? 0.0;
-    double totalAmt = totalQty * price;
-
+    double totalAmt = calculateTotalAmount();
     int custId = int.tryParse(AppSession.userId) ?? 3;
 
-    final body = {
+    final scheduleBody = {
       "customerid": custId,
       "waterbottleid": waterbottleid.value.isNotEmpty ? waterbottleid.value : "3",
       "orderquantity": cartItemCount.value.toString(),
@@ -252,24 +302,20 @@ class OrderScheduleController extends GetxController {
       "subscriptionduration": getDurationDays(),
     };
 
-    try {
-      isLoading.value = true;
-      final response = await _repo.saveSchedule(body);
-      isLoading.value = false;
-
-      String statusCode = response['status_code']?.toString() ?? response['status']?.toString() ?? '200';
-      String message = response['message']?.toString() ?? 'Schedule saved successfully!';
-
-      if (statusCode == '200' || statusCode == '1' || response['success'] == true) {
-        AppSnackbar.success(message);
-        Get.back();
-      } else {
-        AppSnackbar.error(message);
-      }
-    } catch (e) {
-      isLoading.value = false;
-      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
-    }
+    // Navigate to payment screen passing all schedule data
+    Get.toNamed(
+      AppRoutes.paymentScreen,
+      arguments: {
+        "isSchedulePayment": true,
+        "scheduleBody": scheduleBody,
+        "totalAmount": totalAmt,
+        "waterbottleid": waterbottleid.value.isNotEmpty ? waterbottleid.value : "3",
+        "price": totalAmt.toStringAsFixed(2),
+        "quantity": totalQty,
+        "floor": floor.value,
+        "floorCharges": floorCharges.value,
+      },
+    );
   }
 
   void addToCart() {

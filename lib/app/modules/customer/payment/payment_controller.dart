@@ -22,6 +22,10 @@ class PaymentController extends GetxController {
   int floorCharges = 0;
   String onlinePaymentMode= "1";
 
+  // Schedule payment data
+  bool isSchedulePayment = false;
+  Map<String, dynamic> scheduleBody = {};
+
   late Razorpay razorpay;
   late Map<String, dynamic> addOrderMap;
   String orderId = "";
@@ -36,8 +40,16 @@ class PaymentController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments is Map ? Get.arguments : {};
-    waterBottleId = args["waterbottleid"] ?? 0;
-    price = args["price"] ?? "0";
+
+    // Detect if this is a schedule payment
+    isSchedulePayment = args["isSchedulePayment"] == true;
+    scheduleBody = args["scheduleBody"] is Map<String, dynamic>
+        ? Map<String, dynamic>.from(args["scheduleBody"])
+        : <String, dynamic>{};
+
+    waterBottleId = int.tryParse(args["waterbottleid"]?.toString() ?? '') ??
+        (args["waterbottleid"] as int? ?? 0);
+    price = args["price"]?.toString() ?? "0";
     quantity = args["quantity"] ?? 0;
     deliveryDate = args["deliverydate"] is DateTime
         ? args["deliverydate"]
@@ -56,7 +68,9 @@ class PaymentController extends GetxController {
     // Retrieve or initialize SelectAddressController
     addressController = Get.put(SelectAddressController());
 
-    if (isSubscriptionOrder) {
+    if (isSchedulePayment) {
+      selectedMethod.value = 'pay_now';
+    } else if (isSubscriptionOrder) {
       selectedMethod.value = 'subscription';
     } else {
       selectedMethod.value = 'cod';
@@ -116,13 +130,22 @@ class PaymentController extends GetxController {
     addressController.isPaymentLoading.value = false;
     Get.snackbar("Success", "Payment Success");
     print(response.paymentId);
-    orderPayment(response.paymentId.toString(), "1");
+    if (isSchedulePayment) {
+      // For schedule payment: call saveSchedule API with transaction ID
+      _processSchedulePayment(response.paymentId.toString(), "1");
+    } else {
+      orderPayment(response.paymentId.toString(), "1");
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
     addressController.isPaymentLoading.value = false;
-    orderPayment('', "2");
-    Get.snackbar("Failed", response.message ?? "Payment failed");
+    if (isSchedulePayment) {
+      AppSnackbar.error(response.message ?? "Payment failed");
+    } else {
+      orderPayment('', "2");
+      Get.snackbar("Failed", response.message ?? "Payment failed");
+    }
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
@@ -181,15 +204,88 @@ class PaymentController extends GetxController {
     }
   }
 
+  Future<bool> schedulePayment(Map<String, dynamic> body, {String transId = '', String status = '1'}) async {
+    try {
+      if (transId.isNotEmpty) {
+        body['trans_id'] = transId;
+      }
+      final response = await _repo.saveSchedule(body);
+
+      String statusCode = response['status_code']?.toString() ?? response['status']?.toString() ?? '200';
+      String message = response['message']?.toString() ?? 'Schedule saved successfully!';
+
+      if (statusCode == '200' || statusCode == '1' || response['success'] == true || statusCode == 'true') {
+        AppSnackbar.success(message);
+        Get.offAllNamed(AppRoutes.mainNavigation);
+        return true;
+      } else {
+        AppSnackbar.error(message);
+        return false;
+      }
+    } catch (e) {
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+      return false;
+    }
+  }
+
+  /// Called after Razorpay success for schedule payment
+  Future<void> _processSchedulePayment(String transId, String status) async {
+    try {
+      addressController.isPaymentLoading.value = true;
+      final body = Map<String, dynamic>.from(scheduleBody);
+      body['paymentstatus'] = status == '1' ? 1 : 2;
+      await schedulePayment(body, transId: transId, status: status);
+    } catch (e) {
+      addressController.isPaymentLoading.value = false;
+      AppSnackbar.error(e.toString().replaceAll("Exception: ", ""));
+    } finally {
+      addressController.isPaymentLoading.value = false;
+    }
+  }
+
+
+
+
+
+
   Future<void> processPayment(String paymentStatus) async {
-    if (addressController.selectedId.value == -1) {
+    if (!isSchedulePayment && addressController.selectedId.value == -1) {
       AppSnackbar.error("Please select a delivery address.");
       return;
     }
     final isSubscription = selectedMethod.value == 'subscription';
     final isCod = selectedMethod.value == 'cod';
     final isWallet = selectedMethod.value == 'wallet';
+    final isPayNow = selectedMethod.value == 'pay_now';
 
+    // ----- Schedule payment flow -----
+    if (isSchedulePayment) {
+      if (isPayNow) {
+        // Open Razorpay; on success _handlePaymentSuccess → _processSchedulePayment
+        makePayment(double.tryParse(price) ?? 0.0);
+      } else if (isCod) {
+        // COD: call saveSchedule API immediately
+        addressController.isPaymentLoading.value = true;
+        final body = Map<String, dynamic>.from(scheduleBody);
+        body['paymentmode'] = '0';
+        body['paymentstatus'] = 0;
+        await schedulePayment(body);
+        addressController.isPaymentLoading.value = false;
+      } else if (isWallet) {
+        // Wallet: call saveSchedule API immediately
+        addressController.isPaymentLoading.value = true;
+        final body = Map<String, dynamic>.from(scheduleBody);
+        body['paymentmode'] = '3';
+        body['paymentstatus'] = 1;
+        await schedulePayment(body);
+        addressController.isPaymentLoading.value = false;
+      } else {
+        makePayment(double.tryParse(price) ?? 0.0);
+      }
+      return;
+    }
+
+    // ----- Normal order payment flow -----
     if (isSubscription) {
       if (!hasActiveSubscription) {
         AppSnackbar.error(

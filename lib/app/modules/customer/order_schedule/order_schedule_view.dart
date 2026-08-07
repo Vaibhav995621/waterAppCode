@@ -343,20 +343,37 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 ),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Bottle Subtotal ($totalQty Jar(s))",
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                ),
+                Text(
+                  "₹${controller.calculateBottleSubtotal().toStringAsFixed(1)}",
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
             const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Total Quantity (${controller.getDurationDays()} days)",
+                  controller.isLiftAvailable.value
+                      ? "Floor Charges (Lift Available)"
+                      : "Floor Charges (${controller.floor.value} floor(s) × ₹${controller.floorCharges.value})",
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                 ),
                 Text(
-                  "$totalQty Jar(s)",
-                  style: const TextStyle(
+                  controller.isLiftAvailable.value
+                      ? "₹0"
+                      : "₹${controller.calculateTotalFloorCharges()}",
+                  style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff1976D2),
+                    fontWeight: FontWeight.w600,
+                    color: controller.isLiftAvailable.value ? Colors.green : null,
                   ),
                 ),
               ],

@@ -206,6 +206,16 @@ class ProfileView extends GetView<ProfileController> {
                             );
                           },
                         ): SizedBox.shrink(),
+                        AppSession.role  == 1 || AppSession.role  == 3?
+                        cardTile(
+                          Icons.calendar_month_rounded,
+                          "Schedule Order",
+                              () {
+                            Get.toNamed(
+                              AppRoutes.scheduleOrdersList,
+                            );
+                          },
+                        ): SizedBox.shrink(),
                         AppSession.role  == 1 ?
                         cardTile(
                           Icons.wallet_giftcard,

@@ -100,10 +100,71 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                 ),
                               ),
 
+                              /// Fast Delivery toggle – placed in front of the + button
+
                               _qtyButton(
                                 Icons.add,
                                 controller.incrementQty,
                               ),
+                              SizedBox(width: 20,),
+                              Obx(() {
+                                final active = controller.fastDelivery.value;
+                                return GestureDetector(
+                                  onTap: controller.toggleFastDelivery,
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    margin: const EdgeInsets.only(right: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: active
+                                          ? const Color(0xffFF6B00)
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: active
+                                            ? const Color(0xffFF6B00)
+                                            : Colors.grey.shade400,
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: active
+                                          ? [
+                                        BoxShadow(
+                                          color: const Color(0xffFF6B00)
+                                              .withOpacity(0.28),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        )
+                                      ]
+                                          : [],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.bolt_rounded,
+                                          size: 16,
+                                          color: active
+                                              ? Colors.white
+                                              : Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Fast Delivery",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: active
+                                                ? Colors.white
+                                                : Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+
                             ],
                           ),
                         ),
@@ -426,6 +487,9 @@ class BookWaterScreen extends GetView<BookWaterController> {
                             "orderquantity": controller.quantity.value.toString(),
                             "unitprice": controller.price.toString(),
                             "addressid": addressId,
+                            "floor": controller.floor,
+                            "floorCharges": controller.floorCharges,
+                            "isLiftAvailable": controller.isLiftAvailable,
                           },
                         );
                       },

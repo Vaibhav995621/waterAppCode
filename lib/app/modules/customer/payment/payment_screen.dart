@@ -20,25 +20,29 @@ class PaymentScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: Column(
-          children: [
-            const Text(
-              "Payment Method",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff2D3A5A),
+        title: Builder(
+          builder: (_) => Column(
+            children: [
+              const Text(
+                "Payment Method",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff2D3A5A),
+                ),
               ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              "Choose how you want to pay",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
+              const SizedBox(height: 3),
+              Text(
+                controller.isSchedulePayment
+                    ? "Complete your schedule booking"
+                    : "Choose how you want to pay",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         centerTitle: true,
       ),
@@ -52,6 +56,7 @@ class PaymentScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     /// PAY VIA SUBSCRIPTION CARD
+                    if (!controller.isSchedulePayment)
                     Obx(() {
                       final isSelected = controller.selectedMethod.value == 'subscription';
                       if (!controller.isSubscriptionOrder) {
@@ -144,6 +149,7 @@ class PaymentScreen extends StatelessWidget {
                     }),
 
                     /// WALLET CARD
+                    if (!controller.isSchedulePayment)
                     Obx(() {
                       final isSelected = controller.selectedMethod.value == 'wallet';
                       final walletBal = controller.walletBalance;
@@ -229,6 +235,7 @@ class PaymentScreen extends StatelessWidget {
                     }),
 
                     /// CASH ON DELIVERY CARD
+                    if (!controller.isSchedulePayment)
                     Obx(() {
                       final isSelected = controller.selectedMethod.value == 'cod';
                       return GestureDetector(
@@ -397,6 +404,7 @@ class PaymentScreen extends StatelessWidget {
                     }),
 
                     /// DELIVERY ADDRESS CARD
+                    if (!controller.isSchedulePayment)
                     Obx(() {
                       final addressController = controller.addressController;
                       if (addressController.isLoading.value) {
@@ -628,8 +636,7 @@ class PaymentScreen extends StatelessWidget {
                                 color: Color(0xff2D3A5A),
                               ),
                             ),
-                          ),
-                        ],
+                          ),                        ],
                       );
                     }),
                   ),

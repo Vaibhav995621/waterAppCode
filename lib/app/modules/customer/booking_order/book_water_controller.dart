@@ -21,6 +21,11 @@ class BookWaterController extends GetxController {
   final selectedDate = DateTime.now().obs;
   final selectedTime = "10:00 AM - 12:00 PM".obs;
 
+  /// Fast Delivery toggle
+  final RxBool fastDelivery = false.obs;
+
+  void toggleFastDelivery() => fastDelivery.value = !fastDelivery.value;
+
   /// Floor charge per floor from selected bottle (BottleModel)
   int get floorCharges {
     if (bottleList.isEmpty) return 0;

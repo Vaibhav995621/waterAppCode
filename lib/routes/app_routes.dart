@@ -27,4 +27,5 @@ abstract class AppRoutes {
   static const verifyOtp = '/verifyOtp';
   static const splash = '/splash';
   static const orderSchedule = '/orderSchedule';
+  static const scheduleOrdersList = '/scheduleOrdersList';
 }
