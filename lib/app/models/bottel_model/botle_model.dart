@@ -39,6 +39,7 @@ class BottleData {
   String discountprice;
   int quantity;
   int floorChanges;
+  int quickDeliveryCharges;
 
   String description;
   String photo;
@@ -59,7 +60,8 @@ class BottleData {
     required this.status,
     required this.cdate,
     required this.modifiedDate,
-    required this.floorChanges
+    required this.floorChanges,
+    required this.quickDeliveryCharges,
   });
 
   factory BottleData.fromJson(Map<String, dynamic> json) {
@@ -87,6 +89,14 @@ class BottleData {
                           json['floorcharges']?.toString() ??
                           '') ??
                       5))),
+      quickDeliveryCharges: json['quickDeliveryCharges'] is int
+          ? json['quickDeliveryCharges']
+          : (json['quick_delivery_charges'] is int
+              ? json['quick_delivery_charges']
+              : (int.tryParse(json['quickDeliveryCharges']?.toString() ??
+                      json['quick_delivery_charges']?.toString() ??
+                      '') ??
+                  5)),
     );
   }
 
@@ -100,6 +110,7 @@ class BottleData {
       'discountprice': discountprice,
       'quantity': quantity,
       'floorChanges': floorChanges,
+      'quickDeliveryCharges': quickDeliveryCharges,
       'description': description,
       'photo': photo,
       'status': status,

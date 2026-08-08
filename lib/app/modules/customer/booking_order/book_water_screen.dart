@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../routes/app_routes.dart';
+import '../../../app_session/app_session.dart';
 import 'book_water_controller.dart';
 import '../../../models/bottel_model/botle_model.dart';
 
@@ -108,6 +109,9 @@ class BookWaterScreen extends GetView<BookWaterController> {
                               ),
                               SizedBox(width: 20,),
                               Obx(() {
+                                // if (controller.currentBottle?.plantype == AppSession.planType) {
+                                //   return const SizedBox.shrink();
+                                // }
                                 final active = controller.fastDelivery.value;
                                 return GestureDetector(
                                   onTap: controller.toggleFastDelivery,
@@ -250,10 +254,48 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                   ),
                                 ],
                               ),
+                              Obx(() {
+                                if (!controller.fastDelivery.value) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.bolt_rounded,
+                                                size: 16,
+                                                color: Color(0xffFF6B00)),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              "Fast Delivery Charges",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey.shade700),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          "₹${controller.quickDeliveryTotal}",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xffFF6B00),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }),
                               const Divider(height: 16),
-                              Row(
+                              Obx(() => Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     "Total Amount",
@@ -270,7 +312,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                     ),
                                   ),
                                 ],
-                              ),
+                              )),
                             ],
                           ),
                         );
@@ -465,91 +507,96 @@ class BookWaterScreen extends GetView<BookWaterController> {
                     const SizedBox(height: 15),
 
                     /// SCHEDULE ORDER BANNER
-                    GestureDetector(
-                      onTap: () {
-                        BottleData? selectedBottleData;
-                        if (controller.bottleList.isNotEmpty) {
-                          selectedBottleData = controller.bottleList.firstWhereOrNull(
-                            (e) => e.id == controller.selectedBottle.value,
-                          ) ?? controller.bottleList.first;
-                        }
+                    Obx(() => controller.fastDelivery.value
+                        ? const SizedBox.shrink()
+                        : Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  BottleData? selectedBottleData;
+                                  if (controller.bottleList.isNotEmpty) {
+                                    selectedBottleData = controller.bottleList.firstWhereOrNull(
+                                      (e) => e.id == controller.selectedBottle.value,
+                                    ) ?? controller.bottleList.first;
+                                  }
 
-                        int addressId = controller.addressController.selectedAddress.value?.id ??
-                            (controller.addressController.selectedId.value > 0
-                                ? controller.addressController.selectedId.value
-                                : 0);
+                                  int addressId = controller.addressController.selectedAddress.value?.id ??
+                                      (controller.addressController.selectedId.value > 0
+                                          ? controller.addressController.selectedId.value
+                                          : 0);
 
-                        Get.toNamed(
-                          AppRoutes.orderSchedule,
-                          arguments: {
-                            "bottle": selectedBottleData,
-                            "waterbottleid": controller.selectedBottle.value.toString(),
-                            "orderquantity": controller.quantity.value.toString(),
-                            "unitprice": controller.price.toString(),
-                            "addressid": addressId,
-                            "floor": controller.floor,
-                            "floorCharges": controller.floorCharges,
-                            "isLiftAvailable": controller.isLiftAvailable,
-                          },
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffDDF2E6),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xffC5E8D4)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_month_outlined,
-                                color: Color(0xff146950)),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Schedule Water Subscription",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xff1B4D3E),
-                                      fontSize: 14,
-                                    ),
+                                  Get.toNamed(
+                                    AppRoutes.orderSchedule,
+                                    arguments: {
+                                      "bottle": selectedBottleData,
+                                      "waterbottleid": controller.selectedBottle.value.toString(),
+                                      "orderquantity": controller.quantity.value.toString(),
+                                      "unitprice": controller.price.toString(),
+                                      "addressid": addressId,
+                                      "floor": controller.floor,
+                                      "floorCharges": controller.floorCharges,
+                                      "isLiftAvailable": controller.isLiftAvailable,
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffDDF2E6),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xffC5E8D4)),
                                   ),
-                                  Text(
-                                    "Daily, Weekly or Custom delivery days",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xff146950),
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.calendar_month_outlined,
+                                          color: Color(0xff146950)),
+                                      const SizedBox(width: 12),
+                                      const Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Schedule Water Subscription",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xff1B4D3E),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              "Daily, Weekly or Custom delivery days",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Color(0xff146950),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff146950),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: const Text(
+                                          "Schedule",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff146950),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                "Schedule",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
+                              const SizedBox(height: 15),
+                            ],
+                          )),
 
 
 
@@ -582,6 +629,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                 "plantype": controller.bottle.plantype,
                                 "floor": controller.floor,
                                 "floorCharges": controller.floorCharges,
+                                "fastDelivery": controller.fastDelivery.value,
+                                "quickDeliveryCharges": controller.quickDeliveryCharges,
                               },
                             );
                           }
@@ -716,24 +765,64 @@ class BookWaterScreen extends GetView<BookWaterController> {
                           ),
 
                           const SizedBox(width: 8),
-
                           Text(
                             "₹${item.originalprice}",
-
                             style: TextStyle(
-                              decoration:
-                              TextDecoration
-                                  .lineThrough,
-                              color:
-                              Colors.grey.shade500,
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.grey.shade500,
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 6),
+                      /// Floor changes row
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.stairs_rounded,
+                            size: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Floor Charges: ₹${item.floorChanges}/floor",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      /// Quick delivery charges row (only when Fast Delivery is ON)
+                      Obx(() {
+                        if (!controller.fastDelivery.value) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.bolt_rounded,
+                                size: 13,
+                                color: Color(0xffFF6B00),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Quick Delivery: ₹${item.quickDeliveryCharges}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xffFF6B00),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
-
                 if (isSelected)
                   const Icon(
                     Icons.check_circle,
@@ -746,6 +835,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
       },
     );
   }
+
   Widget _qtyButton(
       IconData icon,
       VoidCallback onTap,

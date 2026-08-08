@@ -20,6 +20,7 @@ class PaymentController extends GetxController {
   late int plantype;
   int floor = 0;
   int floorCharges = 0;
+  bool fastDelivery = false;
   String onlinePaymentMode= "1";
 
   // Schedule payment data
@@ -58,6 +59,7 @@ class PaymentController extends GetxController {
     plantype = args["plantype"] ?? 0;
     floor = args["floor"] ?? 0;
     floorCharges = args["floorCharges"] ?? 0;
+    fastDelivery = args["fastDelivery"] == true;
 
     // Initialize Razorpay
     razorpay = Razorpay();
@@ -86,7 +88,7 @@ class PaymentController extends GetxController {
   bool get hasActiveSubscription => AppSession.planType != 0;
 
   bool get isSubscriptionOrder =>
-      plantype != 0 && AppSession.planType == plantype;
+      plantype != 0 && AppSession.planType == plantype && !fastDelivery;
 
   // Get wallet balance
   double get walletBalance {

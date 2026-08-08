@@ -1,11 +1,9 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 import '../../../models/bottel_model/botle_model.dart';
-
 import '../select_address/select_address_controller.dart';
 
 class BookWaterController extends GetxController {
@@ -52,10 +50,7 @@ class BookWaterController extends GetxController {
     bottle = bottleList.firstWhereOrNull(
       (e) => e.id == selectedBottle.value,
     )!;
-    return int.tryParse(
-      bottle.discountprice ?? "0",
-    ) ??
-        0;
+    return int.tryParse(bottle.discountprice) ?? 0;
   }
 
   int get bottleSubtotal => price * quantity.value;
@@ -68,7 +63,26 @@ class BookWaterController extends GetxController {
     return floor * floorCharges * quantity.value;
   }
 
-  int get total => bottleSubtotal + floorTotal;
+  /// Quick delivery charge from selected bottle
+  int get quickDeliveryCharges {
+    if (bottleList.isEmpty) return 0;
+    final b = bottleList.firstWhereOrNull(
+      (e) => e.id == selectedBottle.value,
+    );
+    return b?.quickDeliveryCharges ?? 0;
+  }
+
+  BottleData? get currentBottle {
+    if (bottleList.isEmpty) return null;
+    return bottleList.firstWhereOrNull((e) => e.id == selectedBottle.value);
+  }
+
+  int get quickDeliveryTotal {
+    if (!fastDelivery.value) return 0;
+    return quickDeliveryCharges;
+  }
+
+  int get total => bottleSubtotal + floorTotal + quickDeliveryTotal;
 
   @override
   void onInit() {
@@ -105,7 +119,7 @@ class BookWaterController extends GetxController {
       /// ERROR
       if (response.statusCode == "201") {
         AppSnackbar.error(
-          response.message ?? "Something went wrong",
+          response.message.isNotEmpty ? response.message : "Something went wrong",
         );
         return false;
       }
@@ -114,13 +128,12 @@ class BookWaterController extends GetxController {
         bottleList.assignAll(response.data);
         /// DEFAULT SELECT FIRST BOTTLE
         if (bottleList.isNotEmpty) {
-          selectedBottle.value =
-              bottleList.first.id;
+          selectedBottle.value = bottleList.first.id;
         }
         return true;
       }
       AppSnackbar.error(
-        response.message ?? "Failed to load bottles",
+        response.message.isNotEmpty ? response.message : "Failed to load bottles",
       );
       return false;
     } catch (e) {
