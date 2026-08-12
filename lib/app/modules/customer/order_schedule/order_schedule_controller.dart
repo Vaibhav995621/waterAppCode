@@ -60,6 +60,8 @@ class OrderScheduleController extends GetxController {
   var paymentstatus = 1.obs;
   var status = 1.obs;
 
+  var isFetchingAddress = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -111,6 +113,7 @@ class OrderScheduleController extends GetxController {
   }
 
   Future<void> fetchDefaultAddress() async {
+    isFetchingAddress.value = true;
     try {
       final response = await _repo.getAddressList(customerId: AppSession.userId);
       if (response.statusCode == "200" && response.data.isNotEmpty) {
@@ -130,6 +133,8 @@ class OrderScheduleController extends GetxController {
       }
     } catch (e) {
       debugPrint("Error fetching default address: $e");
+    } finally {
+      isFetchingAddress.value = false;
     }
   }
 

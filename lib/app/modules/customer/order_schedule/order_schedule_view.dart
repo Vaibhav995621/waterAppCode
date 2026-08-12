@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import 'order_schedule_controller.dart';
+import 'package:shimmer/shimmer.dart';
 
 
 class OrderScheduleScreen extends GetView<OrderScheduleController> {
@@ -51,62 +52,67 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
 
             // MAIN SCROLLABLE CONTENT
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // PROMO BANNER CARD
-                    _buildPromoBanner(controller),
+              child: Obx(() {
+                if (controller.isFetchingAddress.value) {
+                  return _buildShimmer();
+                }
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // PROMO BANNER CARD
+                      _buildPromoBanner(controller),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // SUBSCRIPTION TYPE (DAILY / WEEKLY / CUSTOM)
-                    _buildSubscriptionTypeSelector(controller),
+                      // SUBSCRIPTION TYPE (DAILY / WEEKLY / CUSTOM)
+                      _buildSubscriptionTypeSelector(controller),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // START DATE & END DATE ROW
-                    _buildDatePickersRow(context, controller),
+                      // START DATE & END DATE ROW
+                      _buildDatePickersRow(context, controller),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // SUBSCRIPTION DURATION DROPDOWN
-                    _buildDurationDropdown(controller),
+                      // SUBSCRIPTION DURATION DROPDOWN
+                      _buildDurationDropdown(controller),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // DYNAMIC SCHEDULING SECTION (WEEKLY DAYS / CUSTOM DATES GRID / DAILY INFO)
-                    Obx(() {
-                      if (controller.selectedType.value == 'Weekly') {
-                        return _buildWeeklyDaysSelector(controller);
-                      } else if (controller.selectedType.value == 'Custom') {
-                        return _buildCustomDatesSelector(controller);
-                      } else {
-                        return _buildDailyInfoBanner();
-                      }
-                    }),
+                      // DYNAMIC SCHEDULING SECTION (WEEKLY DAYS / CUSTOM DATES GRID / DAILY INFO)
+                      Obx(() {
+                        if (controller.selectedType.value == 'Weekly') {
+                          return _buildWeeklyDaysSelector(controller);
+                        } else if (controller.selectedType.value == 'Custom') {
+                          return _buildCustomDatesSelector(controller);
+                        } else {
+                          return _buildDailyInfoBanner();
+                        }
+                      }),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // SCHEDULE SUMMARY CARD (TOTAL QUANTITY & AMOUNT)
-                    _buildSummaryCard(controller),
+                      // SCHEDULE SUMMARY CARD (TOTAL QUANTITY & AMOUNT)
+                      _buildSummaryCard(controller),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // PRODUCT FEATURES SCROLL ROW
-                    _buildProductFeaturesRow(),
+                      // PRODUCT FEATURES SCROLL ROW
+                      _buildProductFeaturesRow(),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // PRODUCT DETAIL TABS
-                    _buildProductDetailTabs(controller),
+                      // PRODUCT DETAIL TABS
+                      _buildProductDetailTabs(controller),
 
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                );
+              }),
             ),
 
             // STICKY BOTTOM BUTTON
@@ -147,6 +153,52 @@ class OrderScheduleScreen extends GetView<OrderScheduleController> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 110,
+              width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            ),
+            const SizedBox(height: 20),
+            Container(width: 150, height: 20, color: Colors.white),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: Container(height: 45, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)))),
+                const SizedBox(width: 10),
+                Expanded(child: Container(height: 45, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)))),
+                const SizedBox(width: 10),
+                Expanded(child: Container(height: 45, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)))),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(child: Container(height: 60, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)))),
+                const SizedBox(width: 12),
+                Expanded(child: Container(height: 60, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)))),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(height: 50, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10))),
+            const SizedBox(height: 20),
+            Container(height: 100, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10))),
+            const SizedBox(height: 24),
+            Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14))),
           ],
         ),
       ),
