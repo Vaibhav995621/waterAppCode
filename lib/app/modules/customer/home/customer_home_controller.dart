@@ -72,6 +72,7 @@ class CustomerHomeController extends GetxController {
           role: user.data.role,
           planType: user.data.plandetail.id,
           usertype: user.data.usertype,
+          mobileNo: user.data.mobile
         );
         profile.value = user;
       }

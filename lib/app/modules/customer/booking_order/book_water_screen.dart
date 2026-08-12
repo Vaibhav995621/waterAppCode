@@ -13,9 +13,6 @@ class BookWaterScreen extends GetView<BookWaterController> {
   @override
   Widget build(BuildContext context) {
 
-
-
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Book Water"),
@@ -495,9 +492,14 @@ class BookWaterScreen extends GetView<BookWaterController> {
                         ignoring: controller.isLoading.value,
                         child: Opacity(
                           opacity: controller.isLoading.value ? 0.6 : 1.0,
-                          child: _inputTile(
-                            controller.selectedTime.value,
-                            Icons.keyboard_arrow_down,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showTimePicker(context);
+                            },
+                            child: _inputTile(
+                              controller.selectedTime.value,
+                              Icons.keyboard_arrow_down,
+                            ),
                           ),
                         ),
                       ),
@@ -901,6 +903,55 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
           Icon(icon, size: 18),
         ],
+      ),
+    );
+  }
+
+  void _showTimePicker(BuildContext context) {
+    final List<String> timeSlots = [
+      "6:00 AM - 10:00 AM",
+      "10:00 AM - 2:00 PM",
+      "2:00 PM - 6:00 PM",
+      "6:00 PM - 10:00 PM",
+      "10:00 PM - 11:59 PM",
+    ];
+
+    Get.bottomSheet(
+      Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Select Delivery Time",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ...timeSlots.map((time) => ListTile(
+                title: Text(
+                  time,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  controller.setTime(time);
+                  Get.back();
+                },
+              )).toList(),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
       ),
     );
   }

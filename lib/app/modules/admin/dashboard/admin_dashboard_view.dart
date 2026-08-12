@@ -116,8 +116,13 @@ class AdminDashboardView extends StatelessWidget {
                         top: Radius.circular(35),
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      child: Column(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await controller.adminDashboardApi();
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
                         children: [
 
                           /// STATS
@@ -238,6 +243,7 @@ class AdminDashboardView extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
                     ),
                   ),
                 ),

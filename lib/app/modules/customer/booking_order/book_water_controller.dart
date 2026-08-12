@@ -17,7 +17,7 @@ class BookWaterController extends GetxController {
   final selectedBottle = 0.obs;
   final quantity = 1.obs;
   final selectedDate = DateTime.now().obs;
-  final selectedTime = "10:00 AM - 12:00 PM".obs;
+  final selectedTime = "6:00 AM - 10:00 AM".obs;
 
   /// Fast Delivery toggle
   final RxBool fastDelivery = false.obs;

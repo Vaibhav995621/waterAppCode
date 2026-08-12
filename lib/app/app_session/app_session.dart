@@ -11,7 +11,9 @@ class AppSession {
     required String image,
     required int role,
     required int planType,
-    required int usertype
+    required int usertype,
+    required String mobileNo,
+
   }) async {
     await _box.write('user', {
       'userId': userId,
@@ -20,7 +22,9 @@ class AppSession {
       'image' : image,
       'role': role,
       'planType' : planType,
-      'usertype': usertype
+      'usertype': usertype,
+      'mobileNo': mobileNo
+
     });
 
     await _box.save(); // force flush
@@ -31,6 +35,9 @@ class AppSession {
         _box.read('user') ?? {},
       );
 
+
+  static String get mobileNo =>
+      user['mobileNo']?.toString() ?? '';
   static String get userId =>
       user['userId']?.toString() ?? '';
   static int get usertype =>

@@ -116,7 +116,7 @@ class LoginView extends GetView<LoginController> {
                             const SizedBox(height: 8),
       
                             _buildTextField(
-                              hint: "9876543210",
+                              hint: "987654****",
                               isPassword: false,
                               controller: controller.phoneController,
                               focusNode: controller.phoneFocus,

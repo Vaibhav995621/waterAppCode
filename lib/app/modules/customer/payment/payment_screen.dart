@@ -546,7 +546,7 @@ class PaymentScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "9876543210", // Mockup number matching the image
+                                    AppSession.mobileNo, // Mockup number matching the image
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey.shade700,
