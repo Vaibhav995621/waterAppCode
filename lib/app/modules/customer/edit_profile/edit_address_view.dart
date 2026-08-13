@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_address_controller.dart';
@@ -79,6 +80,8 @@ class EditAddressView extends GetView<EditAddressController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildImagePicker(),
+                const SizedBox(height: 20),
                 _field("Address", controller.addressController),
                 _stateDropdownField(),
                 _cityDropdownField(),
@@ -604,6 +607,73 @@ class EditAddressView extends GetView<EditAddressController> {
             );
           }),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return Center(
+      child: GestureDetector(
+        onTap: controller.pickImage,
+        child: Obx(() {
+          final selectedImage = controller.selectedImage.value;
+          final existingPhoto = controller.addressData?.photo ?? controller.addressData?.imagepath;
+
+          return Container(
+            height: 120,
+            width: 120,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade300, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                )
+              ],
+            ),
+            child: ClipOval(
+              child: selectedImage != null
+                  ? Image.file(
+                      selectedImage,
+                      fit: BoxFit.cover,
+                      width: 120,
+                      height: 120,
+                    )
+                  : (existingPhoto != null && existingPhoto.isNotEmpty)
+                      ? Image.network(
+                          existingPhoto,
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.home_work_rounded,
+                            size: 50,
+                            color: Colors.grey,
+                          ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.add_a_photo_rounded,
+                                size: 32, color: Color(0xff6C63FF)),
+                            SizedBox(height: 4),
+                            Text(
+                              "Upload\nPhoto",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+            ),
+          );
+        }),
       ),
     );
   }

@@ -47,6 +47,8 @@ class AddEditAddressData {
   int status;
   String cdate;
   String modifiedDate;
+  String? photo;
+  String? imagepath;
 
   /// Extended fields
   String? houseFlatFloorNo;
@@ -91,6 +93,8 @@ class AddEditAddressData {
     this.block,
     this.isLiftAvailable,
     this.assignedstatus,
+    this.photo,
+    this.imagepath,
   });
 
   factory AddEditAddressData.fromJson(Map<String, dynamic> json) {
@@ -150,6 +154,8 @@ class AddEditAddressData {
       assignedstatus: json["assignedstatus"] is int
           ? json["assignedstatus"]
           : int.tryParse(json["assignedstatus"]?.toString() ?? ""),
+      photo: json["photo"]?.toString(),
+      imagepath: json["imagepath"]?.toString(),
     );
   }
 
@@ -184,6 +190,8 @@ class AddEditAddressData {
       "block": block,
       "is_lift_available": isLiftAvailable,
       "assignedstatus": assignedstatus,
+      "photo": photo,
+      "imagepath": imagepath,
     };
   }
 }

@@ -486,6 +486,26 @@ class AuthRepository {
     }
   }
 
+  Future<void> uploadAddressPhoto({
+    required String addressId,
+    required String customerId,
+    required File image,
+  }) async {
+    await _api.uploadMultipart(
+      ApiEndpoints.uploadAddressPhoto,
+      data: {
+        "id": addressId,
+        "customerid": customerId,
+      },
+      images: [image],
+      imageKey: "photo",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "abcshsh"
+      },
+    );
+  }
 
 Future<DeleteAddressModel> setAsDefaultAddress({
 required String customerId,

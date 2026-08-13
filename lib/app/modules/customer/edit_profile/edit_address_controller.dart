@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
 import 'package:zourney/app/app_session/app_session.dart';
 import 'package:zourney/app/models/address_model/addresss_model.dart';
@@ -24,6 +26,19 @@ class EditAddressController extends GetxController {
   final pinCodeController = TextEditingController();
 
   RxBool isLiftAvailable = false.obs;
+  Rxn<File> selectedImage = Rxn<File>();
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+      if (pickedFile != null) {
+        selectedImage.value = File(pickedFile.path);
+      }
+    } catch (e) {
+      AppSnackbar.error("Failed to pick image: $e");
+    }
+  }
 
   // Dropdown lists and reactive selections
   RxList<StateData> states = <StateData>[].obs;
@@ -377,6 +392,17 @@ class EditAddressController extends GetxController {
 
       /// ✅ Navigation
       if (res.statusCode == "200") {
+        if (selectedImage.value != null && res.data != null) {
+          try {
+            await _repo.uploadAddressPhoto(
+              addressId: res.data!.id.toString(),
+              customerId: AppSession.userId,
+              image: selectedImage.value!,
+            );
+          } catch (e) {
+            AppSnackbar.error("Address created, but photo upload failed");
+          }
+        }
         Get.back(result: true);
       }
     } catch (e) {
@@ -442,6 +468,17 @@ class EditAddressController extends GetxController {
 
       /// ✅ Navigation
       if (res.statusCode == "200") {
+        if (selectedImage.value != null) {
+          try {
+            await _repo.uploadAddressPhoto(
+              addressId: addressData!.id.toString(),
+              customerId: addressData!.userid.toString(),
+              image: selectedImage.value!,
+            );
+          } catch (e) {
+            AppSnackbar.error("Address updated, but photo upload failed");
+          }
+        }
         Get.back(result: true);
       }
     } catch (e) {

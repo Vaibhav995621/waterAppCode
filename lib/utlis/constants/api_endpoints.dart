@@ -13,6 +13,7 @@ class ApiEndpoints {
   static const setDefaultAddress = "setdefaultaddress";
   static const addAddress = "addaddressbycustomerid";
   static const updateAddress = "updateaddressbyid";
+  static const uploadAddressPhoto = "uploadcustomeraddressphoto";
 
 
 

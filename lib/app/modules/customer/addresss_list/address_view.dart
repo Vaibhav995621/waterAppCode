@@ -364,20 +364,35 @@ class AddressCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Home icon bubble
-                  Container(
-                    height: 58,
-                    width: 58,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(.95),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.home_rounded,
-                      size: 30,
-                      color: selected
-                          ? const Color(0xff6C63FF)
-                          : const Color(0xff1976D2),
-                    ),
+                  // Image or Home icon bubble
+                  Builder(
+                    builder: (context) {
+                      final photoUrl = model.photo ?? model.imagepath;
+                      final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
+                      return Container(
+                        height: 58,
+                        width: 58,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(.95),
+                          shape: BoxShape.circle,
+                          image: hasPhoto
+                              ? DecorationImage(
+                                  image: NetworkImage(photoUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: !hasPhoto
+                            ? Icon(
+                                Icons.home_rounded,
+                                size: 30,
+                                color: selected
+                                    ? const Color(0xff6C63FF)
+                                    : const Color(0xff1976D2),
+                              )
+                            : null,
+                      );
+                    },
                   ),
                   const SizedBox(width: 14),
 

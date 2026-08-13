@@ -47,6 +47,8 @@ class AddressData {
   DateTime cdate;
   DateTime modifiedDate;
   int isDefault;
+  String? photo;
+  String? imagepath;
 
   /// Extended fields from API
   String? houseFlatFloorNo;
@@ -97,6 +99,8 @@ class AddressData {
     this.block,
     this.isLiftAvailable,
     this.assignedstatus,
+    this.photo,
+    this.imagepath,
   });
 
   factory AddressData.fromJson(Map<String, dynamic> json) {
@@ -158,6 +162,8 @@ class AddressData {
       assignedstatus: json["assignedstatus"] is int
           ? json["assignedstatus"]
           : int.tryParse(json["assignedstatus"]?.toString() ?? ""),
+      photo: json["photo"]?.toString(),
+      imagepath: json["imagepath"]?.toString(),
     );
   }
 
@@ -194,6 +200,8 @@ class AddressData {
       "block": block,
       "is_lift_available": isLiftAvailable,
       "assignedstatus": assignedstatus,
+      "photo": photo,
+      "imagepath": imagepath,
     };
   }
 }
