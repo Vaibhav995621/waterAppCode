@@ -93,41 +93,62 @@ class AddressListScreen extends StatelessWidget {
                       top: Radius.circular(35),
                     ),
                   ),
-                  child: Obx(
-                    () => controller.addressList.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                            itemCount: controller.addressList.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 18),
-                            itemBuilder: (_, index) {
-                              final item = controller.addressList[index];
-                              return AddressCard(
-                                model: item,
-                                selected: item.isDefault == 1,
-                                onTap: () async {
-                                  final result = await Get.toNamed(
-                                    AppRoutes.editAddressScreen,
-                                    arguments: item,
-                                  );
-                                  if (result == true) {
-                                    controller.refreshAddress();
-                                  }
-                                },
-                                onDelete: () {
-                                  if (controller.addressList.length > 1 &&
-                                      controller.addressList[index].isDefault ==
-                                          0) {
-                                    controller.deleteAddress(index);
-                                  }
-                                },
-                                onEdit: () async {
-                                  controller.selectAddress(index);
-                                },
-                              );
-                            },
-                          ),
+                  child: RefreshIndicator(
+                    onRefresh: controller.refreshAddress,
+                    child: Obx(
+                      () => controller.addressList.isEmpty
+                          ? ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.5,
+                                  child: _buildEmptyState(),
+                                ),
+                              ],
+                            )
+                          : ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                              itemCount: controller.addressList.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 18),
+                              itemBuilder: (_, index) {
+                                final item = controller.addressList[index];
+                                return AddressCard(
+                                  model: item,
+                                  selected: item.isDefault == 1,
+                                  onTap: () async {
+                                    final result = await Get.toNamed(
+                                      AppRoutes.editAddressScreen,
+                                      arguments: item,
+                                    );
+                                    if (result == true) {
+                                      controller.refreshAddress();
+                                    }
+                                  },
+                                  onDelete: () {
+                                    if (controller.addressList.length > 1 &&
+                                        controller.addressList[index].isDefault ==
+                                            0) {
+                                      controller.deleteAddress(index);
+                                    }
+                                  },
+                                  onEdit: () async {
+                                    controller.selectAddress(index);
+                                  },
+                                  onUploadImage: () async {
+                                    final result = await Get.toNamed(
+                                      AppRoutes.uploadAddressImageScreen,
+                                      arguments: item,
+                                    );
+                                    if (result == true) {
+                                      controller.refreshAddress();
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                    ),
                   ),
                 ),
               ),
@@ -289,6 +310,7 @@ class AddressCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final VoidCallback onUploadImage;
 
   const AddressCard({
     super.key,
@@ -297,6 +319,7 @@ class AddressCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onEdit,
+    required this.onUploadImage,
   });
 
   @override
@@ -607,25 +630,48 @@ class AddressCard extends StatelessWidget {
 
               // Edit button always visible
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: onTap,
-                  icon: const Icon(Icons.edit_rounded, size: 16),
-                  label: const Text("Edit Address"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor:
-                        selected ? Colors.white : const Color(0xff6C63FF),
-                    side: BorderSide(
-                      color: selected
-                          ? Colors.white54
-                          : const Color(0xff6C63FF).withOpacity(0.4),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onTap,
+                      icon: const Icon(Icons.edit_rounded, size: 16),
+                      label: const Text("Edit Address"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            selected ? Colors.white : const Color(0xff6C63FF),
+                        side: BorderSide(
+                          color: selected
+                              ? Colors.white54
+                              : const Color(0xff6C63FF).withOpacity(0.4),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onUploadImage,
+                      icon: const Icon(Icons.add_a_photo_rounded, size: 16),
+                      label: const Text("Upload Image", style: TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis,),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            selected ? Colors.white : const Color(0xff6C63FF),
+                        side: BorderSide(
+                          color: selected
+                              ? Colors.white54
+                              : const Color(0xff6C63FF).withOpacity(0.4),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

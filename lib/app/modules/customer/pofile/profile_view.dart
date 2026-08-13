@@ -69,12 +69,15 @@ class ProfileView extends GetView<ProfileController> {
                       return Column(
                         children: [
 
-                          InkWell(
-                            onTap: controller.showImagePicker,
-                            child: Stack(
-                              children: [
-
-                                Container(
+                          Stack(
+                            children: [
+                              /// Tap avatar → full-screen viewer
+                              GestureDetector(
+                                onTap: () => _showFullScreenImage(
+                                  context,
+                                  controller,
+                                ),
+                                child: Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
@@ -91,41 +94,37 @@ class ProfileView extends GetView<ProfileController> {
                                     backgroundImage:
                                     controller.selectedImage.value != null
                                         ? FileImage(
-                                      controller
-                                          .selectedImage
-                                          .value!,
-                                    )
+                                      controller.selectedImage.value!,
+                                    ) as ImageProvider
                                         : controller.image.isNotEmpty
-                                        ? NetworkImage(
-                                      controller.image,
-                                    )
+                                        ? NetworkImage(controller.image)
                                         : const NetworkImage(
                                       "https://i.pravatar.cc/150",
                                     ),
                                   ),
                                 ),
+                              ),
 
-                                Positioned(
-                                  bottom: 10,
-                                  right: 0,
+                              /// Tap camera icon → image picker
+                              Positioned(
+                                bottom: 10,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: controller.showImagePicker,
                                   child: Container(
-                                    padding:
-                                    const EdgeInsets.all(8),
-                                    decoration:
-                                    const BoxDecoration(
-                                      color:
-                                      Color(0xff6B67F6),
-                                      shape:
-                                      BoxShape.circle,
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xff6B67F6),
+                                      shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
                                       Icons.camera_alt,
                                       color: Colors.white,
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
+                                ),
+                              ),
+                            ],
                           ),
 
                           const SizedBox(height: 15),
@@ -407,4 +406,65 @@ class ProfileView extends GetView<ProfileController> {
       },
     );
   }
+
+  /// Full-screen image viewer dialog
+  void _showFullScreenImage(
+    BuildContext context,
+    ProfileController controller,
+  ) {
+    final ImageProvider imageProvider =
+        controller.selectedImage.value != null
+            ? FileImage(controller.selectedImage.value!) as ImageProvider
+            : controller.image.isNotEmpty
+                ? NetworkImage(controller.image)
+                : const NetworkImage("https://i.pravatar.cc/150");
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            children: [
+              /// Pinch-to-zoom full-screen image
+              Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: CircleAvatar(
+                    radius: MediaQuery.of(context).size.width * 0.42,
+                    backgroundImage: imageProvider,
+                  ),
+                ),
+              ),
+
+              /// Close button
+              Positioned(
+                top: 40,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white24,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
+

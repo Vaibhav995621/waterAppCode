@@ -54,6 +54,8 @@ import '../app/modules/customer/subscription_plan/bottle_subscription_screen.dar
 import '../app/modules/delivery/delivery_order_detail/order_detail_view.dart';
 import '../app/modules/register_screen/register_binding.dart';
 import '../app/modules/register_screen/register_view.dart';
+import '../app/modules/customer/upload_address_image/upload_address_image_view.dart';
+import '../app/modules/customer/upload_address_image/upload_address_image_binding.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -207,6 +209,11 @@ class AppPages {
       name: AppRoutes.scheduleOrdersList,
       page: () => const ScheduleOrdersListView(),
       binding: ScheduleOrdersListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.uploadAddressImageScreen,
+      page: () => const UploadAddressImageView(),
+      binding: UploadAddressImageBinding(),
     ),
   ];
 }

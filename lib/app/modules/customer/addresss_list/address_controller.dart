@@ -20,7 +20,7 @@ class AddressController extends GetxController {
     super.onInit();
     getAddressList();
   }
-  void refreshAddress() async {
+  Future<void> refreshAddress() async {
     await getAddressList();
     addressList.refresh();
   }

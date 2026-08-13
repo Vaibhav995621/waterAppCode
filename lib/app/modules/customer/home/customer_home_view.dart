@@ -62,65 +62,70 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            AppSession.image.isEmpty ? Container(
-                              height: 55,
-                              width: 55,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 10,
-                                    color: Colors.black12,
-                                  )
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.person,
-                                size: 32,
-                                color: Color(0xff45A9F8),
-                              ),
-                            ) : Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 10,
-                                    color: Colors.black12,
-                                  )
-                                ],
-                              ),
-                              child: CircleAvatar(
-                                radius: 28,
-                                backgroundImage: NetworkImage(AppSession.image),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Hello, ${AppSession.name} 👋",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              AppSession.image.isEmpty ? Container(
+                                height: 55,
+                                width: 55,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 10,
+                                      color: Colors.black12,
+                                    )
+                                  ],
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  "Good Morning",
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 14,
-                                  ),
+                                child: const Icon(
+                                  Icons.person,
+                                  size: 32,
+                                  color: Color(0xff45A9F8),
                                 ),
-                              ],
-                            ),
-                          ],
+                              ) : Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 10,
+                                      color: Colors.black12,
+                                    )
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 28,
+                                  backgroundImage: NetworkImage(AppSession.image),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Hello, ${AppSession.name} 👋",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      "Good Morning",
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         
                         // Notification Icon Button
