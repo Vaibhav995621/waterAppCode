@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 import 'order_detail_controller.dart';
 
 class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
@@ -78,8 +79,19 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
                 _row('Order Number', order.ordernumber),
                 _row('Quantity', '${order.quantity}'),
                 _row('Price', '₹${order.price}'),
+                if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                  _row('Delivery Type', '⚡ Quick Delivery'),
+                if ((double.tryParse(order.quickdeliverycharge) ?? 0) > 0 || order.quickDelivery == 1)
+                  _row('Quick Delivery Charge', '₹${(double.tryParse(order.quickdeliverycharge) ?? 0).toStringAsFixed(0)}'),
+                if (order.isSchedule == 1)
+                  _row('Delivery Schedule', '🗓 Scheduled'),
               ],
             ),
+
+            const SizedBox(height: 16),
+
+            /// PRICE BREAKUP
+            _priceBreakup(order),
 
             const SizedBox(height: 16),
 
@@ -327,6 +339,136 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
                 icon,
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 💰 Price Breakup Widget
+  Widget _priceBreakup(Order order) {
+    final double rawBottlePrice = double.tryParse(order.bottleDiscountprice.isNotEmpty && order.bottleDiscountprice != '0' ? order.bottleDiscountprice : order.bottleprice) ?? 0;
+    final double floorRate      = double.tryParse(order.floorprice) ?? 0;
+    final int    floorNo        = order.custFloornumber;
+    final bool   isLift         = order.custIsLiftAvailable == 1;
+    final int    qty            = order.quantity > 0 ? order.quantity : 1;
+    final double quickP         = double.tryParse(order.quickdeliverycharge) ?? 0;
+    final double totalP         = double.tryParse(order.price) ?? 0;
+    final bool   isQuick        = order.quickDelivery == 1 || quickP > 0;
+
+    final double floorTotal = isLift ? 0 : (floorRate * floorNo * qty);
+    final double bottleTotal = rawBottlePrice > 0
+        ? (rawBottlePrice * qty)
+        : (totalP > 0 ? (totalP - floorTotal - (isQuick ? quickP : 0)).clamp(0, totalP) : 0);
+    final double perBottlePrice = qty > 0 ? (bottleTotal / qty) : bottleTotal;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F7FF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFCCE0FF), width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.receipt_long_outlined, size: 14, color: Color(0xff1976D2)),
+              const SizedBox(width: 6),
+              const Text(
+                "Price Breakup",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          if (bottleTotal > 0 || perBottlePrice > 0)
+            _breakupRow(
+              "Bottle Price (${perBottlePrice > 0 ? "₹${perBottlePrice.toStringAsFixed(0)} × " : ""}$qty)",
+              "₹${bottleTotal.toStringAsFixed(0)}",
+              Colors.black87,
+            ),
+
+          if (floorTotal > 0) ...[
+            const SizedBox(height: 4),
+            _breakupRow(
+              "Floor Charges (₹${floorRate.toStringAsFixed(0)} × $floorNo floor × $qty)",
+              "+ ₹${floorTotal.toStringAsFixed(0)}",
+              Colors.orange.shade800,
+            ),
+          ] else if (isLift && floorNo > 0) ...[
+            const SizedBox(height: 4),
+            _breakupRow(
+              "Floor Charges (Floor $floorNo)",
+              "Free (Lift Available)",
+              Colors.green.shade700,
+            ),
+          ],
+
+          if (isQuick) ...[
+            const SizedBox(height: 4),
+            _breakupRow(
+              "Quick Delivery Charge",
+              quickP > 0 ? "+ ₹${quickP.toStringAsFixed(0)}" : "+ ₹0",
+              Colors.deepOrange.shade600,
+            ),
+          ],
+
+          if (bottleTotal == 0 && floorTotal == 0 && !isQuick)
+            _breakupRow("Base Price", "₹${totalP.toStringAsFixed(0)}", Colors.black87),
+
+          Padding(
+            padding: const EdgeInsets.only(top: 6, bottom: 6),
+            child: Divider(height: 1, color: Colors.blue.shade100),
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Amount",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1A2C56),
+                ),
+              ),
+              Text(
+                "₹${totalP.toStringAsFixed(0)}",
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _breakupRow(String label, String value, Color valueColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: valueColor),
           ),
         ],
       ),

@@ -118,6 +118,9 @@ class Order {
   String ordernumber;
   int waterbottleid;
   String price;
+  String bottleprice;         // base bottle price
+  String floorprice;          // floor delivery charge
+  String quickdeliverycharge; // quick delivery surcharge
   int quantity;
   DateTime deliverydate;
   String deliverytime;
@@ -125,6 +128,10 @@ class Order {
   int assignedto;
   String paymentstatus;
   int status;
+  int isSchedule;             // is_schedule
+  int quickDelivery;          // quick_delivery
+  int custFloornumber;        // cust_floornumber
+  int custIsLiftAvailable;    // cust_is_lift_available
   DateTime cdate;
   DateTime modifiedDate;
   String customerName;
@@ -135,7 +142,7 @@ class Order {
   CustomerDetails customerDetails;
   DeliveryDetails deliveryDetails;
 
-  // New fields
+  // Bottle detail fields
   String bottleWeight;
   String bottleOriginalprice;
   String bottleDiscountprice;
@@ -148,6 +155,9 @@ class Order {
     required this.ordernumber,
     required this.waterbottleid,
     required this.price,
+    required this.bottleprice,
+    required this.floorprice,
+    required this.quickdeliverycharge,
     required this.quantity,
     required this.deliverydate,
     required this.deliverytime,
@@ -156,6 +166,10 @@ class Order {
     required this.paymentstatus,
     required this.paymentmode,
     required this.status,
+    required this.isSchedule,
+    required this.quickDelivery,
+    required this.custFloornumber,
+    required this.custIsLiftAvailable,
     required this.cdate,
     required this.modifiedDate,
     required this.customerName,
@@ -180,17 +194,36 @@ class Order {
       waterbottleName: (json['waterbottle_name'] ?? json['waterbottel_name'] ?? json['waterbottleName'] ?? json['waterbottelName'] ?? json['waterbottlename'] ?? json['waterbottelname'] ?? json['bottle_name'] ?? json['bottel_name'] ?? json['bottleName'] ?? json['bottelName'] ?? json['name'] ?? '').toString(),
       waterbottleid: json['waterbottleid'] ?? 0,
       price: json['price']?.toString() ?? '',
-      quantity: json['quantity'] ?? 0,
+      bottleprice: (json['bottleprice'] ?? json['bottle_price'] ?? json['bottlePrice'] ?? '0').toString(),
+      floorprice: (json['floorprice'] ?? json['floor_price'] ?? json['floorPrice'] ?? json['floorcharges'] ?? json['floor_charges'] ?? json['floorCharges'] ?? '0').toString(),
+      quickdeliverycharge: (json['quickdeliverycharge'] ??
+          json['quick_delivery_charge'] ??
+          json['quickDeliveryCharge'] ??
+          json['quick_delivery_charges'] ??
+          json['quickDeliveryCharges'] ??
+          json['quickdeliverycharges'] ??
+          json['fastdeliverycharges'] ??
+          json['fast_delivery_charges'] ??
+          json['fastDeliveryCharges'] ??
+          json['fastdeliverycharge'] ??
+          json['fast_delivery_charge'] ??
+          json['fastDeliveryCharge'] ??
+          '0').toString(),
+      quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       deliverydate: DateTime.tryParse(
-        json['deliverydate'] ?? '',
+        json['deliverydate']?.toString() ?? '',
       ) ??
           DateTime.now(),
-      deliverytime: json['deliverytime'] ?? '',
-      addressid: json['addressid'] ?? 0,
-      assignedto: json['assignedto'] ?? 0,
-      paymentstatus: json['paymentstatus'] ?? '0',
-      paymentmode: json['paymentmode'] ?? 0,
-      status: json['status'] ?? 0,
+      deliverytime: json['deliverytime']?.toString() ?? '',
+      addressid: int.tryParse(json['addressid']?.toString() ?? '0') ?? 0,
+      assignedto: int.tryParse(json['assignedto']?.toString() ?? '0') ?? 0,
+      paymentstatus: (json['paymentstatus'] ?? json['payment_status'] ?? '0').toString(),
+      paymentmode: int.tryParse(json['paymentmode']?.toString() ?? '0') ?? 0,
+      status: int.tryParse(json['status']?.toString() ?? '0') ?? 0,
+      isSchedule: int.tryParse((json['is_schedule'] ?? json['isSchedule'] ?? json['isschedule'] ?? '').toString()) ?? (json['is_schedule'] == true ? 1 : 0),
+      quickDelivery: (int.tryParse((json['quick_delivery'] ?? json['quickDelivery'] ?? json['quickdelivery'] ?? '').toString()) ?? (json['quick_delivery'] == true ? 1 : 0)) == 1 || ((double.tryParse((json['quickdeliverycharge'] ?? json['quick_delivery_charge'] ?? json['quickDeliveryCharge'] ?? json['quick_delivery_charges'] ?? json['quickDeliveryCharges'] ?? json['quickdeliverycharges'] ?? json['fastdeliverycharges'] ?? json['fast_delivery_charges'] ?? json['fastDeliveryCharges'] ?? json['fastdeliverycharge'] ?? json['fast_delivery_charge'] ?? json['fastDeliveryCharge'] ?? '0').toString()) ?? 0) > 0) ? 1 : 0,
+      custFloornumber: int.tryParse((json['cust_floornumber'] ?? json['custFloornumber'] ?? json['floor'] ?? json['floornumber'] ?? json['customer_details']?['address']?['floornumber'] ?? '').toString()) ?? 0,
+      custIsLiftAvailable: int.tryParse((json['cust_is_lift_available'] ?? json['custIsLiftAvailable'] ?? json['is_lift_available'] ?? json['isLiftAvailable'] ?? json['customer_details']?['address']?['is_lift_available'] ?? '').toString()) ?? (json['cust_is_lift_available'] == true || json['is_lift_available'] == true ? 1 : 0),
       cdate: DateTime.tryParse(
         json['cdate'] ?? '',
       ) ??
@@ -213,7 +246,7 @@ class Order {
       ),
       bottleWeight: (json['bottle_weight'] ?? json['bottel_weight'] ?? json['bottleWeight'] ?? json['bottelWeight'] ?? json['bottleweight'] ?? json['bottelweight'] ?? json['weight'] ?? '').toString(),
       bottleOriginalprice: (json['bottle_originalprice'] ?? json['bottel_originalprice'] ?? json['bottleOriginalprice'] ?? json['bottelOriginalprice'] ?? json['originalprice'] ?? '').toString(),
-      bottleDiscountprice: (json['bottle_discountprice'] ?? json['bottel_discountprice'] ?? json['bottleDiscountprice'] ?? json['bottelDiscountprice'] ?? json['discountprice'] ?? '').toString(),
+      bottleDiscountprice: (json['bottle_discountprice'] ?? json['bottel_discountprice'] ?? json['bottleDiscountprice'] ?? json['bottelDiscountprice'] ?? json['discountprice'] ?? json['bottleprice'] ?? json['bottle_price'] ?? json['bottlePrice'] ?? '').toString(),
       totalbottleQuantity: int.tryParse((json['totalbottle_quantity'] ?? json['totalbottel_quantity'] ?? json['totalbottleQuantity'] ?? json['totalbottelQuantity'] ?? json['totalbottlequantity'] ?? json['totalbottelquantity'] ?? '').toString()) ?? 0,
       bottleDescription: (json['bottle_description'] ?? json['bottel_description'] ?? json['bottleDescription'] ?? json['bottelDescription'] ?? json['bottledescription'] ?? json['botteldescription'] ?? json['description'] ?? json['waterbottle_description'] ?? json['waterbottel_description'] ?? json['waterbottle_desc'] ?? json['waterbottel_desc'] ?? '').toString(),
     );
@@ -226,6 +259,9 @@ class Order {
       'ordernumber': ordernumber,
       'waterbottleid': waterbottleid,
       'price': price,
+      'bottleprice': bottleprice,
+      'floorprice': floorprice,
+      'quickdeliverycharge': quickdeliverycharge,
       'quantity': quantity,
       'deliverydate': deliverydate.toIso8601String(),
       'deliverytime': deliverytime,
@@ -234,6 +270,10 @@ class Order {
       'paymentmode': paymentmode,
       'paymentstatus': paymentstatus,
       'status': status,
+      'is_schedule': isSchedule,
+      'quick_delivery': quickDelivery,
+      'cust_floornumber': custFloornumber,
+      'cust_is_lift_available': custIsLiftAvailable,
       'cdate': cdate.toIso8601String(),
       'modified_date': modifiedDate.toIso8601String(),
       'customer_name': customerName,

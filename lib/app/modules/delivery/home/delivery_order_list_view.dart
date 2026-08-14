@@ -205,6 +205,25 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
     );
   }
 
+  Widget _badgeChip(String label, MaterialColor color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.shade200, width: 0.8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color.shade800,
+        ),
+      ),
+    );
+  }
+
   Widget _orderCard(BuildContext context, Order order) {
     final customerName = safeValue(order.customerDetails.fullname);
     final customerMobile = safeValue(order.customerDetails.mobile);
@@ -265,6 +284,21 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                 ),
               ],
             ),
+
+            /// Quick Delivery / Scheduled badges
+            if (order.quickDelivery == 1 || order.isSchedule == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                    _badgeChip("⚡ Quick Delivery", Colors.orange),
+                  if ((order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) && order.isSchedule == 1)
+                    const SizedBox(width: 6),
+                  if (order.isSchedule == 1)
+                    _badgeChip("🗓 Scheduled", Colors.purple),
+                ],
+              ),
+            ],
 
             const Divider(height: 16, thickness: 0.5),
 

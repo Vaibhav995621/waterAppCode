@@ -20,6 +20,11 @@ class PaymentController extends GetxController {
   late int plantype;
   int floor = 0;
   int floorCharges = 0;
+  int perFloorCharges = 0;
+  int fastDeliveryCharges = 0;
+  String bottleOriginalPrice = '0';
+  String bottleDiscountPrice = '0';
+
   bool fastDelivery = false;
   String onlinePaymentMode= "1";
 
@@ -59,7 +64,11 @@ class PaymentController extends GetxController {
     plantype = args["plantype"] ?? 0;
     floor = args["floor"] ?? 0;
     floorCharges = args["floorCharges"] ?? 0;
+    perFloorCharges = args["perFloorCharges"] ?? 0;
     fastDelivery = args["fastDelivery"] == true;
+    fastDeliveryCharges = args["quickDeliveryCharges"] ?? 0;
+    bottleOriginalPrice = args["bottle_originalprice"]?.toString() ?? '0';
+    bottleDiscountPrice = args["bottle_discountprice"]?.toString() ?? '0';
 
     // Initialize Razorpay
     razorpay = Razorpay();
@@ -169,19 +178,10 @@ class PaymentController extends GetxController {
       }
       try {
         final success = await addOrder(
-          waterBottleId.toString(),
-          price,
-          quantity.toString(),
-          deliveryDate,
-          deliveryTime,
-          addressController.selectedId.value.toString(),
           onlinePaymentMode,
           status,
           transId,
           plantype,
-          quickDelivery: fastDelivery ? "1" : "0",
-          quickDeliveryCharge: floorCharges.toString(),
-          assignedTo: "0",
           status: status,
         );
         if (success) {
@@ -327,21 +327,12 @@ class PaymentController extends GetxController {
       addressController.isPaymentLoading.value = true;
       try {
         final success = await addOrder(
-          waterBottleId.toString(),
-          price,
-          quantity.toString(),
-          deliveryDate,
-          deliveryTime,
-          addressController.selectedId.value.toString(),
           paymentMode.toString(),
           paymentStatus,
           '',
           plantype,
           isCod: isCod,
           isWallet: isWallet,
-          quickDelivery: fastDelivery ? "1" : "0",
-          quickDeliveryCharge: floorCharges.toString(),
-          assignedTo: "0",
           status: paymentStatus,
         );
 
@@ -362,41 +353,30 @@ class PaymentController extends GetxController {
   }
 
   Future<bool> addOrder(
-    String waterBottleId,
-    String price,
-    String quantity,
-    DateTime deliveryDate,
-    String deliveryTime,
-    String addressId,
     String paymentmode,
     String paymentstatus,
     String trans_id,
     int planType, {
     bool isCod = false,
     bool isWallet = false,
-    String bottlePrice = "0",
-    String floorPrice = "0",
-    String quickDeliveryCharge = "0",
-    String quickDelivery = "0",
-    String assignedTo = "0",
     String status = "0",
   }) async {
     addOrderMap = {
       "customerid": AppSession.userId,
       "waterbottleid": waterBottleId,
-      "bottleprice": bottlePrice,
-      "floorprice": floorPrice,
-      "quickdeliverycharge": quickDeliveryCharge,
+      "bottleprice": bottleDiscountPrice,
+      "floorprice": floorCharges.toString(),
+      "quickdeliverycharge": fastDeliveryCharges.toString(),
       "price": price,
       "quantity": quantity,
       "deliverydate": DateFormat('yyyy-MM-dd').format(deliveryDate),
       "deliverytime": deliveryTime,
-      "addressid": addressId,
-      "assignedto": assignedTo,
+      "addressid": addressController.selectedId.value.toString(),
+      "assignedto": '0',
       "status": status,
       "paymentmode": paymentmode,
       "paymentstatus": paymentstatus,
-      "quick_delivery": quickDelivery,
+      "quick_delivery": fastDelivery ? "1" : "0",
       "trans_id": trans_id,
       "floor": floor.toString(),
       "floorcharges": floorCharges.toString(),

@@ -82,6 +82,21 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                           ],
                         ),
 
+                        /// Quick Delivery / Scheduled badges
+                        if (order.quickDelivery == 1 || order.isSchedule == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                                _badgeChip("⚡ Quick Delivery", Colors.orange),
+                              if ((order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) && order.isSchedule == 1)
+                                const SizedBox(width: 6),
+                              if (order.isSchedule == 1)
+                                _badgeChip("🗓 Scheduled", Colors.purple),
+                            ],
+                          ),
+                        ],
+
                         const SizedBox(height: 15),
 
                         Row(
@@ -144,6 +159,24 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                           "Payment Status",
                           order.paymentstatus,
                         ),
+
+                        if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                          _detailRow(
+                            "Delivery Type",
+                            "⚡ Quick Delivery",
+                          ),
+
+                        if ((double.tryParse(order.quickdeliverycharge) ?? 0) > 0 || order.quickDelivery == 1)
+                          _detailRow(
+                            "Quick Delivery Charge",
+                            "₹${(double.tryParse(order.quickdeliverycharge) ?? 0).toStringAsFixed(0)}",
+                          ),
+
+                        if (order.isSchedule == 1)
+                          _detailRow(
+                            "Delivery Schedule",
+                            "🗓 Scheduled",
+                          ),
                       ],
                     ),
                   ),
@@ -223,39 +256,7 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
 
                   /// ORDER SUMMARY
                   _sectionTitle("Order Summary"),
-                  _buildCard(
-                    child: Column(
-                      children: [
-                        _detailRow("Price (Per Bottle)", "₹${order.bottleDiscountprice}"),
-                        _detailRow("Total Quantity", "${order.quantity}"),
-                        const Divider(height: 24, thickness: 0.5),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Total Amount",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff1A2C56),
-                                ),
-                              ),
-                              Text(
-                                "₹${controller.totalAmount}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff1976D2),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _priceBreakup(order),
 
                   const SizedBox(height: 30),
                 ],
@@ -436,6 +437,158 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
             fontSize: 16,
             color: Color(0xff1A2C56),
           ),
+        ),
+      ],
+    );
+  }
+
+  /// 💰 Price Breakup — same style as order list
+  Widget _priceBreakup(Order order) {
+    final double rawBottlePrice = double.tryParse(order.bottleDiscountprice.isNotEmpty && order.bottleDiscountprice != '0' ? order.bottleDiscountprice : order.bottleprice) ?? 0;
+    final double floorRate      = double.tryParse(order.floorprice) ?? 0;
+    final int    floorNo        = order.custFloornumber;
+    final bool   isLift         = order.custIsLiftAvailable == 1;
+    final int    qty            = order.quantity > 0 ? order.quantity : 1;
+    final double quickP         = double.tryParse(order.quickdeliverycharge) ?? 0;
+    final double totalP         = double.tryParse(order.price) ?? 0;
+    final bool   isQuick        = order.quickDelivery == 1 || quickP > 0;
+
+    final double floorTotal = isLift ? 0 : (floorRate * floorNo * qty);
+    final double bottleTotal = rawBottlePrice > 0
+        ? (rawBottlePrice * qty)
+        : (totalP > 0 ? (totalP - floorTotal - (isQuick ? quickP : 0)).clamp(0, totalP) : 0);
+    final double perBottlePrice = qty > 0 ? (bottleTotal / qty) : bottleTotal;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F7FF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFCCE0FF), width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.receipt_long_outlined, size: 13, color: Color(0xff1976D2)),
+              const SizedBox(width: 5),
+              const Text(
+                "Price Breakup",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          /// Bottle price row: ₹perBottlePrice × qty = ₹bottleTotal
+          if (bottleTotal > 0 || perBottlePrice > 0)
+            _breakupRow(
+              "Bottle Price (${perBottlePrice > 0 ? "₹${perBottlePrice.toStringAsFixed(0)} × " : ""}$qty)",
+              "₹${bottleTotal.toStringAsFixed(0)}",
+              Colors.black87,
+            ),
+
+          /// Floor charge row
+          if (floorTotal > 0) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Floor Charges (₹${floorRate.toStringAsFixed(0)} × $floorNo floor × $qty)",
+              "+ ₹${floorTotal.toStringAsFixed(0)}",
+              Colors.orange.shade700,
+            ),
+          ] else if (isLift && floorNo > 0) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Floor Charges (Floor $floorNo)",
+              "Free (Lift Available)",
+              Colors.green.shade700,
+            ),
+          ],
+
+          /// Quick delivery charge row — show whenever it's a quick delivery order or quickP > 0
+          if (isQuick) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Quick Delivery Charge",
+              quickP > 0 ? "+ ₹${quickP.toStringAsFixed(0)}" : "+ ₹0",
+              Colors.deepOrange.shade600,
+            ),
+          ],
+
+          /// Fallback when no sub-prices are available
+          if (bottleTotal == 0 && floorTotal == 0 && !isQuick)
+            _breakupRow("Base Price", "₹${totalP.toStringAsFixed(0)}", Colors.black87),
+
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Divider(height: 1, color: Colors.blue.shade100),
+          ),
+          const SizedBox(height: 4),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Amount",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1A2C56),
+                ),
+              ),
+              Text(
+                "₹${totalP.toStringAsFixed(0)}",
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _badgeChip(String label, MaterialColor color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.shade200, width: 0.8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color.shade800,
+        ),
+      ),
+    );
+  }
+
+  /// Single breakup row
+  Widget _breakupRow(String label, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: valueColor),
         ),
       ],
     );
