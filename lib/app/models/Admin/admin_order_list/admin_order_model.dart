@@ -376,6 +376,8 @@ class Address {
   String state;
   String pincode;
   int isDefaultAddress;    // key: is_default_address
+  String photo;
+  String imagepath;
 
   Address({
     required this.fulladdress,
@@ -398,6 +400,8 @@ class Address {
     required this.state,
     required this.pincode,
     required this.isDefaultAddress,
+    this.photo = '',
+    this.imagepath = '',
   });
 
   factory Address.fromJson(
@@ -424,6 +428,8 @@ class Address {
       state: json['state']?.toString() ?? '',
       pincode: json['pincode']?.toString() ?? '',
       isDefaultAddress: json['is_default_address'] ?? json['isDefaultAddress'] ?? 0,
+      photo: (json['photo'] ?? json['image'] ?? json['house_photo'] ?? json['address_photo'] ?? json['address_image'] ?? '').toString(),
+      imagepath: (json['imagepath'] ?? json['image_path'] ?? json['imagePath'] ?? '').toString(),
     );
   }
 
@@ -449,6 +455,8 @@ class Address {
       'state': state,
       'pincode': pincode,
       'is_default_address': isDefaultAddress,
+      'photo': photo,
+      'imagepath': imagepath,
     };
   }
 }

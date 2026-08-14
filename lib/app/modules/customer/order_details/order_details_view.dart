@@ -2,8 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zourney/utlis/app_config.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
+import '../../../widgets/full_screen_image_viewer.dart';
 import 'order_detail_controller.dart';
+
+/// Resolves a potentially relative image path to an absolute URL.
+String _resolveImageUrl(String rawPath) {
+  final trimmed = rawPath.trim();
+  if (trimmed.isEmpty || trimmed == 'null') return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  final serverRoot = AppConfig.config.baseUrl
+      .replaceAll('/api/apps/', '')
+      .replaceAll('/api/apps', '');
+  final cleanPath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+  return '$serverRoot$cleanPath';
+}
 
 class OrderDetailsScreen extends GetView<OrderDetailsController> {
   OrderDetailsScreen({super.key});
@@ -247,6 +263,23 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                         _detailRow(
                           "Pincode",
                           displayValue(order.customerDetails.address.pincode),
+                        ),
+
+                        /// 🖼️ Address Image in 300-height Rectangle View
+                        Builder(
+                          builder: (context) {
+                            final rawPath = order.customerDetails.address.photo.isNotEmpty
+                                ? order.customerDetails.address.photo
+                                : order.customerDetails.address.imagepath;
+                            final addressPhoto = _resolveImageUrl(rawPath);
+                            if (addressPhoto.isNotEmpty) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 14),
+                                child: _buildAddressImageRectangle(context, addressPhoto),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ],
                     ),
@@ -684,5 +717,127 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
       default:
         return Colors.grey;
     }
+  }
+
+  /// 🖼️ Address Image — 300 px tall rectangle with Hero → full-screen on tap
+  Widget _buildAddressImageRectangle(BuildContext context, String imageUrl) {
+    const heroTag = 'customer_order_address_photo';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Label row ───────────────────────────────────────────────────────
+        const Row(
+          children: [
+            Icon(Icons.photo_library_outlined, size: 14, color: Color(0xff1976D2)),
+            SizedBox(width: 6),
+            Text(
+              'Address Photo',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xff1976D2),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── 300-height rectangle card ────────────────────────────────────────
+        GestureDetector(
+          onTap: () => FullScreenImageViewer.open(
+            context,
+            imageUrl: imageUrl,
+            title: 'Address Photo',
+            tag: heroTag,
+          ),
+          child: Hero(
+            tag: heroTag,
+            child: Container(
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade300),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // ── Network image ──────────────────────────────────────
+                    Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (ctx, child, progress) {
+                        if (progress == null) return child;
+                        final total = progress.expectedTotalBytes;
+                        final loaded = progress.cumulativeBytesLoaded;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: total != null ? loaded / total : null,
+                            color: const Color(0xff1976D2),
+                            strokeWidth: 2.5,
+                          ),
+                        );
+                      },
+                      errorBuilder: (ctx, error, _) => Container(
+                        color: Colors.grey.shade100,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image_rounded, size: 48, color: Colors.grey),
+                            SizedBox(height: 8),
+                            Text(
+                              'Failed to load address image',
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // ── "Tap for Full View" badge ──────────────────────────
+                    Positioned(
+                      bottom: 10,
+                      right: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.70),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.zoom_out_map_rounded, size: 13, color: Colors.white),
+                            SizedBox(width: 5),
+                            Text(
+                              'Tap for Full View',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zourney/app/models/address_model/addresss_model.dart';
+import '../../../widgets/full_screen_image_viewer.dart';
 import '../../../../routes/app_routes.dart';
 import 'select_address_controller.dart';
 
@@ -404,6 +405,7 @@ class AddressCard extends StatelessWidget {
 
     final hasLift = model.isLiftAvailable == 1;
     final floorNo = model.floornumber > 0 ? "Floor ${model.floornumber}" : null;
+    final photoUrl = model.photo ?? model.imagepath;
 
     return GestureDetector(
       onTap: onTap,
@@ -622,6 +624,10 @@ class AddressCard extends StatelessWidget {
                       value: "${model.city}, ${model.state} - ${model.pincode}",
                       selected: selected,
                     ),
+                    if (photoUrl != null && photoUrl.trim().isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      _buildAddressImageRectangle(context, photoUrl, selected),
+                    ],
                   ],
                 ),
               ),
@@ -773,6 +779,116 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 🖼️ Address Image in Rectangle View (300 Height) with Full View on Tap
+  Widget _buildAddressImageRectangle(BuildContext context, String imageUrl, bool selected) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.photo_library_outlined,
+              size: 14,
+              color: selected ? Colors.white : const Color(0xff1976D2),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              "Address Photo",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected ? Colors.white : const Color(0xff1976D2),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => FullScreenImageViewer.open(
+            context,
+            imageUrl: imageUrl,
+            title: "Address Photo",
+          ),
+          child: Container(
+            height: 300,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: selected ? Colors.white38 : Colors.grey.shade300,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    imageUrl,
+                    height: 300,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(color: Color(0xff1976D2)),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey.shade100,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.broken_image_rounded, size: 48, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text(
+                            "Failed to load address image",
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    right: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.65),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.fullscreen_rounded, color: Colors.white, size: 16),
+                          SizedBox(width: 4),
+                          Text(
+                            "Tap for Full View",
+                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],

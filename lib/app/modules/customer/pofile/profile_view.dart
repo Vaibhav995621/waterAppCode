@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zourney/app/widgets/full_screen_image_viewer.dart';
 import 'package:zourney/app/app_session/app_session.dart';
 import '../../../../routes/app_routes.dart';
 import 'profile_controller.dart';
@@ -28,145 +29,220 @@ class ProfileView extends GetView<ProfileController> {
               child: Container(
                 height: 180,
                 width: 180,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xff62B5F8),
+                  color: const Color(0xff6C63FF).withOpacity(0.12),
                 ),
               ),
             ),
 
             Positioned(
-              top: -90,
-              right: -100,
+              top: 100,
+              right: -50,
               child: Container(
-                height: 250,
-                width: 250,
-                decoration: const BoxDecoration(
+                height: 150,
+                width: 150,
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xff6B67F6),
+                  color: const Color(0xff6C63FF).withOpacity(0.08),
                 ),
               ),
             ),
 
-            SingleChildScrollView(
-              child: Column(
-                children: [
+            /// Main Body
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
 
-                  /// Profile Header
-                  Container(
-                    height: 360,
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(
-                      top: 100,
+                    const SizedBox(height: 20),
+
+                    /// Header / App Name / Logout
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Profile",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff1A2C56),
+                          ),
+                        ),
+
+                        IconButton(
+                          icon: const Icon(
+                            Icons.logout_rounded,
+                            color: Colors.redAccent,
+                            size: 26,
+                          ),
+                          onPressed: () => controller.logoutDialog(context),
+                        )
+                      ],
                     ),
-                    child: Obx(() {
+
+                    const SizedBox(height: 25),
+
+                    /// Profile Card with Avatar & Basic Info
+                    Obx(() {
                       if (controller.isLoading.value) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
                       }
 
-                      return Column(
-                        children: [
-
-                          Stack(
-                            children: [
-                              /// Tap avatar → full-screen viewer
-                              GestureDetector(
-                                onTap: () => _showFullScreenImage(
-                                  context,
-                                  controller,
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 20,
-                                      )
-                                    ],
-                                  ),
-                                  child: CircleAvatar(
-                                    radius: 70,
-                                    backgroundImage:
-                                    controller.selectedImage.value != null
-                                        ? FileImage(
-                                      controller.selectedImage.value!,
-                                    ) as ImageProvider
-                                        : controller.image.isNotEmpty
-                                        ? NetworkImage(controller.image)
-                                        : const NetworkImage(
-                                      "https://i.pravatar.cc/150",
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              /// Tap camera icon → image picker
-                              Positioned(
-                                bottom: 10,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: controller.showImagePicker,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xff6B67F6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 15),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                controller.userName,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight:
-                                  FontWeight.bold,
-                                  color: Color(0xff6C63FF),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => _showEditNameDialog(context),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Color(0xff6C63FF),
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 2),
-
-                          Text(
-                            controller.phone,
-                            style: TextStyle(
-                              color:
-                              Color(0xff6C63FF),
-                              fontSize: 18,
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 25,
+                          horizontal: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Stack(
+                              children: [
+                                /// Avatar with Border Shadow
+                                Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 20,
+                                        )
+                                      ],
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        String? profileImg;
+                                        if (controller.selectedImage.value != null) {
+                                          profileImg = controller.selectedImage.value!.path;
+                                        } else if (controller.image.isNotEmpty && controller.image != "null") {
+                                          profileImg = controller.image;
+                                        }
+                                        if (profileImg != null && profileImg.isNotEmpty) {
+                                          FullScreenImageViewer.open(
+                                            context,
+                                            imageUrl: profileImg,
+                                            title: "${controller.userName}'s Profile",
+                                            isCircle: true,
+                                          );
+                                        }
+                                      },
+                                      child: Stack(
+                                        alignment: Alignment.bottomLeft,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 70,
+                                            backgroundImage:
+                                                controller.selectedImage.value != null
+                                                    ? FileImage(
+                                                        controller.selectedImage.value!,
+                                                      ) as ImageProvider
+                                                    : controller.image.isNotEmpty
+                                                        ? NetworkImage(controller.image)
+                                                        : const NetworkImage(
+                                                            "https://i.pravatar.cc/150",
+                                                          ),
+                                          ),
+                                          if (controller.selectedImage.value != null || (controller.image.isNotEmpty && controller.image != "null"))
+                                            Positioned(
+                                              bottom: 4,
+                                              left: 4,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(6),
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xff6C63FF),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.zoom_in_rounded,
+                                                  size: 14,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                /// Tap camera icon → image picker
+                                Positioned(
+                                  bottom: 10,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: controller.showImagePicker,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xff6B67F6),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 15),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  controller.userName,
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xff6C63FF),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => _showEditNameDialog(context),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    color: Color(0xff6C63FF),
+                                    size: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 2),
+
+                            Text(
+                              controller.phone,
+                              style: const TextStyle(
+                                color: Color(0xff6C63FF),
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }),
-                  ),
 
                   /// Menu Cards
                   Padding(
@@ -250,11 +326,11 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
-          ],
+            ),
+            )],
         ),
     );
   }

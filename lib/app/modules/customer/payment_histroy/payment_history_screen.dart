@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../widgets/full_screen_image_viewer.dart';
 import '../../../models/payment_history_model/payment_histroy_model.dart';
 import 'payment_history_controller.dart';
 
@@ -184,11 +185,11 @@ class PaymentHistoryScreen extends StatelessWidget {
           }
           final item = controller.paymentList[index - 1];
           if (item.isWalletTopUp) {
-            return _buildWalletCard(item);
+            return _buildWalletCard(context, item);
           } else if (item.isOrder) {
-            return _buildOrderCard(item);
+            return _buildOrderCard(context, item);
           } else {
-            return _buildSubscriptionCard(item);
+            return _buildSubscriptionCard(context, item);
           }
         },
       ),
@@ -316,7 +317,7 @@ class PaymentHistoryScreen extends StatelessWidget {
   }
 
   // ─── Order Card ────────────────────────────────────────────────────────────
-  Widget _buildOrderCard(PaymentHistoryData item) {
+  Widget _buildOrderCard(BuildContext context, PaymentHistoryData item) {
     final order = item.orderDetails;
 
     // Resolve order status label & color
@@ -539,7 +540,7 @@ class PaymentHistoryScreen extends StatelessWidget {
                   // ── Customer Details (Admin API only) ──────────────────
                   if (item.customerDetails != null) ...[
                     const SizedBox(height: 12),
-                    _buildCustomerSection(item.customerDetails!),
+                    _buildCustomerSection(context, item.customerDetails!),
                   ],
                 ],
               ),
@@ -551,7 +552,7 @@ class PaymentHistoryScreen extends StatelessWidget {
   }
 
   // ─── Subscription Plan Card ───────────────────────────────────────────────
-  Widget _buildSubscriptionCard(PaymentHistoryData item) {
+  Widget _buildSubscriptionCard(BuildContext context, PaymentHistoryData item) {
     final plan = item.planDetails;
 
     // Resolved display name: prefer planname (Customer API), fall back to name (Admin API)
@@ -741,7 +742,7 @@ class PaymentHistoryScreen extends StatelessWidget {
                   // ── Customer Details (Admin API only) ──────────────────
                   if (item.customerDetails != null) ...[
                     const SizedBox(height: 12),
-                    _buildCustomerSection(item.customerDetails!),
+                    _buildCustomerSection(context, item.customerDetails!),
                   ],
                 ],
               ),
@@ -753,7 +754,7 @@ class PaymentHistoryScreen extends StatelessWidget {
   }
 
   // ─── Wallet Top-up Card ───────────────────────────────────────────────────
-  Widget _buildWalletCard(PaymentHistoryData item) {
+  Widget _buildWalletCard(BuildContext context, PaymentHistoryData item) {
     final wallet = item.walletDetails;
 
     return Container(
@@ -926,7 +927,7 @@ class PaymentHistoryScreen extends StatelessWidget {
                   // ── Customer Details (Admin API only) ──────────────────
                   if (item.customerDetails != null) ...[
                     const SizedBox(height: 12),
-                    _buildCustomerSection(item.customerDetails!),
+                    _buildCustomerSection(context, item.customerDetails!),
                   ],
                 ],
               ),
@@ -940,7 +941,7 @@ class PaymentHistoryScreen extends StatelessWidget {
   // ─── Shared Widgets ───────────────────────────────────────────────────────
 
   // ─── Customer Details Section ─────────────────────────────────────────────
-  Widget _buildCustomerSection(CustomerDetails customer) {
+  Widget _buildCustomerSection(BuildContext context, CustomerDetails customer) {
     final addr = customer.address;
 
     // Build a clean full-address string
@@ -999,18 +1000,30 @@ class PaymentHistoryScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Photo / Avatar
-              CircleAvatar(
-                radius: 26,
-                backgroundColor: _purple.withValues(alpha: 0.15),
-                backgroundImage: customer.photo.isNotEmpty
-                    ? NetworkImage(customer.photo)
-                    : null,
-                onBackgroundImageError: customer.photo.isNotEmpty
-                    ? (_, __) {}
-                    : null,
-                child: customer.photo.isEmpty
-                    ? Icon(Icons.person, color: _purple, size: 26)
-                    : null,
+              GestureDetector(
+                onTap: () {
+                  if (customer.photo.isNotEmpty) {
+                    FullScreenImageViewer.open(
+                      context,
+                      imageUrl: customer.photo,
+                      title: "${customer.fullname}'s Photo",
+                      isCircle: true,
+                    );
+                  }
+                },
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundColor: _purple.withValues(alpha: 0.15),
+                  backgroundImage: customer.photo.isNotEmpty
+                      ? NetworkImage(customer.photo)
+                      : null,
+                  onBackgroundImageError: customer.photo.isNotEmpty
+                      ? (_, __) {}
+                      : null,
+                  child: customer.photo.isEmpty
+                      ? Icon(Icons.person, color: _purple, size: 26)
+                      : null,
+                ),
               ),
               const SizedBox(width: 12),
 

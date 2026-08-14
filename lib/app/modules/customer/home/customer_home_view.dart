@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../widgets/full_screen_image_viewer.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../app_session/app_session.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
@@ -65,39 +66,53 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                         Expanded(
                           child: Row(
                             children: [
-                              AppSession.image.isEmpty ? Container(
-                                height: 55,
-                                width: 55,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 10,
-                                      color: Colors.black12,
-                                    )
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 32,
-                                  color: Color(0xff45A9F8),
-                                ),
-                              ) : Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 10,
-                                      color: Colors.black12,
-                                    )
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  radius: 28,
-                                  backgroundImage: NetworkImage(AppSession.image),
+                              GestureDetector(
+                                onTap: () {
+                                  if (AppSession.image.isNotEmpty) {
+                                    FullScreenImageViewer.open(
+                                      context,
+                                      imageUrl: AppSession.image,
+                                      title: "${AppSession.name}'s Profile",
+                                      isCircle: true,
+                                    );
+                                  } else {
+                                    Get.toNamed(AppRoutes.profile);
+                                  }
+                                },
+                                child: AppSession.image.isEmpty ? Container(
+                                  height: 55,
+                                  width: 55,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 10,
+                                        color: Colors.black12,
+                                      )
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 32,
+                                    color: Color(0xff45A9F8),
+                                  ),
+                                ) : Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 10,
+                                        color: Colors.black12,
+                                      )
+                                    ],
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 28,
+                                    backgroundImage: NetworkImage(AppSession.image),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),

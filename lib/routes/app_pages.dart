@@ -56,6 +56,8 @@ import '../app/modules/register_screen/register_binding.dart';
 import '../app/modules/register_screen/register_view.dart';
 import '../app/modules/customer/upload_address_image/upload_address_image_view.dart';
 import '../app/modules/customer/upload_address_image/upload_address_image_binding.dart';
+import '../app/modules/customer/pofile/profile_view.dart';
+import '../app/modules/customer/pofile/profile_binding.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -214,6 +216,11 @@ class AppPages {
       name: AppRoutes.uploadAddressImageScreen,
       page: () => const UploadAddressImageView(),
       binding: UploadAddressImageBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
   ];
 }
