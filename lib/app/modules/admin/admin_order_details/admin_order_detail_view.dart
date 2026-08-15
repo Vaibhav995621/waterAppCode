@@ -66,24 +66,9 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                                   ),
                                 ),
                               ),
-                              _buildPaymentModeChip(order.paymentmode),
-                              // Container(
-                              //   padding: const EdgeInsets.symmetric(
-                              //     horizontal: 12,
-                              //     vertical: 6,
-                              //   ),
-                              //   decoration: BoxDecoration(
-                              //     color: Colors.green.shade100,
-                              //     borderRadius: BorderRadius.circular(20),
-                              //   ),
-                              //   child: Text(
-                              //     getPaymentStatusText(order.paymentstatus),
-                              //     style: TextStyle(
-                              //       color: Colors.green.shade800,
-                              //       fontWeight: FontWeight.w600,
-                              //     ),
-                              //   ),
-                              // ),
+                              _buildPaymentModeChip(order),
+                              const SizedBox(width: 6),
+                              _buildPaymentStatusChip(order),
                             ],
                           ),
 
@@ -164,8 +149,19 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                           ),
 
                           _detailRow(
+                            "Payment Mode",
+                            order.formattedPaymentMode,
+                            badgeColor: order.paymentModeColor,
+                            badgeBgColor: order.paymentModeBgColor,
+                            badgeIcon: order.paymentModeIcon,
+                          ),
+
+                          _detailRow(
                             "Payment Status",
-                            getPaymentStatusText(order.paymentstatus),
+                            order.formattedPaymentStatus,
+                            badgeColor: order.paymentStatusColor,
+                            badgeBgColor: order.paymentStatusBgColor,
+                            badgeIcon: order.paymentStatusIcon,
                           ),
 
                           if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
@@ -498,7 +494,14 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
     );
   }
 
-  Widget _detailRow(String title, String value, {VoidCallback? onCallTap}) {
+  Widget _detailRow(
+    String title,
+    String value, {
+    VoidCallback? onCallTap,
+    Color? badgeColor,
+    Color? badgeBgColor,
+    IconData? badgeIcon,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -513,13 +516,40 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
+                if (badgeColor != null && badgeBgColor != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: badgeBgColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: badgeColor.withValues(alpha: 0.25), width: 0.8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (badgeIcon != null) ...[
+                          Icon(badgeIcon, size: 12, color: badgeColor),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          value,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: badgeColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      value,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                ),
                 if (onCallTap != null && value.isNotEmpty && value != "N/A") ...[
                   const SizedBox(width: 8),
                   InkWell(
@@ -597,28 +627,92 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
     );
   }
 
-  Widget _buildPaymentModeChip
-      (int mode) {
-    final Map<int, _PaymentModeInfo> modeMap = {
-      0: _PaymentModeInfo('COD', const Color(0xffE65100), const Color(0xffFFF3E0)),
-      1: _PaymentModeInfo('Online', const Color(0xff2E7D32), const Color(0xffE8F5E9)),
-      2: _PaymentModeInfo('Subscribed', const Color(0xffC62828), const Color(0xffFFEBEE)),
-      3: _PaymentModeInfo('Wallet', const Color(0xff6A1B9A), const Color(0xffF3E5F5)),
-    };
-    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+  Widget _buildPaymentModeChip(dynamic modeOrOrder) {
+    if (modeOrOrder is Order) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: modeOrOrder.paymentModeBgColor,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: modeOrOrder.paymentModeColor.withValues(alpha: 0.25), width: 0.8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(modeOrOrder.paymentModeIcon, size: 11, color: modeOrOrder.paymentModeColor),
+            const SizedBox(width: 4),
+            Text(
+              modeOrOrder.formattedPaymentMode,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: modeOrOrder.paymentModeColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final str = modeOrOrder.toString().toLowerCase();
+    Color fg = const Color(0xff1565C0);
+    Color bg = const Color(0xffE3F2FD);
+    String label = modeOrOrder.toString();
+    if (str == '0' || str == 'cod' || str == 'cash') {
+      label = 'COD';
+      fg = const Color(0xffE65100);
+      bg = const Color(0xffFFF3E0);
+    } else if (str == '1' || str == 'online') {
+      label = 'Online';
+      fg = const Color(0xff1565C0);
+      bg = const Color(0xffE3F2FD);
+    } else if (str == '2' || str == 'card' || str == 'subscribed' || str == 'subscribe') {
+      label = 'Card';
+      fg = const Color(0xff00838F);
+      bg = const Color(0xffE0F7FA);
+    } else if (str == '3' || str == 'wallet') {
+      label = 'Wallet';
+      fg = const Color(0xff6A1B9A);
+      bg = const Color(0xffF3E5F5);
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: info.bg,
+        color: bg,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        info.label,
+        label,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: info.fg,
+          color: fg,
         ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentStatusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentStatusColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentStatusIcon, size: 11, color: order.paymentStatusColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentStatus,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentStatusColor,
+            ),
+          ),
+        ],
       ),
     );
   }

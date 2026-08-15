@@ -80,6 +80,20 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
                 _row('Order Number', order.ordernumber),
                 _row('Quantity', '${order.quantity}'),
                 _row('Price', '₹${order.price}'),
+                _rowWithBadge(
+                  'Payment Mode',
+                  order.formattedPaymentMode,
+                  badgeColor: order.paymentModeColor,
+                  badgeBgColor: order.paymentModeBgColor,
+                  badgeIcon: order.paymentModeIcon,
+                ),
+                _rowWithBadge(
+                  'Payment Status',
+                  order.formattedPaymentStatus,
+                  badgeColor: order.paymentStatusColor,
+                  badgeBgColor: order.paymentStatusBgColor,
+                  badgeIcon: order.paymentStatusIcon,
+                ),
                 if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
                   _row('Delivery Type', '⚡ Quick Delivery'),
                 if ((double.tryParse(order.quickdeliverycharge) ?? 0) > 0 || order.quickDelivery == 1)
@@ -345,6 +359,50 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
               value,
               textAlign: TextAlign.end,
               style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rowWithBadge(
+    String title,
+    String value, {
+    required Color badgeColor,
+    required Color badgeBgColor,
+    IconData? badgeIcon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(title, style: const TextStyle(color: Colors.grey)),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: badgeBgColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: badgeColor.withValues(alpha: 0.25), width: 0.8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (badgeIcon != null) ...[
+                  Icon(badgeIcon, size: 11, color: badgeColor),
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: badgeColor,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

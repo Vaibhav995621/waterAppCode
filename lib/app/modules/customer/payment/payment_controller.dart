@@ -66,7 +66,8 @@ class PaymentController extends GetxController {
     floorCharges = args["floorCharges"] ?? 0;
     perFloorCharges = args["perFloorCharges"] ?? 0;
     fastDelivery = args["fastDelivery"] == true;
-    fastDeliveryCharges = args["quickDeliveryCharges"] ?? 0;
+    // Set quick delivery charges only if fast delivery is selected
+    fastDeliveryCharges = fastDelivery ? (args["quickDeliveryCharges"] ?? 0) : 0;
     bottleOriginalPrice = args["bottle_originalprice"]?.toString() ?? '0';
     bottleDiscountPrice = args["bottle_discountprice"]?.toString() ?? '0';
 
@@ -181,8 +182,10 @@ class PaymentController extends GetxController {
           onlinePaymentMode,
           status,
           transId,
+          response.data.id.toString(),
           plantype,
           status: status,
+
         );
         if (success) {
             if (status == "1") {
@@ -330,6 +333,7 @@ class PaymentController extends GetxController {
           paymentMode.toString(),
           paymentStatus,
           '',
+          "",
           plantype,
           isCod: isCod,
           isWallet: isWallet,
@@ -356,6 +360,7 @@ class PaymentController extends GetxController {
     String paymentmode,
     String paymentstatus,
     String trans_id,
+    String paymentId,
     int planType, {
     bool isCod = false,
     bool isWallet = false,
@@ -380,6 +385,7 @@ class PaymentController extends GetxController {
       "trans_id": trans_id,
       "floor": floor.toString(),
       "floorcharges": floorCharges.toString(),
+      "paymentId" : paymentId,
     };
     try {
       addressController.isPaymentLoading.value = true;

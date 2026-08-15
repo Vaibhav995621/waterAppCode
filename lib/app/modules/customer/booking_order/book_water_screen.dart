@@ -632,7 +632,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                 "floor": controller.floor,
                                 "floorCharges": controller.floorCharges,
                                 "fastDelivery": controller.fastDelivery.value,
-                                "quickDeliveryCharges": controller.quickDeliveryCharges,
+                                "quickDeliveryCharges": controller.fastDelivery.value ? controller.quickDeliveryCharges : '0',
                                 "bottle_originalprice": controller.bottle.originalprice,
                                 "bottle_discountprice": controller.bottle.discountprice,
                               },

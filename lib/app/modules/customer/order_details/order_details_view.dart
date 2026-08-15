@@ -77,24 +77,9 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                                 ),
                               ),
                             ),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                getPaymentStatusText(order.paymentstatus),
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                            _buildPaymentModeChip(order),
+                            const SizedBox(width: 6),
+                            _buildPaymentStatusChip(order),
                           ],
                         ),
 
@@ -172,8 +157,19 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                         ),
 
                         _detailRow(
+                          "Payment Mode",
+                          order.formattedPaymentMode,
+                          badgeColor: order.paymentModeColor,
+                          badgeBgColor: order.paymentModeBgColor,
+                          badgeIcon: order.paymentModeIcon,
+                        ),
+
+                        _detailRow(
                           "Payment Status",
-                          order.paymentstatus,
+                          order.formattedPaymentStatus,
+                          badgeColor: order.paymentStatusColor,
+                          badgeBgColor: order.paymentStatusBgColor,
+                          badgeIcon: order.paymentStatusIcon,
                         ),
 
                         if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
@@ -627,7 +623,14 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
     );
   }
 
-  Widget _detailRow(String title, String value, {VoidCallback? onCallTap}) {
+  Widget _detailRow(
+    String title,
+    String value, {
+    VoidCallback? onCallTap,
+    Color? badgeColor,
+    Color? badgeBgColor,
+    IconData? badgeIcon,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -642,17 +645,44 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                      fontSize: 14,
+                if (badgeColor != null && badgeBgColor != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: badgeBgColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: badgeColor.withValues(alpha: 0.25), width: 0.8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (badgeIcon != null) ...[
+                          Icon(badgeIcon, size: 12, color: badgeColor),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          value,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: badgeColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      value,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
-                ),
                 if (onCallTap != null && value.isNotEmpty && value != "N/A" && value != "null") ...[
                   const SizedBox(width: 8),
                   InkWell(
@@ -672,6 +702,58 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentModeChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentModeBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentModeColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentModeIcon, size: 11, color: order.paymentModeColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentMode,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentModeColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentStatusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentStatusColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentStatusIcon, size: 11, color: order.paymentStatusColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentStatus,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentStatusColor,
             ),
           ),
         ],

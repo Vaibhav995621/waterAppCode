@@ -13,19 +13,21 @@ class OrderList {
 
   factory OrderList.fromJson(Map<String, dynamic> json) {
     return OrderList(
-      statusCode: json['status_code'] ?? '',
-      message: json['message'] ?? '',
-      data: json['data'] != null
+      statusCode: json['status_code']?.toString() ?? json['statusCode']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      data: json['data'] != null && json['data'] is List
           ? List<Order>.from(
-        json['data'].map((x) => Order.fromJson(x)),
-      )
+              (json['data'] as List)
+                  .where((x) => x is Map<String, dynamic>)
+                  .map((x) => Order.fromJson(x as Map<String, dynamic>)),
+            )
           : [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'statusCode': statusCode,
+      'status_code': statusCode,
       'message': message,
       'data': data.map((x) => x.toJson()).toList(),
     };

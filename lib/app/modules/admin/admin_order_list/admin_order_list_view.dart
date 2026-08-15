@@ -280,7 +280,7 @@ class AdminOrderListView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// ── Top Header ── Order number + Order Status chip
+            /// ── Top Header ── Order number + Payment Mode & Payment Status chips
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Row(
@@ -296,7 +296,9 @@ class AdminOrderListView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _buildPaymentModeChip(order.paymentmode),
+                  _buildPaymentModeChip(order),
+                  const SizedBox(width: 6),
+                  _buildPaymentStatusChip(order),
                 ],
               ),
             ),
@@ -681,29 +683,94 @@ class AdminOrderListView extends StatelessWidget {
     return DateFormat('dd MMM yyyy').format(date);
   }
 
-  /// Payment mode chip: 0=COD, 1=Online, 2=Subscribe, 3=Wallet
-  Widget _buildPaymentModeChip
-      (int mode) {
-    final Map<int, _PaymentModeInfo> modeMap = {
-      0: _PaymentModeInfo('COD', const Color(0xffE65100), const Color(0xffFFF3E0)),
-      1: _PaymentModeInfo('Online', const Color(0xff2E7D32), const Color(0xffE8F5E9)),
-      2: _PaymentModeInfo('Subscribed', const Color(0xffC62828), const Color(0xffFFEBEE)),
-      3: _PaymentModeInfo('Wallet', const Color(0xff6A1B9A), const Color(0xffF3E5F5)),
-    };
-    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+  /// Payment mode chip: Online, COD, Card, Wallet, UPI, etc.
+  Widget _buildPaymentModeChip(dynamic modeOrOrder) {
+    if (modeOrOrder is Order) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: modeOrOrder.paymentModeBgColor,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: modeOrOrder.paymentModeColor.withValues(alpha: 0.25), width: 0.8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(modeOrOrder.paymentModeIcon, size: 11, color: modeOrOrder.paymentModeColor),
+            const SizedBox(width: 4),
+            Text(
+              modeOrOrder.formattedPaymentMode,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: modeOrOrder.paymentModeColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final str = modeOrOrder.toString().toLowerCase();
+    Color fg = const Color(0xff1565C0);
+    Color bg = const Color(0xffE3F2FD);
+    String label = modeOrOrder.toString();
+    if (str == '0' || str == 'cod' || str == 'cash') {
+      label = 'COD';
+      fg = const Color(0xffE65100);
+      bg = const Color(0xffFFF3E0);
+    } else if (str == '1' || str == 'online') {
+      label = 'Online';
+      fg = const Color(0xff1565C0);
+      bg = const Color(0xffE3F2FD);
+    } else if (str == '2' || str == 'card' || str == 'subscribed' || str == 'subscribe') {
+      label = 'Card';
+      fg = const Color(0xff00838F);
+      bg = const Color(0xffE0F7FA);
+    } else if (str == '3' || str == 'wallet') {
+      label = 'Wallet';
+      fg = const Color(0xff6A1B9A);
+      bg = const Color(0xffF3E5F5);
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: info.bg,
+        color: bg,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        info.label,
+        label,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: info.fg,
+          color: fg,
         ),
+      ),
+    );
+  }
+
+  /// Payment status chip: Paid, Pending, Failed, etc.
+  Widget _buildPaymentStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentStatusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentStatusColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentStatusIcon, size: 11, color: order.paymentStatusColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentStatus,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentStatusColor,
+            ),
+          ),
+        ],
       ),
     );
   }

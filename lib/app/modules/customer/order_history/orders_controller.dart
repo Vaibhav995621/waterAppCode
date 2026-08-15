@@ -98,11 +98,25 @@ class OrdersController extends GetxController {
 
   /// ✅ Status Color
   Color getStatusColor(String status) {
-    switch (status) {
-      case 'Failed':
-        return Colors.red;
-      default:
+    switch (status.trim().toLowerCase()) {
+      case 'paid':
+      case 'success':
+      case 'completed':
+      case '1':
         return Colors.green;
+      case 'failed':
+      case 'declined':
+      case 'cancelled':
+      case 'canceled':
+      case '2':
+        return Colors.red;
+      case 'pending':
+      case 'unpaid':
+      case 'processing':
+      case '0':
+        return Colors.orange;
+      default:
+        return Colors.blue;
     }
   }
 

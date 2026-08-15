@@ -540,12 +540,64 @@ class OrderTile extends StatelessWidget {
     }
   }
 
+  Widget _buildPaymentModeChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentModeBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentModeColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentModeIcon, size: 11, color: order.paymentModeColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentMode,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentModeColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentStatusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentStatusColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentStatusIcon, size: 11, color: order.paymentStatusColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentStatus,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentStatusColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildStatusChip(String status) {
     Color bgColor;
     Color textColor;
 
     switch (status.toLowerCase()) {
-      case 'Failed':
+      case 'pending':
         bgColor = Colors.orange.shade100;
         textColor = Colors.orange.shade800;
         break;
@@ -566,10 +618,7 @@ class OrderTile extends StatelessWidget {
         break;
 
       case 'cancelled':
-        bgColor = Colors.red.shade100;
-        textColor = Colors.red.shade800;
-        break;
-      case 'Failed':
+      case 'failed':
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
         break;
@@ -631,7 +680,7 @@ class OrderTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Order ID + Status
+            /// Header: Order ID + Payment Mode & Payment Status
             Row(
               children: [
                 Expanded(
@@ -644,7 +693,9 @@ class OrderTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                buildStatusChip(order.paymentstatus),
+                _buildPaymentModeChip(order),
+                const SizedBox(width: 6),
+                _buildPaymentStatusChip(order),
               ],
             ),
 

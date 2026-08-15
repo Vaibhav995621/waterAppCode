@@ -85,26 +85,6 @@ class WalletController extends GetxController {
           return;
         }
       }
-
-      // Fallback to payment history API if wallet transactions list is empty
-      final history = await _repo.getPaymentHistory();
-      if (history.statusCode == "200") {
-
-        final mappedList = history.data.map((item) {
-          final isCredit = item.subscriptionid > 0;
-          return WalletTransaction(
-            title: isCredit ? "Added Money" : "Order Payment",
-            subtitle: isCredit ? "From Payment" : "Order #${item.orderid}",
-            amount: double.tryParse(item.totalamount) ?? 0.0,
-            date: item.transDate,
-            isCredit: isCredit,
-          );
-        }).toList();
-        transactions.assignAll(mappedList);
-
-      }
-    } catch (e) {
-
     } finally {
       isLoading.value = false;
     }

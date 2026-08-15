@@ -296,27 +296,92 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
     );
   }
 
-  Widget _buildPaymentModeChip(int mode) {
-    final Map<int, _PaymentModeInfo> modeMap = {
-      0: const _PaymentModeInfo('COD', Color(0xffE65100), Color(0xffFFF3E0)),
-      1: const _PaymentModeInfo('Online', Color(0xff2E7D32), Color(0xffE8F5E9)),
-      2: const _PaymentModeInfo('Subscribed', Color(0xffC62828), Color(0xffFFEBEE)),
-      3: const _PaymentModeInfo('Wallet', Color(0xff6A1B9A), Color(0xffF3E5F5)),
-    };
-    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+  Widget _buildPaymentModeChip(dynamic modeOrOrder) {
+    if (modeOrOrder is Order) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: modeOrOrder.paymentModeBgColor,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: modeOrOrder.paymentModeColor.withValues(alpha: 0.25), width: 0.8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(modeOrOrder.paymentModeIcon, size: 11, color: modeOrOrder.paymentModeColor),
+            const SizedBox(width: 4),
+            Text(
+              modeOrOrder.formattedPaymentMode,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: modeOrOrder.paymentModeColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final str = modeOrOrder.toString().toLowerCase();
+    Color fg = const Color(0xff1565C0);
+    Color bg = const Color(0xffE3F2FD);
+    String label = modeOrOrder.toString();
+    if (str == '0' || str == 'cod' || str == 'cash') {
+      label = 'COD';
+      fg = const Color(0xffE65100);
+      bg = const Color(0xffFFF3E0);
+    } else if (str == '1' || str == 'online') {
+      label = 'Online';
+      fg = const Color(0xff1565C0);
+      bg = const Color(0xffE3F2FD);
+    } else if (str == '2' || str == 'card' || str == 'subscribed' || str == 'subscribe') {
+      label = 'Card';
+      fg = const Color(0xff00838F);
+      bg = const Color(0xffE0F7FA);
+    } else if (str == '3' || str == 'wallet') {
+      label = 'Wallet';
+      fg = const Color(0xff6A1B9A);
+      bg = const Color(0xffF3E5F5);
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: info.bg,
+        color: bg,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        info.label,
+        label,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: info.fg,
+          color: fg,
         ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.paymentStatusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.paymentStatusColor.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(order.paymentStatusIcon, size: 11, color: order.paymentStatusColor),
+          const SizedBox(width: 4),
+          Text(
+            order.formattedPaymentStatus,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: order.paymentStatusColor,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -381,7 +446,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Order ID + Payment Mode Chip + Status
+            /// Header: Order ID + Payment Mode & Payment Status
             Row(
               children: [
                 Expanded(
@@ -394,12 +459,9 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                     ),
                   ),
                 ),
-                 _buildPaymentModeChip(order.paymentmode),
+                _buildPaymentModeChip(order),
                 const SizedBox(width: 6),
-                // buildStatusChip(
-                //   order.paymentstatus,
-                //   controller.getStatusColor(order.paymentstatus),
-                // ),
+                _buildPaymentStatusChip(order),
               ],
             ),
 

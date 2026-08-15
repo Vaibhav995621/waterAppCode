@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AdminOrderListModel {
   String statusCode;
   String message;
@@ -10,12 +12,12 @@ class AdminOrderListModel {
   });
 
   factory AdminOrderListModel.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return AdminOrderListModel(
-      statusCode: json['status_code']?.toString() ?? '',
-      message: json['message'] ?? '',
-      data: Data.fromJson(json['data'] ?? {}),
+      statusCode: json['status_code']?.toString() ?? json['statusCode']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      data: Data.fromJson(json['data'] is Map<String, dynamic> ? json['data'] : {}),
     );
   }
 
@@ -61,31 +63,37 @@ class Data {
       order: isSingleOrder ? Order.fromJson(json) : null,
 
       allOrders: (json['all_orders'] as List? ?? [])
+          .where((e) => e is Map<String, dynamic>)
           .map((e) => Order.fromJson(e))
           .toList(),
 
       pendingOrders: (json['pending_orders'] as List? ?? [])
+          .where((e) => e is Map<String, dynamic>)
           .map((e) => Order.fromJson(e))
           .toList(),
 
       assignedOrders: (json['assigned_orders'] as List? ?? [])
+          .where((e) => e is Map<String, dynamic>)
           .map((e) => Order.fromJson(e))
           .toList(),
 
       outForDeliveryOrders:
-      (json['out_for_delivery_orders'] as List? ?? [])
-          .map((e) => Order.fromJson(e))
-          .toList(),
+          (json['out_for_delivery_orders'] as List? ?? [])
+              .where((e) => e is Map<String, dynamic>)
+              .map((e) => Order.fromJson(e))
+              .toList(),
 
       deliveredOrders:
-      (json['delivered_orders'] as List? ?? [])
-          .map((e) => Order.fromJson(e))
-          .toList(),
+          (json['delivered_orders'] as List? ?? [])
+              .where((e) => e is Map<String, dynamic>)
+              .map((e) => Order.fromJson(e))
+              .toList(),
 
       cancelledOrders:
-      (json['cancelled_orders'] as List? ?? [])
-          .map((e) => Order.fromJson(e))
-          .toList(),
+          (json['cancelled_orders'] as List? ?? [])
+              .where((e) => e is Map<String, dynamic>)
+              .map((e) => Order.fromJson(e))
+              .toList(),
     );
   }
 
@@ -94,25 +102,19 @@ class Data {
       return order!.toJson();
     }
     return {
-      'all_orders':
-      allOrders.map((e) => e.toJson()).toList(),
-      'pending_orders':
-      pendingOrders.map((e) => e.toJson()).toList(),
-      'assigned_orders':
-      assignedOrders.map((e) => e.toJson()).toList(),
-      'out_for_delivery_orders':
-      outForDeliveryOrders.map((e) => e.toJson()).toList(),
-      'delivered_orders':
-      deliveredOrders.map((e) => e.toJson()).toList(),
-      'cancelled_orders':
-      cancelledOrders.map((e) => e.toJson()).toList(),
+      'all_orders': allOrders.map((e) => e.toJson()).toList(),
+      'pending_orders': pendingOrders.map((e) => e.toJson()).toList(),
+      'assigned_orders': assignedOrders.map((e) => e.toJson()).toList(),
+      'out_for_delivery_orders': outForDeliveryOrders.map((e) => e.toJson()).toList(),
+      'delivered_orders': deliveredOrders.map((e) => e.toJson()).toList(),
+      'cancelled_orders': cancelledOrders.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class Order {
-  // paymentmode: 0=Cash, 1=UPI, 2=Card, 3=Online
-  int paymentmode;
+  // paymentmode: e.g. "Online", "COD", "Cash", "Card", "Wallet", "UPI", "0", "1", "2", "3"
+  String paymentmode;
   int id;
   int customerid;
   String ordernumber;
@@ -188,66 +190,108 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'] ?? 0,
-      customerid: json['customerid'] ?? 0,
-      ordernumber: json['ordernumber'] ?? '',
-      waterbottleName: (json['waterbottle_name'] ?? json['waterbottel_name'] ?? json['waterbottleName'] ?? json['waterbottelName'] ?? json['waterbottlename'] ?? json['waterbottelname'] ?? json['bottle_name'] ?? json['bottel_name'] ?? json['bottleName'] ?? json['bottelName'] ?? json['name'] ?? '').toString(),
-      waterbottleid: json['waterbottleid'] ?? 0,
-      price: json['price']?.toString() ?? '',
+      id: int.tryParse((json['id'] ?? '0').toString()) ?? 0,
+      customerid: int.tryParse((json['customerid'] ?? json['customer_id'] ?? '0').toString()) ?? 0,
+      ordernumber: (json['ordernumber'] ?? json['order_number'] ?? '').toString(),
+      waterbottleName: (json['waterbottle_name'] ??
+              json['waterbottel_name'] ??
+              json['waterbottleName'] ??
+              json['waterbottelName'] ??
+              json['waterbottlename'] ??
+              json['waterbottelname'] ??
+              json['bottle_name'] ??
+              json['bottel_name'] ??
+              json['bottleName'] ??
+              json['bottelName'] ??
+              json['name'] ??
+              '')
+          .toString(),
+      waterbottleid: int.tryParse((json['waterbottleid'] ?? json['waterbottle_id'] ?? json['waterbottelid'] ?? json['waterbottel_id'] ?? '0').toString()) ?? 0,
+      price: (json['price'] ?? '0').toString(),
       bottleprice: (json['bottleprice'] ?? json['bottle_price'] ?? json['bottlePrice'] ?? '0').toString(),
       floorprice: (json['floorprice'] ?? json['floor_price'] ?? json['floorPrice'] ?? json['floorcharges'] ?? json['floor_charges'] ?? json['floorCharges'] ?? '0').toString(),
       quickdeliverycharge: (json['quickdeliverycharge'] ??
-          json['quick_delivery_charge'] ??
-          json['quickDeliveryCharge'] ??
-          json['quick_delivery_charges'] ??
-          json['quickDeliveryCharges'] ??
-          json['quickdeliverycharges'] ??
-          json['fastdeliverycharges'] ??
-          json['fast_delivery_charges'] ??
-          json['fastDeliveryCharges'] ??
-          json['fastdeliverycharge'] ??
-          json['fast_delivery_charge'] ??
-          json['fastDeliveryCharge'] ??
-          '0').toString(),
+              json['quick_delivery_charge'] ??
+              json['quickDeliveryCharge'] ??
+              json['quick_delivery_charges'] ??
+              json['quickDeliveryCharges'] ??
+              json['quickdeliverycharges'] ??
+              json['fastdeliverycharges'] ??
+              json['fast_delivery_charges'] ??
+              json['fastDeliveryCharges'] ??
+              json['fastdeliverycharge'] ??
+              json['fast_delivery_charge'] ??
+              json['fastDeliveryCharge'] ??
+              '0')
+          .toString(),
       quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       deliverydate: DateTime.tryParse(
-        json['deliverydate']?.toString() ?? '',
-      ) ??
+            json['deliverydate']?.toString() ?? json['delivery_date']?.toString() ?? '',
+          ) ??
           DateTime.now(),
-      deliverytime: json['deliverytime']?.toString() ?? '',
-      addressid: int.tryParse(json['addressid']?.toString() ?? '0') ?? 0,
-      assignedto: int.tryParse(json['assignedto']?.toString() ?? '0') ?? 0,
-      paymentstatus: (json['paymentstatus'] ?? json['payment_status'] ?? '0').toString(),
-      paymentmode: int.tryParse(json['paymentmode']?.toString() ?? '0') ?? 0,
-      status: int.tryParse(json['status']?.toString() ?? '0') ?? 0,
+      deliverytime: (json['deliverytime'] ?? json['delivery_time'] ?? '').toString(),
+      addressid: int.tryParse((json['addressid'] ?? json['address_id'] ?? '0').toString()) ?? 0,
+      assignedto: int.tryParse((json['assignedto'] ?? json['assigned_to'] ?? '0').toString()) ?? 0,
+      paymentstatus: (json['paymentstatus'] ?? json['payment_status'] ?? '').toString(),
+      paymentmode: (json['paymentmode'] ?? json['payment_mode'] ?? '').toString(),
+      status: int.tryParse((json['status'] ?? '0').toString()) ?? 0,
       isSchedule: int.tryParse((json['is_schedule'] ?? json['isSchedule'] ?? json['isschedule'] ?? '').toString()) ?? (json['is_schedule'] == true ? 1 : 0),
-      quickDelivery: (int.tryParse((json['quick_delivery'] ?? json['quickDelivery'] ?? json['quickdelivery'] ?? '').toString()) ?? (json['quick_delivery'] == true ? 1 : 0)) == 1 || ((double.tryParse((json['quickdeliverycharge'] ?? json['quick_delivery_charge'] ?? json['quickDeliveryCharge'] ?? json['quick_delivery_charges'] ?? json['quickDeliveryCharges'] ?? json['quickdeliverycharges'] ?? json['fastdeliverycharges'] ?? json['fast_delivery_charges'] ?? json['fastDeliveryCharges'] ?? json['fastdeliverycharge'] ?? json['fast_delivery_charge'] ?? json['fastDeliveryCharge'] ?? '0').toString()) ?? 0) > 0) ? 1 : 0,
-      custFloornumber: int.tryParse((json['cust_floornumber'] ?? json['custFloornumber'] ?? json['floor'] ?? json['floornumber'] ?? json['customer_details']?['address']?['floornumber'] ?? '').toString()) ?? 0,
-      custIsLiftAvailable: int.tryParse((json['cust_is_lift_available'] ?? json['custIsLiftAvailable'] ?? json['is_lift_available'] ?? json['isLiftAvailable'] ?? json['customer_details']?['address']?['is_lift_available'] ?? '').toString()) ?? (json['cust_is_lift_available'] == true || json['is_lift_available'] == true ? 1 : 0),
+      quickDelivery: (int.tryParse((json['quick_delivery'] ?? json['quickDelivery'] ?? json['quickdelivery'] ?? '').toString()) ?? (json['quick_delivery'] == true ? 1 : 0)) == 1 ||
+              ((double.tryParse((json['quickdeliverycharge'] ??
+                          json['quick_delivery_charge'] ??
+                          json['quickDeliveryCharge'] ??
+                          json['quick_delivery_charges'] ??
+                          json['quickDeliveryCharges'] ??
+                          json['quickdeliverycharges'] ??
+                          json['fastdeliverycharges'] ??
+                          json['fast_delivery_charges'] ??
+                          json['fastDeliveryCharges'] ??
+                          json['fastdeliverycharge'] ??
+                          json['fast_delivery_charge'] ??
+                          json['fastDeliveryCharge'] ??
+                          '0')
+                      .toString()) ??
+                  0) >
+              0)
+          ? 1
+          : 0,
+      custFloornumber: int.tryParse((json['cust_floornumber'] ??
+              json['custFloornumber'] ??
+              json['floor'] ??
+              json['floornumber'] ??
+              (json['customer_details'] is Map && json['customer_details']['address'] is Map ? json['customer_details']['address']['floornumber'] : '') ??
+              '')
+          .toString()) ?? 0,
+      custIsLiftAvailable: int.tryParse((json['cust_is_lift_available'] ??
+              json['custIsLiftAvailable'] ??
+              json['is_lift_available'] ??
+              json['isLiftAvailable'] ??
+              (json['customer_details'] is Map && json['customer_details']['address'] is Map ? json['customer_details']['address']['is_lift_available'] : '') ??
+              '')
+          .toString()) ??
+          (json['cust_is_lift_available'] == true || json['is_lift_available'] == true ? 1 : 0),
       cdate: DateTime.tryParse(
-        json['cdate'] ?? '',
-      ) ??
+            (json['cdate'] ?? json['created_at'] ?? '').toString(),
+          ) ??
           DateTime.now(),
       modifiedDate: DateTime.tryParse(
-        (json['modified_date'] ?? json['modifiedDate'] ?? '').toString(),
-      ) ??
+            (json['modified_date'] ?? json['modifiedDate'] ?? json['updated_at'] ?? '').toString(),
+          ) ??
           DateTime.now(),
-      customerName: (json['customer_name'] ?? json['customerName'] ?? '').toString(),
-      deliveryPartnerName:
-          (json['delivery_partner_name'] ?? json['deliveryPartnerName'] ?? '').toString(),
+      customerName: (json['customer_name'] ?? json['customerName'] ?? (json['customer_details'] is Map ? json['customer_details']['fullname'] : '') ?? '').toString(),
+      deliveryPartnerName: (json['delivery_partner_name'] ?? json['deliveryPartnerName'] ?? (json['delivery_details'] is Map ? json['delivery_details']['delivery_partner_name'] : '') ?? '').toString(),
       statusText: (json['status_text'] ?? json['statusText'] ?? '').toString(),
-      deliveryPartnerId:
-          json['delivery_partner_id'] ?? json['deliveryPartnerId'] ?? 0,
-      customerDetails: CustomerDetails.fromJson(
-        json['customer_details'] ?? {},
-      ),
-      deliveryDetails: DeliveryDetails.fromJson(
-        json['delivery_details'] ?? {},
-      ),
+      deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ?? json['deliveryPartnerId'] ?? (json['delivery_details'] is Map ? json['delivery_details']['delivery_partner_id'] : '') ?? '0').toString()) ?? 0,
+      customerDetails: json['customer_details'] is Map<String, dynamic>
+          ? CustomerDetails.fromJson(json['customer_details'])
+          : CustomerDetails.empty(),
+      deliveryDetails: json['delivery_details'] is Map<String, dynamic>
+          ? DeliveryDetails.fromJson(json['delivery_details'])
+          : DeliveryDetails.empty(),
       bottleWeight: (json['bottle_weight'] ?? json['bottel_weight'] ?? json['bottleWeight'] ?? json['bottelWeight'] ?? json['bottleweight'] ?? json['bottelweight'] ?? json['weight'] ?? '').toString(),
       bottleOriginalprice: (json['bottle_originalprice'] ?? json['bottel_originalprice'] ?? json['bottleOriginalprice'] ?? json['bottelOriginalprice'] ?? json['originalprice'] ?? '').toString(),
       bottleDiscountprice: (json['bottle_discountprice'] ?? json['bottel_discountprice'] ?? json['bottleDiscountprice'] ?? json['bottelDiscountprice'] ?? json['discountprice'] ?? json['bottleprice'] ?? json['bottle_price'] ?? json['bottlePrice'] ?? '').toString(),
-      totalbottleQuantity: int.tryParse((json['totalbottle_quantity'] ?? json['totalbottel_quantity'] ?? json['totalbottleQuantity'] ?? json['totalbottelQuantity'] ?? json['totalbottlequantity'] ?? json['totalbottelquantity'] ?? '').toString()) ?? 0,
+      totalbottleQuantity: int.tryParse((json['totalbottle_quantity'] ?? json['totalbottel_quantity'] ?? json['totalbottleQuantity'] ?? json['totalbottelQuantity'] ?? json['totalbottlequantity'] ?? json['totalbottelquantity'] ?? '0').toString()) ?? 0,
       bottleDescription: (json['bottle_description'] ?? json['bottel_description'] ?? json['bottleDescription'] ?? json['bottelDescription'] ?? json['bottledescription'] ?? json['botteldescription'] ?? json['description'] ?? json['waterbottle_description'] ?? json['waterbottel_description'] ?? json['waterbottle_desc'] ?? json['waterbottel_desc'] ?? '').toString(),
     );
   }
@@ -290,6 +334,170 @@ class Order {
       'bottle_description': bottleDescription,
     };
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PAYMENT MODE HELPERS (Color, Label, Icon)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  String get formattedPaymentMode {
+    final mode = paymentmode.trim().toLowerCase();
+    if (mode == '0' || mode == 'cod' || mode == 'cash' || mode == 'cash on delivery') return 'COD';
+    if (mode == '1' || mode == 'online') return 'Online';
+    if (mode == '2' || mode == 'card' || mode == 'debit card' || mode == 'credit card') return 'Card';
+    if (mode == '3' || mode == 'wallet') return 'Wallet';
+    if (mode == 'upi') return 'UPI';
+    if (mode == 'subscribe' || mode == 'subscribed' || mode == 'subscription') return 'Subscription';
+    if (paymentmode.trim().isEmpty) return 'N/A';
+    return paymentmode;
+  }
+
+  Color get paymentModeColor {
+    final mode = paymentmode.trim().toLowerCase();
+    if (mode == '0' || mode == 'cod' || mode == 'cash' || mode == 'cash on delivery') {
+      return const Color(0xffE65100); // Deep Orange
+    }
+    if (mode == '1' || mode == 'online') {
+      return const Color(0xff1565C0); // Vibrant Blue
+    }
+    if (mode == '2' || mode == 'card' || mode == 'debit card' || mode == 'credit card') {
+      return const Color(0xff00838F); // Cyan/Teal
+    }
+    if (mode == '3' || mode == 'wallet') {
+      return const Color(0xff6A1B9A); // Purple
+    }
+    if (mode == 'upi') {
+      return const Color(0xff0277BD); // Light Blue / UPI
+    }
+    if (mode == 'subscribe' || mode == 'subscribed' || mode == 'subscription') {
+      return const Color(0xff4527A0); // Deep Purple
+    }
+    return const Color(0xff455A64); // Blue Grey
+  }
+
+  Color get paymentModeBgColor {
+    final mode = paymentmode.trim().toLowerCase();
+    if (mode == '0' || mode == 'cod' || mode == 'cash' || mode == 'cash on delivery') {
+      return const Color(0xffFFF3E0);
+    }
+    if (mode == '1' || mode == 'online') {
+      return const Color(0xffE3F2FD);
+    }
+    if (mode == '2' || mode == 'card' || mode == 'debit card' || mode == 'credit card') {
+      return const Color(0xffE0F7FA);
+    }
+    if (mode == '3' || mode == 'wallet') {
+      return const Color(0xffF3E5F5);
+    }
+    if (mode == 'upi') {
+      return const Color(0xffE1F5FE);
+    }
+    if (mode == 'subscribe' || mode == 'subscribed' || mode == 'subscription') {
+      return const Color(0xffEDE7F6);
+    }
+    return const Color(0xffECEFF1);
+  }
+
+  IconData get paymentModeIcon {
+    final mode = paymentmode.trim().toLowerCase();
+    if (mode == '0' || mode == 'cod' || mode == 'cash' || mode == 'cash on delivery') {
+      return Icons.payments_outlined;
+    }
+    if (mode == '1' || mode == 'online') {
+      return Icons.language_rounded;
+    }
+    if (mode == '2' || mode == 'card' || mode == 'debit card' || mode == 'credit card') {
+      return Icons.credit_card_rounded;
+    }
+    if (mode == '3' || mode == 'wallet') {
+      return Icons.account_balance_wallet_rounded;
+    }
+    if (mode == 'upi') {
+      return Icons.qr_code_2_rounded;
+    }
+    if (mode == 'subscribe' || mode == 'subscribed' || mode == 'subscription') {
+      return Icons.card_membership_rounded;
+    }
+    return Icons.payment_rounded;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PAYMENT STATUS HELPERS (Color, Label, Icon)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  String get formattedPaymentStatus {
+    final status = paymentstatus.trim().toLowerCase();
+    if (status == '1' || status == 'paid' || status == 'success' || status == 'completed') {
+      return 'Paid';
+    }
+    if (status == '0' || status == 'pending' || status == 'unpaid' || status == 'processing') {
+      return 'Pending';
+    }
+    if (status == '2' || status == 'failed' || status == 'declined') {
+      return 'Failed';
+    }
+    if (status == 'cancelled' || status == 'canceled') {
+      return 'Cancelled';
+    }
+    if (status == 'refunded' || status == 'refund') {
+      return 'Refunded';
+    }
+    if (paymentstatus.trim().isEmpty) return 'Pending';
+    return paymentstatus;
+  }
+
+  Color get paymentStatusColor {
+    final status = paymentstatus.trim().toLowerCase();
+    if (status == '1' || status == 'paid' || status == 'success' || status == 'completed') {
+      return const Color(0xff2E7D32); // Forest Green
+    }
+    if (status == '0' || status == 'pending' || status == 'unpaid' || status == 'processing') {
+      return const Color(0xffE65100); // Amber / Orange
+    }
+    if (status == '2' || status == 'failed' || status == 'declined' || status == 'cancelled' || status == 'canceled') {
+      return const Color(0xffC62828); // Vibrant Red
+    }
+    if (status == 'refunded' || status == 'refund') {
+      return const Color(0xff00838F); // Teal
+    }
+    return const Color(0xff455A64); // Slate Grey
+  }
+
+  Color get paymentStatusBgColor {
+    final status = paymentstatus.trim().toLowerCase();
+    if (status == '1' || status == 'paid' || status == 'success' || status == 'completed') {
+      return const Color(0xffE8F5E9);
+    }
+    if (status == '0' || status == 'pending' || status == 'unpaid' || status == 'processing') {
+      return const Color(0xffFFF3E0);
+    }
+    if (status == '2' || status == 'failed' || status == 'declined' || status == 'cancelled' || status == 'canceled') {
+      return const Color(0xffFFEBEE);
+    }
+    if (status == 'refunded' || status == 'refund') {
+      return const Color(0xffE0F7FA);
+    }
+    return const Color(0xffECEFF1);
+  }
+
+  IconData get paymentStatusIcon {
+    final status = paymentstatus.trim().toLowerCase();
+    if (status == '1' || status == 'paid' || status == 'success' || status == 'completed') {
+      return Icons.check_circle_rounded;
+    }
+    if (status == '0' || status == 'pending' || status == 'unpaid' || status == 'processing') {
+      return Icons.schedule_rounded;
+    }
+    if (status == '2' || status == 'failed' || status == 'declined') {
+      return Icons.error_rounded;
+    }
+    if (status == 'cancelled' || status == 'canceled') {
+      return Icons.cancel_rounded;
+    }
+    if (status == 'refunded' || status == 'refund') {
+      return Icons.replay_rounded;
+    }
+    return Icons.info_rounded;
+  }
 }
 
 class CustomerDetails {
@@ -317,25 +525,40 @@ class CustomerDetails {
     required this.address,
   });
 
-  factory CustomerDetails.fromJson(
-      Map<String, dynamic> json,
-      ) {
+  factory CustomerDetails.empty() {
     return CustomerDetails(
-      id: json['id'] ?? 0,
-      fullname: json['fullname'] ?? '',
-      mobile: json['mobile'] ?? '',
-      email: json['email'] ?? '',
-      photo: json['photo'] ?? '',
-      planbottlequantity: json['planbottlequantity'] ?? 0,
-      status: json['status'] ?? 0,
+      id: 0,
+      fullname: '',
+      mobile: '',
+      email: '',
+      photo: '',
+      planbottlequantity: 0,
+      status: 0,
+      cdate: DateTime.now(),
+      role: 0,
+      address: Address.empty(),
+    );
+  }
+
+  factory CustomerDetails.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return CustomerDetails(
+      id: int.tryParse((json['id'] ?? '0').toString()) ?? 0,
+      fullname: (json['fullname'] ?? json['full_name'] ?? json['name'] ?? '').toString(),
+      mobile: (json['mobile'] ?? json['mobile_no'] ?? json['phone'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      photo: (json['photo'] ?? json['image'] ?? '').toString(),
+      planbottlequantity: int.tryParse((json['planbottlequantity'] ?? json['plan_bottle_quantity'] ?? '0').toString()) ?? 0,
+      status: int.tryParse((json['status'] ?? '0').toString()) ?? 0,
       cdate: DateTime.tryParse(
-        json['cdate'] ?? '',
-      ) ??
+            (json['cdate'] ?? json['created_at'] ?? '').toString(),
+          ) ??
           DateTime.now(),
-      role: json['role'] ?? 0,
-      address: Address.fromJson(
-        json['address'] ?? {},
-      ),
+      role: int.tryParse((json['role'] ?? '0').toString()) ?? 0,
+      address: json['address'] is Map<String, dynamic>
+          ? Address.fromJson(json['address'])
+          : Address.empty(),
     );
   }
 
@@ -361,9 +584,9 @@ class Address {
   String housenumber;
   String flatnumber;
   String societyname;
-  int galinumber;          // int (was String)
-  String houseFlatFloorNo; // house_flat_floor_no
-  String societyGaliBlockNo; // society_gali_block_no
+  int galinumber;
+  String houseFlatFloorNo;
+  String societyGaliBlockNo;
   int localityid;
   String sectornumber;
   int sectorid;
@@ -375,7 +598,7 @@ class Address {
   String city;
   String state;
   String pincode;
-  int isDefaultAddress;    // key: is_default_address
+  int isDefaultAddress;
   String photo;
   String imagepath;
 
@@ -404,30 +627,57 @@ class Address {
     this.imagepath = '',
   });
 
-  factory Address.fromJson(
-      Map<String, dynamic> json,
-      ) {
+  factory Address.empty() {
     return Address(
-      fulladdress: json['fulladdress'] ?? '',
-      floornumber: json['floornumber'] ?? 0,
-      housenumber: json['housenumber']?.toString() ?? '',
-      flatnumber: json['flatnumber']?.toString() ?? '',
-      societyname: json['societyname']?.toString() ?? '',
-      galinumber: json['galinumber'] ?? 0,
-      houseFlatFloorNo: json['house_flat_floor_no']?.toString() ?? '',
-      societyGaliBlockNo: json['society_gali_block_no']?.toString() ?? '',
-      localityid: json['localityid'] ?? 0,
-      sectornumber: json['sectornumber']?.toString() ?? '',
-      sectorid: json['sectorid'] ?? 0,
-      landmark: json['landmark']?.toString() ?? '',
-      stateid: json['stateid'] ?? 0,
-      districtid: json['districtid'] ?? 0,
-      subdivisionid: json['subdivisionid'] ?? 0,
-      subdivisionname: json['subdivisionname'] ?? '',
-      city: json['city']?.toString() ?? '',
-      state: json['state']?.toString() ?? '',
-      pincode: json['pincode']?.toString() ?? '',
-      isDefaultAddress: json['is_default_address'] ?? json['isDefaultAddress'] ?? 0,
+      fulladdress: '',
+      floornumber: 0,
+      housenumber: '',
+      flatnumber: '',
+      societyname: '',
+      galinumber: 0,
+      houseFlatFloorNo: '',
+      societyGaliBlockNo: '',
+      localityid: 0,
+      sectornumber: '',
+      sectorid: 0,
+      landmark: '',
+      stateid: 0,
+      districtid: 0,
+      subdivisionid: 0,
+      subdivisionname: '',
+      city: '',
+      state: '',
+      pincode: '',
+      isDefaultAddress: 0,
+      photo: '',
+      imagepath: '',
+    );
+  }
+
+  factory Address.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return Address(
+      fulladdress: (json['fulladdress'] ?? json['full_address'] ?? json['address'] ?? '').toString(),
+      floornumber: int.tryParse((json['floornumber'] ?? '0').toString()) ?? 0,
+      housenumber: (json['housenumber'] ?? '').toString(),
+      flatnumber: (json['flatnumber'] ?? '').toString(),
+      societyname: (json['societyname'] ?? '').toString(),
+      galinumber: int.tryParse((json['galinumber'] ?? '0').toString()) ?? 0,
+      houseFlatFloorNo: (json['house_flat_floor_no'] ?? json['houseFlatFloorNo'] ?? '').toString(),
+      societyGaliBlockNo: (json['society_gali_block_no'] ?? json['societyGaliBlockNo'] ?? '').toString(),
+      localityid: int.tryParse((json['localityid'] ?? '0').toString()) ?? 0,
+      sectornumber: (json['sectornumber'] ?? '').toString(),
+      sectorid: int.tryParse((json['sectorid'] ?? '0').toString()) ?? 0,
+      landmark: (json['landmark'] ?? '').toString(),
+      stateid: int.tryParse((json['stateid'] ?? '0').toString()) ?? 0,
+      districtid: int.tryParse((json['districtid'] ?? '0').toString()) ?? 0,
+      subdivisionid: int.tryParse((json['subdivisionid'] ?? '0').toString()) ?? 0,
+      subdivisionname: (json['subdivisionname'] ?? json['subdivision_name'] ?? '').toString(),
+      city: (json['city'] ?? '').toString(),
+      state: (json['state'] ?? '').toString(),
+      pincode: (json['pincode'] ?? '').toString(),
+      isDefaultAddress: int.tryParse((json['is_default_address'] ?? json['isDefaultAddress'] ?? '0').toString()) ?? (json['is_default_address'] == true ? 1 : 0),
       photo: (json['photo'] ?? json['image'] ?? json['house_photo'] ?? json['address_photo'] ?? json['address_image'] ?? '').toString(),
       imagepath: (json['imagepath'] ?? json['image_path'] ?? json['imagePath'] ?? '').toString(),
     );
@@ -482,23 +732,34 @@ class DeliveryDetails {
     required this.role,
   });
 
-  factory DeliveryDetails.fromJson(
-      Map<String, dynamic> json,
-      ) {
+  factory DeliveryDetails.empty() {
     return DeliveryDetails(
-      deliveryPartnerId:
-      json['delivery_partner_id'] ?? 0,
-      deliveryPartnerName:
-      json['delivery_partner_name'] ?? '',
-      mobileNo: json['mobile_no'] ?? '',
-      email: json['email'] ?? '',
-      photo: json['photo'] ?? '',
-      status: json['status'] ?? 0,
+      deliveryPartnerId: 0,
+      deliveryPartnerName: '',
+      mobileNo: '',
+      email: '',
+      photo: '',
+      status: 0,
+      cdate: DateTime.now(),
+      role: 0,
+    );
+  }
+
+  factory DeliveryDetails.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return DeliveryDetails(
+      deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ?? json['deliveryPartnerId'] ?? '0').toString()) ?? 0,
+      deliveryPartnerName: (json['delivery_partner_name'] ?? json['deliveryPartnerName'] ?? json['name'] ?? '').toString(),
+      mobileNo: (json['mobile_no'] ?? json['mobileNo'] ?? json['mobile'] ?? json['phone'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      photo: (json['photo'] ?? json['image'] ?? '').toString(),
+      status: int.tryParse((json['status'] ?? '0').toString()) ?? 0,
       cdate: DateTime.tryParse(
-        json['cdate'] ?? '',
-      ) ??
+            (json['cdate'] ?? json['created_at'] ?? '').toString(),
+          ) ??
           DateTime.now(),
-      role: json['role'] ?? 0,
+      role: int.tryParse((json['role'] ?? '0').toString()) ?? 0,
     );
   }
 
