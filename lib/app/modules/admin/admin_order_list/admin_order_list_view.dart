@@ -209,17 +209,33 @@ class AdminOrderListView extends StatelessWidget {
 
               return RefreshIndicator(
                 onRefresh: () => controller.getOrdersApi(controller.selectedSector.value),
-                child: ListView.builder(
-                  itemCount: orders.length,
-                  key: PageStorageKey(controller.activeTab.value),
-                  physics: const ClampingScrollPhysics(),
-                  addAutomaticKeepAlives: false,
-                  addRepaintBoundaries: true,
-                  addSemanticIndexes: false,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-                    return _buildOrderCard(context, order);
+                child: Builder(
+                  builder: (_) {
+                    final grouped = controller.groupOrdersByDate(orders);
+                    final dateKeys = grouped.keys.toList();
+
+                    return ListView.builder(
+                      key: PageStorageKey(controller.activeTab.value),
+                      physics: const ClampingScrollPhysics(),
+                      addAutomaticKeepAlives: false,
+                      addRepaintBoundaries: true,
+                      addSemanticIndexes: false,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      itemCount: dateKeys.length,
+                      itemBuilder: (context, groupIndex) {
+                        final dateKey = dateKeys[groupIndex];
+                        final groupOrders = grouped[dateKey]!;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateHeader(dateKey, groupOrders.length, const Color(0xff5E35B1)),
+                            ...groupOrders.map((order) => _buildOrderCard(context, order)),
+                            const SizedBox(height: 4),
+                          ],
+                        );
+                      },
+                    );
                   },
                 ),
               );
@@ -547,6 +563,50 @@ class AdminOrderListView extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDateHeader(String date, int count, Color accentColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_today_rounded, size: 14, color: accentColor),
+          const SizedBox(width: 6),
+          Text(
+            date,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: accentColor,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "$count order${count == 1 ? '' : 's'}",
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: accentColor,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+              color: accentColor.withValues(alpha: 0.2),
+              thickness: 1,
+            ),
+          ),
+        ],
       ),
     );
   }

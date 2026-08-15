@@ -156,13 +156,28 @@ class OrdersView extends GetView<OrdersController> {
                         onRefresh: () => controller.isActiveSelected.value
                             ? controller.getCustomerActiveOrder()
                             : controller.getCustomerHistoryOrder(),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: orders.length,
-                          itemBuilder: (context, index) {
-                            final order = orders[index];
+                        child: Builder(
+                          builder: (_) {
+                            final grouped = controller.groupOrdersByDate(orders);
+                            final dateKeys = grouped.keys.toList();
 
-                            return _orderCard(order: order);
+                            return ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: dateKeys.length,
+                              itemBuilder: (context, groupIndex) {
+                                final dateKey = dateKeys[groupIndex];
+                                final groupOrders = grouped[dateKey]!;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildDateHeader(dateKey, groupOrders.length),
+                                    ...groupOrders.map((order) => _orderCard(order: order)),
+                                    const SizedBox(height: 4),
+                                  ],
+                                );
+                              },
+                            );
                           },
                         ),
                       );
@@ -389,6 +404,52 @@ class OrdersView extends GetView<OrdersController> {
     ].map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e != 'null').toList();
 
     return parts.isEmpty ? "N/A" : parts.join(", ");
+  }
+
+  /// 📅 Date Header for Grouped List
+  Widget _buildDateHeader(String date, int count) {
+    const accentColor = Color(0xff1976D2);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.calendar_today_rounded, size: 14, color: accentColor),
+          const SizedBox(width: 6),
+          Text(
+            date,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: accentColor,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: accentColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "$count order${count == 1 ? '' : 's'}",
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: accentColor,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+              color: accentColor.withOpacity(0.2),
+              thickness: 1,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 📦 Order Card UI

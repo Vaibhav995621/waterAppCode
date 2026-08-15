@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
@@ -195,5 +196,28 @@ class AdminOrderListController extends GetxController {
       default:
         return Colors.grey.shade200;
     }
+  }
+
+  /// Groups orders by deliverydate (dd MMM yyyy), sorted newest-first.
+  Map<String, List<Order>> groupOrdersByDate(List<Order> orderList) {
+    final Map<String, List<Order>> grouped = {};
+    final DateFormat fmt = DateFormat('dd MMM yyyy');
+
+    for (final order in orderList) {
+      final key = fmt.format(order.deliverydate);
+      grouped.putIfAbsent(key, () => []).add(order);
+    }
+
+    // Sort keys by date descending (newest first)
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        final da = fmt.parse(a);
+        final db = fmt.parse(b);
+        return db.compareTo(da);
+      });
+
+    return Map.fromEntries(
+      sortedKeys.map((k) => MapEntry(k, grouped[k]!)),
+    );
   }
 }
