@@ -43,7 +43,38 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
               );
             }),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+
+          /// Order Count Badge
+          Obx(() {
+            final orders = controller.isActiveSelected.value
+                ? controller.activeOrders
+                : controller.historyOrders;
+            final count = orders.length;
+            if (count == 0) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 6),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff3949AB).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "$count order${count == 1 ? '' : 's'}",
+                      style: const TextStyle(
+                        color: Color(0xff3949AB),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
 
           /// Order List
           Expanded(
@@ -86,23 +117,83 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                 onRefresh: () => controller.isActiveSelected.value
                     ? controller.getCustomerActiveOrder()
                     : controller.getCustomerHistoryOrder(),
-                child: ListView.builder(
-                  physics: const ClampingScrollPhysics(),
-                  addAutomaticKeepAlives: false,
-                  addRepaintBoundaries: true,
-                  addSemanticIndexes: false,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  itemCount: orders.length,
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-                    return _orderCard(context, order);
+                child: Builder(
+                  builder: (_) {
+                    final grouped = controller.groupOrdersByDate(orders);
+                    final dateKeys = grouped.keys.toList();
+
+                    return ListView.builder(
+                      physics: const ClampingScrollPhysics(),
+                      addAutomaticKeepAlives: false,
+                      addRepaintBoundaries: true,
+                      addSemanticIndexes: false,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      itemCount: dateKeys.length,
+                      itemBuilder: (context, groupIndex) {
+                        final dateKey = dateKeys[groupIndex];
+                        final groupOrders = grouped[dateKey]!;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateHeader(dateKey, groupOrders.length, const Color(0xff3949AB)),
+                            ...groupOrders.map((order) => _orderCard(context, order)),
+                            const SizedBox(height: 4),
+                          ],
+                        );
+                      },
+                    );
                   },
                 ),
               );
             }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateHeader(String date, int count, Color accentColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_today_rounded, size: 14, color: accentColor),
+          const SizedBox(width: 6),
+          Text(
+            date,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: accentColor,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: accentColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "$count order${count == 1 ? '' : 's'}",
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: accentColor,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+              color: accentColor.withOpacity(0.2),
+              thickness: 1,
+            ),
           ),
         ],
       ),
@@ -189,7 +280,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
   Widget buildStatusChip(String status, Color statusColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: statusColor.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
@@ -200,6 +291,31 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           color: statusColor,
           fontSize: 12,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentModeChip(int mode) {
+    final Map<int, _PaymentModeInfo> modeMap = {
+      0: const _PaymentModeInfo('COD', Color(0xffE65100), Color(0xffFFF3E0)),
+      1: const _PaymentModeInfo('Online', Color(0xff2E7D32), Color(0xffE8F5E9)),
+      2: const _PaymentModeInfo('Subscribed', Color(0xffC62828), Color(0xffFFEBEE)),
+      3: const _PaymentModeInfo('Wallet', Color(0xff6A1B9A), Color(0xffF3E5F5)),
+    };
+    final info = modeMap[mode] ?? _PaymentModeInfo('N/A', Colors.grey.shade600, Colors.grey.shade100);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: info.bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        info.label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: info.fg,
         ),
       ),
     );
@@ -265,7 +381,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Order ID + Status
+            /// Header: Order ID + Payment Mode Chip + Status
             Row(
               children: [
                 Expanded(
@@ -278,10 +394,12 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                     ),
                   ),
                 ),
-                buildStatusChip(
-                  order.paymentstatus,
-                  controller.getStatusColor(order.paymentstatus),
-                ),
+                 _buildPaymentModeChip(order.paymentmode),
+                const SizedBox(width: 6),
+                // buildStatusChip(
+                //   order.paymentstatus,
+                //   controller.getStatusColor(order.paymentstatus),
+                // ),
               ],
             ),
 
@@ -301,6 +419,28 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
             ],
 
             const Divider(height: 16, thickness: 0.5),
+
+            /// Bottle Info Row (if bottle name exists)
+            if (order.waterbottleName.isNotEmpty) ...[
+              Row(
+                children: [
+                  const Icon(Icons.water_drop_outlined, size: 14, color: Color(0xff3949AB)),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      "${safeValue(order.waterbottleName)}${order.bottleWeight.isNotEmpty ? " • ${safeValue(order.bottleWeight)} liter" : ""}",
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff3A3A5C),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
 
             /// Details Row (Price, Qty, Date & Time)
             Row(
@@ -349,6 +489,11 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
               ],
             ),
 
+            const SizedBox(height: 8),
+
+            /// Price Breakup
+            _priceBreakup(order),
+
             const SizedBox(height: 10),
 
             /// Contacts Block (Customer Details)
@@ -391,7 +536,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
             const SizedBox(height: 8),
 
-            /// Address Box (very clean and compact)
+            /// Address Box (very clean and compact with Sector badge)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -406,7 +551,9 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                     order.customerDetails.address.fulladdress,
+                      order.customerDetails.address.fulladdress.isNotEmpty
+                          ? order.customerDetails.address.fulladdress
+                          : "Address not available",
                       style: TextStyle(
                         height: 1.2,
                         fontSize: 12,
@@ -414,11 +561,160 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                       ),
                     ),
                   ),
+                  if (order.customerDetails.address.sectornumber.isNotEmpty &&
+                      order.customerDetails.address.sectornumber != '0')
+                    Container(
+                      margin: const EdgeInsets.only(left: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xff3949AB).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        "Sec ${order.customerDetails.address.sectornumber}",
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xff3949AB),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 💰 Price Breakup Widget
+  Widget _priceBreakup(Order order) {
+    final double rawBottlePrice = double.tryParse(order.bottleDiscountprice.isNotEmpty && order.bottleDiscountprice != '0' ? order.bottleDiscountprice : order.bottleprice) ?? 0;
+    final double floorRate      = double.tryParse(order.floorprice) ?? 0;
+    final int    floorNo        = order.custFloornumber;
+    final bool   isLift         = order.custIsLiftAvailable == 1;
+    final int    qty            = order.quantity > 0 ? order.quantity : 1;
+    final double quickP         = double.tryParse(order.quickdeliverycharge) ?? 0;
+    final double totalP         = double.tryParse(order.price) ?? 0;
+    final bool   isQuick        = order.quickDelivery == 1 || quickP > 0;
+
+    final double floorTotal = isLift ? 0 : (floorRate * floorNo * qty);
+    final double bottleTotal = rawBottlePrice > 0
+        ? (rawBottlePrice * qty)
+        : (totalP > 0 ? (totalP - floorTotal - (isQuick ? quickP : 0)).clamp(0, totalP) : 0);
+    final double perBottlePrice = qty > 0 ? (bottleTotal / qty) : bottleTotal;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F7FF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFCCE0FF), width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.receipt_long_outlined, size: 13, color: Color(0xff1976D2)),
+              const SizedBox(width: 5),
+              const Text(
+                "Price Breakup",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          if (bottleTotal > 0 || perBottlePrice > 0)
+            _breakupRow(
+              "Bottle Price (${perBottlePrice > 0 ? "₹${perBottlePrice.toStringAsFixed(0)} × " : ""}$qty)",
+              "₹${bottleTotal.toStringAsFixed(0)}",
+              Colors.black87,
+            ),
+
+          if (floorTotal > 0) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Floor Charges (₹${floorRate.toStringAsFixed(0)} × $floorNo floor × $qty)",
+              "+ ₹${floorTotal.toStringAsFixed(0)}",
+              Colors.orange.shade700,
+            ),
+          ] else if (isLift && floorNo > 0) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Floor Charges (Floor $floorNo)",
+              "Free (Lift Available)",
+              Colors.green.shade700,
+            ),
+          ],
+
+          if (isQuick) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Quick Delivery Charge",
+              quickP > 0 ? "+ ₹${quickP.toStringAsFixed(0)}" : "+ ₹0",
+              Colors.deepOrange.shade600,
+            ),
+          ],
+
+          if (bottleTotal == 0 && floorTotal == 0 && !isQuick)
+            _breakupRow("Base Price", "₹${totalP.toStringAsFixed(0)}", Colors.black87),
+
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Divider(height: 1, color: Colors.blue.shade100),
+          ),
+          const SizedBox(height: 4),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Amount",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1A2C56),
+                ),
+              ),
+              Text(
+                "₹${totalP.toStringAsFixed(0)}",
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xff1976D2),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _breakupRow(String label, String value, Color valueColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: valueColor),
+          ),
+        ],
       ),
     );
   }
@@ -600,48 +896,6 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
     return value.toString();
   }
 
-  String getCompleteAddress(dynamic address) {
-    final parts = <String>[];
-
-    if (address.housenumber?.toString().isNotEmpty ?? false) {
-      parts.add("House No. ${address.housenumber}");
-    }
-
-    if (address.flatnumber?.toString().isNotEmpty ?? false) {
-      parts.add("Flat ${address.flatnumber}");
-    }
-
-    if (address.floornumber != null && address.floornumber != 0) {
-      parts.add("Floor ${address.floornumber}");
-    }
-
-    if (address.societyname?.toString().isNotEmpty ?? false) {
-      parts.add(address.societyname);
-    }
-
-    if (address.galinumber?.toString().isNotEmpty ?? false) {
-      parts.add("Gali ${address.galinumber}");
-    }
-
-    if (address.landmark?.toString().isNotEmpty ?? false) {
-      parts.add("Near ${address.landmark}");
-    }
-
-    if (address.city?.toString().isNotEmpty ?? false) {
-      parts.add(address.city);
-    }
-
-    if (address.state?.toString().isNotEmpty ?? false) {
-      parts.add(address.state);
-    }
-
-    if (address.pincode?.toString().isNotEmpty ?? false) {
-      parts.add(address.pincode);
-    }
-
-    return parts.where((e) => e.trim().isNotEmpty).join(", ");
-  }
-
   Future<void> makePhoneCall(String phoneNumber) async {
     if (phoneNumber.isEmpty || phoneNumber == "N/A") return;
 
@@ -653,4 +907,12 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
       debugPrint("Unable to call: $e");
     }
   }
+}
+
+class _PaymentModeInfo {
+  final String label;
+  final Color fg;
+  final Color bg;
+
+  const _PaymentModeInfo(this.label, this.fg, this.bg);
 }

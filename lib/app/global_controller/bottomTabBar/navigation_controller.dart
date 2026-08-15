@@ -5,6 +5,7 @@ import 'package:zourney/app/modules/customer/home/customer_home_controller.dart'
 import 'package:zourney/app/modules/customer/wallet/wallet_controller.dart';
 import '../../modules/customer/order_history/orders_controller.dart';
 import '../../modules/customer/pofile/profile_controller.dart';
+import '../../modules/delivery/home/delivery_order_list_controller.dart';
 
 
 class NavigationController extends GetxController {
@@ -30,6 +31,16 @@ class NavigationController extends GetxController {
 
 
 
+    else if (index == 0 && AppSession.role == 2) {
+      if (Get.isRegistered<DeliveryOrderListController>()) {
+        final ctrl = Get.find<DeliveryOrderListController>();
+        if (ctrl.isActiveSelected.value) {
+          ctrl.getCustomerActiveOrder();
+        } else {
+          ctrl.getCustomerHistoryOrder();
+        }
+      }
+    }
     else if (index == 1 && AppSession.role == 2) {
       Get.find<ProfileController>().getProfile();
     }
