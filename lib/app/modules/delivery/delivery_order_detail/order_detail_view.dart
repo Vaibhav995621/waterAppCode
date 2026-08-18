@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../widgets/full_screen_image_viewer.dart';
@@ -78,6 +79,9 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
               title: 'Order Information',
               children: [
                 _row('Order Number', order.ordernumber),
+                _row('Order Date & Time', DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate)),
+                _row('Delivery Date', DateFormat('dd-MMM-yyyy').format(order.deliverydate)),
+                _row('Delivery Time', order.deliverytime.isNotEmpty ? order.deliverytime : 'N/A'),
                 _row('Quantity', '${order.quantity}'),
                 _row('Price', '₹${order.price}'),
                 _rowWithBadge(

@@ -79,10 +79,16 @@ class OrderDetailsController extends GetxController {
     return 'N/A';
   }
 
+  String get orderDate {
+    final date = orderData?.cdate;
+    if (date == null) return 'N/A';
+    return DateFormat('dd-MMM-yyyy hh:mm a').format(date);
+  }
+
   String get deliveryDate {
     final date = orderData?.deliverydate;
     if (date == null) return 'N/A';
-    return DateFormat('dd MMM yyyy').format(date);
+    return DateFormat('dd-MMM-yyyy').format(date);
   }
 
   String get deliveryTime {

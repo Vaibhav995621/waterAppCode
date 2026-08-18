@@ -115,18 +115,19 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                       child: Column(
                         children: [
                           _detailRow(
-                            "Order Date",
-                            DateFormat('dd MMM yyyy').format(order.cdate),
+                            "Order Date & Time",
+                            DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate),
                           ),
 
                           _detailRow(
                             "Delivery Date",
-                            DateFormat(
-                              'dd MMM yyyy',
-                            ).format(order.deliverydate),
+                            DateFormat('dd-MMM-yyyy').format(order.deliverydate),
                           ),
 
-                          _detailRow("Delivery Time", order.deliverytime),
+                          _detailRow(
+                            "Delivery Time",
+                            order.deliverytime.isNotEmpty ? order.deliverytime : "N/A",
+                          ),
 
                           _detailRow(
                             "Bottle ID",

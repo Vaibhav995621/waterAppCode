@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../widgets/full_screen_image_viewer.dart';
 import '../../../../routes/app_routes.dart';
@@ -803,9 +804,8 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
 
             const Divider(height: 16, thickness: 0.5),
 
-            /// Details Row (Price, Qty, Date & Time)
+            /// Details Row (Price, Qty)
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Price
                 Row(
@@ -818,6 +818,7 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                     ),
                   ],
                 ),
+                const SizedBox(width: 16),
                 // Qty
                 Row(
                   children: [
@@ -829,22 +830,48 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                     ),
                   ],
                 ),
-                // Date & Time
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          controller.formatDate(order.deliverydate, order.deliverytime),
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ],
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            /// Order Time (cdate in DD-MMM-YYYY hh:mm a)
+            Row(
+              children: [
+                const Icon(Icons.access_time_rounded, size: 13, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  "Order Time: ",
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+                Expanded(
+                  child: Text(
+                    DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate),
+                    style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 4),
+
+            /// Delivery Time / Slot
+            Row(
+              children: [
+                const Icon(Icons.local_shipping_outlined, size: 13, color: Colors.blueGrey),
+                const SizedBox(width: 4),
+                Text(
+                  "Delivery Time: ",
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+                Expanded(
+                  child: Text(
+                    order.deliverytime.isNotEmpty
+                        ? "${DateFormat('dd-MMM-yyyy').format(order.deliverydate)} | ${order.deliverytime}"
+                        : DateFormat('dd-MMM-yyyy').format(order.deliverydate),
+                    style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

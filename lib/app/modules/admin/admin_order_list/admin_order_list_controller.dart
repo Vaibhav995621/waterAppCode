@@ -198,13 +198,13 @@ class AdminOrderListController extends GetxController {
     }
   }
 
-  /// Groups orders by deliverydate (dd MMM yyyy), sorted newest-first.
+  /// Groups orders by cdate (dd-MMM-yyyy), sorted newest-first.
   Map<String, List<Order>> groupOrdersByDate(List<Order> orderList) {
     final Map<String, List<Order>> grouped = {};
-    final DateFormat fmt = DateFormat('dd MMM yyyy');
+    final DateFormat fmt = DateFormat('dd-MMM-yyyy');
 
     for (final order in orderList) {
-      final key = fmt.format(order.deliverydate);
+      final key = fmt.format(order.cdate);
       grouped.putIfAbsent(key, () => []).add(order);
     }
 

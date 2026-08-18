@@ -271,7 +271,7 @@ class Order {
           .toString()) ??
           (json['cust_is_lift_available'] == true || json['is_lift_available'] == true ? 1 : 0),
       cdate: DateTime.tryParse(
-            (json['cdate'] ?? json['created_at'] ?? '').toString(),
+            (json['cdate'] ?? json['created_at'] ?? json['orderdate'] ?? json['order_date'] ?? '').toString(),
           ) ??
           DateTime.now(),
       modifiedDate: DateTime.tryParse(

@@ -140,7 +140,7 @@ class CustomerHomeController extends GetxController {
   }
 
   /// Date Format
-  String formatDate(DateTime date, String time) {
-    return "${DateFormat('dd MMM, yyyy').format(date)} | $time";
+  String formatDate(DateTime date) {
+    return DateFormat('dd-MMM-yyyy hh:mm a').format(date);
   }
 }

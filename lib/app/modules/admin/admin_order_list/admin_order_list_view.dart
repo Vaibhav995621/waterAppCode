@@ -352,8 +352,8 @@ class AdminOrderListView extends StatelessWidget {
             /// ── Price / Qty / Date row ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Price + Payment mode
                   Row(
@@ -375,36 +375,63 @@ class AdminOrderListView extends StatelessWidget {
                           color: Color(0xff2E7D32),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                    ],
-                  ),
-                  // Qty
-                  Row(
-                    children: [
-                      const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blueGrey),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Qty: ${safeValue(order.quantity)}",
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      const SizedBox(width: 16),
+                      // Qty
+                      Row(
+                        children: [
+                          const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blueGrey),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Qty: ${safeValue(order.quantity)}",
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  // Date
-                  Flexible(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.calendar_today_outlined, size: 13, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            formatDate(order.deliverydate),
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+
+                  const SizedBox(height: 8),
+
+                  /// Order Time (cdate in DD-MMM-YYYY hh:mm a)
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time_rounded, size: 13, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Order Time: ",
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                      Expanded(
+                        child: Text(
+                          DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate),
+                          style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  /// Delivery Time / Slot
+                  Row(
+                    children: [
+                      const Icon(Icons.local_shipping_outlined, size: 13, color: Colors.blueGrey),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Delivery Time: ",
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                      Expanded(
+                        child: Text(
+                          order.deliverytime.isNotEmpty
+                              ? "${DateFormat('dd-MMM-yyyy').format(order.deliverydate)} | ${order.deliverytime}"
+                              : DateFormat('dd-MMM-yyyy').format(order.deliverydate),
+                          style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -680,7 +707,7 @@ class AdminOrderListView extends StatelessWidget {
   }
 
   String formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy').format(date);
+    return DateFormat('dd-MMM-yyyy hh:mm a').format(date);
   }
 
   /// Payment mode chip: Online, COD, Card, Wallet, UPI, etc.

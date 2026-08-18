@@ -120,18 +120,18 @@ class OrdersController extends GetxController {
     }
   }
 
-  /// ✅ Date Format
-  String formatDate(DateTime date, String time) {
-    return "${DateFormat('dd MMM, yyyy').format(date)} | $time";
+  /// ✅ Date Format (DD-MMM-YYYY hh:mm a)
+  String formatDate(DateTime date) {
+    return DateFormat('dd-MMM-yyyy hh:mm a').format(date);
   }
 
-  /// Groups orders by deliverydate (dd MMM yyyy), sorted newest-first.
+  /// Groups orders by cdate (dd-MMM-yyyy), sorted newest-first.
   Map<String, List<Order>> groupOrdersByDate(List<Order> orderList) {
     final Map<String, List<Order>> grouped = {};
-    final DateFormat fmt = DateFormat('dd MMM yyyy');
+    final DateFormat fmt = DateFormat('dd-MMM-yyyy');
 
     for (final order in orderList) {
-      final key = fmt.format(order.deliverydate);
+      final key = fmt.format(order.cdate);
       grouped.putIfAbsent(key, () => []).add(order);
     }
 
