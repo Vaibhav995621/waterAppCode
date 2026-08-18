@@ -493,7 +493,10 @@ class Order {
 
   String get formattedPaymentStatus {
     final status = paymentstatus.trim().toLowerCase();
-    if (status == '1' || status == 'paid' || status == 'success' || status == 'completed') {
+    if ((status == '1' || status == 'paid' || status == 'success' || status == 'completed') && paymentmode == "COD") {
+      return 'Success';
+    }
+    if ((status == '1' || status == 'paid' || status == 'success' || status == 'completed') && paymentmode == "COD") {
       return 'Paid';
     }
     if (status == '0' || status == 'pending' || status == 'unpaid' || status == 'processing') {
