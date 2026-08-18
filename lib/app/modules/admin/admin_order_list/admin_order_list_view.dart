@@ -247,10 +247,21 @@ class AdminOrderListView extends StatelessWidget {
   }
 
   Widget _buildOrderCard(BuildContext context, Order order) {
-    final customerName = safeValue(order.customerDetails.fullname);
+    final customerName = (order.customerDetails.fullname.trim().isNotEmpty && order.customerDetails.fullname != "null")
+        ? order.customerDetails.fullname.trim()
+        : ((order.customerName.trim().isNotEmpty && order.customerName != "null")
+            ? order.customerName.trim()
+            : "N/A");
     final customerMobile = safeValue(order.customerDetails.mobile);
-    final deliveryName = safeValue(order.deliveryDetails.deliveryPartnerName);
-    final deliveryMobile = safeValue(order.deliveryDetails.mobileNo);
+
+    final deliveryName = (order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty && order.deliveryDetails.deliveryPartnerName != "null")
+        ? order.deliveryDetails.deliveryPartnerName.trim()
+        : ((order.deliveryPartnerName.trim().isNotEmpty && order.deliveryPartnerName != "null")
+            ? order.deliveryPartnerName.trim()
+            : "N/A");
+    final deliveryMobile = (order.deliveryDetails.mobileNo.trim().isNotEmpty && order.deliveryDetails.mobileNo != "null")
+        ? order.deliveryDetails.mobileNo.trim()
+        : "N/A";
 
     return InkWell(
       onTap: () async {

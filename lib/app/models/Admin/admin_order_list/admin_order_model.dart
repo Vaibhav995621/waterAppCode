@@ -279,15 +279,82 @@ class Order {
           ) ??
           DateTime.now(),
       customerName: (json['customer_name'] ?? json['customerName'] ?? (json['customer_details'] is Map ? json['customer_details']['fullname'] : '') ?? '').toString(),
-      deliveryPartnerName: (json['delivery_partner_name'] ?? json['deliveryPartnerName'] ?? (json['delivery_details'] is Map ? json['delivery_details']['delivery_partner_name'] : '') ?? '').toString(),
+      deliveryPartnerName: (json['delivery_partner_name'] ??
+              json['deliveryPartnerName'] ??
+              json['deliverypartner_name'] ??
+              json['deliverypartnername'] ??
+              json['delivery_boy_name'] ??
+              json['deliveryboy_name'] ??
+              json['deliveryboyname'] ??
+              json['delivery_partner'] ??
+              json['assigned_to_name'] ??
+              json['assignedto_name'] ??
+              (json['delivery_details'] is Map
+                  ? (json['delivery_details']['delivery_partner_name'] ??
+                      json['delivery_details']['deliveryPartnerName'] ??
+                      json['delivery_details']['fullname'] ??
+                      json['delivery_details']['name'])
+                  : '') ??
+              '')
+          .toString(),
       statusText: (json['status_text'] ?? json['statusText'] ?? '').toString(),
-      deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ?? json['deliveryPartnerId'] ?? (json['delivery_details'] is Map ? json['delivery_details']['delivery_partner_id'] : '') ?? '0').toString()) ?? 0,
+      deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ??
+              json['deliveryPartnerId'] ??
+              json['assignedto'] ??
+              json['assigned_to'] ??
+              (json['delivery_details'] is Map
+                  ? (json['delivery_details']['delivery_partner_id'] ??
+                      json['delivery_details']['id'])
+                  : '') ??
+              '0')
+          .toString()) ?? 0,
       customerDetails: json['customer_details'] is Map<String, dynamic>
           ? CustomerDetails.fromJson(json['customer_details'])
-          : CustomerDetails.empty(),
+          : (json['customer_details'] is Map
+              ? CustomerDetails.fromJson(Map<String, dynamic>.from(json['customer_details']))
+              : CustomerDetails(
+                  id: int.tryParse((json['customerid'] ?? json['customer_id'] ?? '0').toString()) ?? 0,
+                  fullname: (json['customer_name'] ?? json['customerName'] ?? '').toString(),
+                  mobile: (json['customer_mobile'] ?? json['customermobile'] ?? json['mobile'] ?? '').toString(),
+                  email: (json['customer_email'] ?? json['customeremail'] ?? json['email'] ?? '').toString(),
+                  photo: (json['customer_photo'] ?? json['customerphoto'] ?? json['photo'] ?? '').toString(),
+                  status: 1,
+                  cdate: DateTime.now(),
+                  role: 1,
+                  address: Address.empty(),
+                  planbottlequantity: 0,
+                )),
       deliveryDetails: json['delivery_details'] is Map<String, dynamic>
           ? DeliveryDetails.fromJson(json['delivery_details'])
-          : DeliveryDetails.empty(),
+          : (json['delivery_details'] is Map
+              ? DeliveryDetails.fromJson(Map<String, dynamic>.from(json['delivery_details']))
+              : DeliveryDetails(
+                  deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ??
+                          json['deliveryPartnerId'] ??
+                          json['assignedto'] ??
+                          json['assigned_to'] ??
+                          '0')
+                      .toString()) ?? 0,
+                  deliveryPartnerName: (json['delivery_partner_name'] ??
+                          json['deliveryPartnerName'] ??
+                          json['deliverypartner_name'] ??
+                          json['deliveryboy_name'] ??
+                          json['delivery_boy_name'] ??
+                          json['delivery_partner'] ??
+                          '')
+                      .toString(),
+                  mobileNo: (json['delivery_partner_mobile'] ??
+                          json['deliveryPartnerMobile'] ??
+                          json['delivery_mobile'] ??
+                          json['deliverymobile'] ??
+                          '')
+                      .toString(),
+                  email: (json['delivery_partner_email'] ?? json['deliveryPartnerEmail'] ?? '').toString(),
+                  photo: (json['delivery_partner_photo'] ?? json['deliveryPartnerPhoto'] ?? '').toString(),
+                  status: 1,
+                  cdate: DateTime.now(),
+                  role: 2,
+                )),
       bottleWeight: (json['bottle_weight'] ?? json['bottel_weight'] ?? json['bottleWeight'] ?? json['bottelWeight'] ?? json['bottleweight'] ?? json['bottelweight'] ?? json['weight'] ?? '').toString(),
       bottleOriginalprice: (json['bottle_originalprice'] ?? json['bottel_originalprice'] ?? json['bottleOriginalprice'] ?? json['bottelOriginalprice'] ?? json['originalprice'] ?? '').toString(),
       bottleDiscountprice: (json['bottle_discountprice'] ?? json['bottel_discountprice'] ?? json['bottleDiscountprice'] ?? json['bottelDiscountprice'] ?? json['discountprice'] ?? json['bottleprice'] ?? json['bottle_price'] ?? json['bottlePrice'] ?? '').toString(),

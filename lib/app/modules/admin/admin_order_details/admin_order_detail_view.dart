@@ -338,27 +338,34 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                     /// DELIVERY PARTNER
                     ///
-                    if (order.deliveryPartnerId  > 0 )
+                    if (order.deliveryPartnerId > 0 ||
+                        order.assignedto > 0 ||
+                        order.deliveryPartnerName.isNotEmpty ||
+                        order.deliveryDetails.deliveryPartnerName.isNotEmpty) ...[
                       _sectionTitle("Delivery Partner"),
-                    if (order.deliveryPartnerId > 0)
                       _buildCard(
-                      child: Column(
-                        children: [
-                           _detailRow(
-                            "Name",
-                            order.deliveryDetails.deliveryPartnerName,
-                          ),
-
-                          _detailRow(
-                            "Mobile",
-                            order.deliveryDetails.mobileNo,
-                            onCallTap: () => makePhoneCall(order.deliveryDetails.mobileNo),
-                          ),
-
-                          _detailRow("Email", order.deliveryDetails.email),
-                        ],
+                        child: Column(
+                          children: [
+                            _detailRow(
+                              "Name",
+                              order.deliveryDetails.deliveryPartnerName.isNotEmpty
+                                  ? order.deliveryDetails.deliveryPartnerName
+                                  : (order.deliveryPartnerName.isNotEmpty
+                                      ? order.deliveryPartnerName
+                                      : "N/A"),
+                            ),
+                            if (order.deliveryDetails.mobileNo.isNotEmpty)
+                              _detailRow(
+                                "Mobile",
+                                order.deliveryDetails.mobileNo,
+                                onCallTap: () => makePhoneCall(order.deliveryDetails.mobileNo),
+                              ),
+                            if (order.deliveryDetails.email.isNotEmpty)
+                              _detailRow("Email", order.deliveryDetails.email),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
 
                     const SizedBox(height: 24),
 
