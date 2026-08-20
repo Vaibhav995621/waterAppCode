@@ -369,7 +369,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
 
                     const SizedBox(height: 24),
 
-                    if (order.status == 0)
+                    if (order.assignedto == 0)
                       SizedBox(
                         width: double.infinity,
                         height: 55,

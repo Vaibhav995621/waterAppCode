@@ -16,6 +16,7 @@ class AdminOrderListView extends StatelessWidget {
   );
 
   final List<String> tabs = const [
+    'Pending',
     'Assigned',
     'Delivered',
     'Cancelled',

@@ -103,6 +103,10 @@ class AdminOrderListController extends GetxController {
     List<Order> tempOrders = [];
 
     switch (activeTab.value) {
+      case 'Pending':
+        tempOrders.addAll(data.pendingOrders);
+        break;
+
       case 'Assigned':
         tempOrders.addAll(data.assignedOrders);
         break;
