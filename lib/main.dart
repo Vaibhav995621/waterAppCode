@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'app/services/firebase_notification_service.dart';
+import 'app/widgets/ios_keyboard_done_wrapper.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 
@@ -22,6 +23,11 @@ class MyApp extends StatelessWidget {
       title: 'H2O EXPRESS',
       initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
+      builder: (context, child) {
+        return IOSKeyboardDoneWrapper(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }
