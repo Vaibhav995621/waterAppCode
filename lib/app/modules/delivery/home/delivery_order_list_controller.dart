@@ -52,12 +52,14 @@ class DeliveryOrderListController extends GetxController {
 
       /// ✅ Success
       if (data.statusCode == "200") {
-        activeOrders.assignAll(data.data);
+        final list = List<Order>.from(data.data);
+        sortOrdersSlotWise(list);
+        activeOrders.assignAll(list);
 
         /// Example History Filter
-        historyOrders.assignAll(
-          data.data.where((e) => e.status == 3).toList(),
-        );
+        final historyList = data.data.where((e) => e.status == 3).toList();
+        sortOrdersSlotWise(historyList);
+        historyOrders.assignAll(historyList);
       }
 
       return true;
@@ -85,8 +87,9 @@ class DeliveryOrderListController extends GetxController {
 
       /// ✅ Success
       if (data.statusCode == "200") {
-        historyOrders.assignAll(data.data);
-
+        final list = List<Order>.from(data.data);
+        sortOrdersSlotWise(list);
+        historyOrders.assignAll(list);
       }
 
       return true;
@@ -129,26 +132,96 @@ class DeliveryOrderListController extends GetxController {
     return DateFormat('dd-MMM-yyyy hh:mm a').format(date);
   }
 
-  /// Groups orders by cdate (dd-MMM-yyyy), sorted newest-first.
+  /// Extracts start minutes from slot string for slot-wise sorting (e.g., "6:00 AM - 9:00 AM" -> 360).
+  int getSlotStartMinutes(String slot) {
+    if (slot.trim().isEmpty) return 999999;
+
+    try {
+      final parts = slot.split('-');
+      final startPart = parts.first.trim().toUpperCase();
+
+      final isPM = startPart.contains('PM');
+      final isAM = startPart.contains('AM');
+
+      final timeOnly = startPart.replaceAll('AM', '').replaceAll('PM', '').trim();
+      final timeComponents = timeOnly.split(':');
+      if (timeComponents.isEmpty) return 999999;
+
+      int hour = int.tryParse(timeComponents[0].trim()) ?? 0;
+      int minute = timeComponents.length > 1
+          ? (int.tryParse(timeComponents[1].trim()) ?? 0)
+          : 0;
+
+      if (isPM && hour < 12) {
+        hour += 12;
+      } else if (isAM && hour == 12) {
+        hour = 0;
+      }
+
+      return hour * 60 + minute;
+    } catch (_) {
+      return 999999;
+    }
+  }
+
+  /// Sorts a list of orders by date (descending) and then slot-wise (ascending).
+  void sortOrdersSlotWise(List<Order> list) {
+    list.sort((a, b) {
+      final dateA = a.deliverydate.year > 2000 ? a.deliverydate : a.cdate;
+      final dateB = b.deliverydate.year > 2000 ? b.deliverydate : b.cdate;
+
+      final dayA = DateTime(dateA.year, dateA.month, dateA.day);
+      final dayB = DateTime(dateB.year, dateB.month, dateB.day);
+
+      final dateComp = dayB.compareTo(dayA);
+      if (dateComp != 0) return dateComp;
+
+      final slotA = getSlotStartMinutes(a.deliverytime);
+      final slotB = getSlotStartMinutes(b.deliverytime);
+      if (slotA != slotB) return slotA.compareTo(slotB);
+
+      return b.id.compareTo(a.id);
+    });
+  }
+
+  /// Groups orders by date (dd-MMM-yyyy), sorted newest-first, and sorted slot-wise inside each date.
   Map<String, List<Order>> groupOrdersByDate(List<Order> orderList) {
     final Map<String, List<Order>> grouped = {};
     final DateFormat fmt = DateFormat('dd-MMM-yyyy');
 
     for (final order in orderList) {
-      final key = fmt.format(order.cdate);
+      final date = order.deliverydate.year > 2000 ? order.deliverydate : order.cdate;
+      final key = fmt.format(date);
       grouped.putIfAbsent(key, () => []).add(order);
     }
 
     // Sort keys by date descending (newest first)
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) {
-        final da = fmt.parse(a);
-        final db = fmt.parse(b);
-        return db.compareTo(da);
+        try {
+          final da = fmt.parse(a);
+          final db = fmt.parse(b);
+          return db.compareTo(da);
+        } catch (_) {
+          return 0;
+        }
       });
 
-    return Map.fromEntries(
-      sortedKeys.map((k) => MapEntry(k, grouped[k]!)),
-    );
+    // Sort orders within each date group slot-wise (earliest slot first)
+    final Map<String, List<Order>> result = {};
+    for (final k in sortedKeys) {
+      final list = grouped[k]!;
+      list.sort((a, b) {
+        final slotA = getSlotStartMinutes(a.deliverytime);
+        final slotB = getSlotStartMinutes(b.deliverytime);
+        if (slotA != slotB) {
+          return slotA.compareTo(slotB);
+        }
+        return b.id.compareTo(a.id);
+      });
+      result[k] = list;
+    }
+
+    return result;
   }
 }
