@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../routes/app_routes.dart';
+import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 import 'book_water_controller.dart';
 import '../../../models/bottel_model/botle_model.dart';
@@ -452,18 +453,19 @@ class BookWaterScreen extends GetView<BookWaterController> {
                           child: GestureDetector(
                             onTap: () async {
                               final now = DateTime.now();
+                              final today = DateTime(now.year, now.month, now.day);
 
                               DateTime initialDate =
                                   controller.selectedDate.value;
 
-                              if (initialDate.isBefore(now)) {
-                                initialDate = now;
+                              if (initialDate.isBefore(today)) {
+                                initialDate = today;
                               }
 
                               DateTime? picked = await showDatePicker(
                                 context: Get.context!,
                                 initialDate: initialDate,
-                                firstDate: now,
+                                firstDate: today,
                                 lastDate: DateTime(2100),
                               );
 
@@ -497,7 +499,9 @@ class BookWaterScreen extends GetView<BookWaterController> {
                               _showTimePicker(context);
                             },
                             child: _inputTile(
-                              controller.selectedTime.value,
+                              controller.selectedTime.value.isNotEmpty
+                                  ? controller.selectedTime.value
+                                  : "Select Delivery Time",
                               Icons.keyboard_arrow_down,
                             ),
                           ),
@@ -620,6 +624,11 @@ class BookWaterScreen extends GetView<BookWaterController> {
                   child: ElevatedButton(
                     onPressed: isBtnEnabled
                         ? () {
+                            if (controller.selectedTime.value.isEmpty ||
+                                controller.selectedTime.value == "No slots available") {
+                              AppSnackbar.error("Please select a valid delivery time slot");
+                              return;
+                            }
                             Get.toNamed(
                               AppRoutes.paymentScreen,
                               arguments: {
@@ -910,13 +919,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
   }
 
   void _showTimePicker(BuildContext context) {
-    final List<String> timeSlots = [
-      "6:00 AM - 10:00 AM",
-      "10:00 AM - 2:00 PM",
-      "2:00 PM - 6:00 PM",
-      "6:00 PM - 10:00 PM",
-      "10:00 PM - 11:59 PM",
-    ];
+    final List<String> timeSlots =
+        BookWaterController.getTimeSlotsForDate(controller.selectedDate.value);
 
     Get.bottomSheet(
       Container(
@@ -939,17 +943,42 @@ class BookWaterScreen extends GetView<BookWaterController> {
                 ),
               ),
               const Divider(height: 1),
-              ...timeSlots.map((time) => ListTile(
-                title: Text(
-                  time,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  controller.setTime(time);
-                  Get.back();
-                },
-              )).toList(),
+              if (timeSlots.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
+                  child: Center(
+                    child: Text(
+                      "No time slots available for today.\nPlease select another delivery date.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                ...timeSlots.map((time) => ListTile(
+                  title: Text(
+                    time,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: controller.selectedTime.value == time
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: controller.selectedTime.value == time
+                          ? Colors.blue
+                          : Colors.black87,
+                    ),
+                  ),
+                  trailing: controller.selectedTime.value == time
+                      ? const Icon(Icons.check_circle, color: Colors.blue, size: 20)
+                      : const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    controller.setTime(time);
+                    Get.back();
+                  },
+                )).toList(),
               const SizedBox(height: 10),
             ],
           ),

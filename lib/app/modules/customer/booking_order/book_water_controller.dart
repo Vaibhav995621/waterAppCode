@@ -17,7 +17,7 @@ class BookWaterController extends GetxController {
   final selectedBottle = 0.obs;
   final quantity = 1.obs;
   final selectedDate = DateTime.now().obs;
-  final selectedTime = "6:00 AM - 10:00 AM".obs;
+  final selectedTime = "".obs;
 
   /// Fast Delivery toggle
   final RxBool fastDelivery = false.obs;
@@ -87,7 +87,54 @@ class BookWaterController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    updateInitialTimeSlot();
     getBottleList();
+  }
+
+  static List<String> getTimeSlotsForDate(DateTime date) {
+    final allSlots = [
+      {"label": "6:00 AM - 9:00 AM", "hour": 6, "minute": 0},
+      {"label": "9:00 AM - 12:00 PM", "hour": 9, "minute": 0},
+      {"label": "12:00 PM - 3:00 PM", "hour": 12, "minute": 0},
+      {"label": "3:00 PM - 6:00 PM", "hour": 15, "minute": 0},
+      {"label": "6:00 PM - 9:00 PM", "hour": 18, "minute": 0},
+      {"label": "9:00 PM - 12:00 AM", "hour": 21, "minute": 0},
+    ];
+
+    final now = DateTime.now();
+    final isToday = date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+
+    if (!isToday) {
+      return allSlots.map((e) => e["label"] as String).toList();
+    }
+
+    return allSlots
+        .where((e) {
+          final slotTime = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            e["hour"] as int,
+            e["minute"] as int,
+          );
+          return slotTime.isAfter(now);
+        })
+        .map((e) => e["label"] as String)
+        .toList();
+  }
+
+  void updateInitialTimeSlot() {
+    final slots = getTimeSlotsForDate(selectedDate.value);
+    if (slots.contains(selectedTime.value)) {
+      return;
+    }
+    if (slots.isNotEmpty) {
+      selectedTime.value = slots.first;
+    } else {
+      selectedTime.value = "No slots available";
+    }
   }
 
   void selectBottle(int type) {
@@ -106,6 +153,7 @@ class BookWaterController extends GetxController {
 
   void setDate(DateTime date) {
     selectedDate.value = date;
+    updateInitialTimeSlot();
   }
 
   void setTime(String time) {
