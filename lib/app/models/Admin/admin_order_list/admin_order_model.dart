@@ -123,6 +123,7 @@ class Order {
   String bottleprice;         // base bottle price
   String floorprice;          // floor delivery charge
   String quickdeliverycharge; // quick delivery surcharge
+  String admincharges;        // admin charge
   int quantity;
   DateTime deliverydate;
   String deliverytime;
@@ -160,6 +161,7 @@ class Order {
     required this.bottleprice,
     required this.floorprice,
     required this.quickdeliverycharge,
+    this.admincharges = '0',
     required this.quantity,
     required this.deliverydate,
     required this.deliverytime,
@@ -222,6 +224,13 @@ class Order {
               json['fastdeliverycharge'] ??
               json['fast_delivery_charge'] ??
               json['fastDeliveryCharge'] ??
+              '0')
+          .toString(),
+      admincharges: (json['admincharges'] ??
+              json['admin_charges'] ??
+              json['adminCharges'] ??
+              json['admincharge'] ??
+              json['admin_charge'] ??
               '0')
           .toString(),
       quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
@@ -297,7 +306,7 @@ class Order {
                   : '') ??
               '')
           .toString(),
-      statusText: (json['status_text'] ?? json['statusText'] ?? '').toString(),
+      statusText: (json['status_text'] ?? json['statusText'] ?? json['statustext'] ?? json['status_name'] ?? json['statusname'] ?? '').toString(),
       deliveryPartnerId: int.tryParse((json['delivery_partner_id'] ??
               json['deliveryPartnerId'] ??
               json['assignedto'] ??
@@ -373,6 +382,7 @@ class Order {
       'bottleprice': bottleprice,
       'floorprice': floorprice,
       'quickdeliverycharge': quickdeliverycharge,
+      'admincharges': admincharges,
       'quantity': quantity,
       'deliverydate': deliverydate.toIso8601String(),
       'deliverytime': deliverytime,

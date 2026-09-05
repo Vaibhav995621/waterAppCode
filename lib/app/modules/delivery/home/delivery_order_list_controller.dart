@@ -44,8 +44,10 @@ class DeliveryOrderListController extends GetxController {
     isActiveSelected.value = (index == 0);
     if (index == 0) {
       getCustomerActiveOrder();
-    } else {
+    } else if (index == 1) {
       getCustomerHistoryOrder();
+    } else if (index == 2) {
+      getDeliveryCancelOrderList();
     }
   }
 
@@ -63,14 +65,17 @@ class DeliveryOrderListController extends GetxController {
     await Future.wait([
       getCustomerActiveOrder(),
       getCustomerHistoryOrder(),
+      getDeliveryCancelOrderList(),
     ]);
   }
 
   Future<void> refreshCurrentTab() async {
     if (selectedTabIndex.value == 0) {
       await getCustomerActiveOrder();
-    } else {
+    } else if (selectedTabIndex.value == 1) {
       await getCustomerHistoryOrder();
+    } else if (selectedTabIndex.value == 2) {
+      await getDeliveryCancelOrderList();
     }
   }
 
@@ -105,17 +110,6 @@ class DeliveryOrderListController extends GetxController {
         if (deliveredFromActive.isNotEmpty) {
           sortOrdersSlotWise(deliveredOrders);
         }
-
-        // If any cancelled orders were in the active API response, keep track of them
-        final cancelledFromActive = list.where((o) => o.isCancelled).toList();
-        for (final o in cancelledFromActive) {
-          if (!cancelledOrders.any((c) => c.id == o.id)) {
-            cancelledOrders.add(o);
-          }
-        }
-        if (cancelledFromActive.isNotEmpty) {
-          sortOrdersSlotWise(cancelledOrders);
-        }
       }
 
       return true;
@@ -137,7 +131,6 @@ class DeliveryOrderListController extends GetxController {
       /// ❌ API Error
       if (data.statusCode == "201") {
         deliveredOrders.clear();
-        cancelledOrders.clear();
         historyOrders.clear();
         return false;
       }
@@ -151,10 +144,35 @@ class DeliveryOrderListController extends GetxController {
         // Delivered orders: strictly isDelivered OR (not cancelled and not active)
         final delivered = list.where((o) => o.isDelivered || (!o.isCancelled && !o.isActive)).toList();
         deliveredOrders.assignAll(delivered);
+      }
 
-        // Cancelled orders: strictly isCancelled
-        final cancelled = list.where((o) => o.isCancelled).toList();
-        cancelledOrders.assignAll(cancelled);
+      return true;
+    } catch (e) {
+      final message = e.toString().replaceAll("Exception: ", "");
+      AppSnackbar.error(message);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> getDeliveryCancelOrderList() async {
+    try {
+      isLoading.value = true;
+
+      final data = await _repo.getDeliveryCancelOrderList(AppSession.userId);
+
+      /// ❌ API Error
+      if (data.statusCode == "201") {
+        cancelledOrders.clear();
+        return false;
+      }
+
+      /// ✅ Success
+      if (data.statusCode == "200") {
+        final list = List<Order>.from(data.data);
+        sortOrdersSlotWise(list);
+        cancelledOrders.assignAll(list);
       }
 
       return true;

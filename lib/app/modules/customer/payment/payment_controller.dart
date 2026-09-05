@@ -22,6 +22,7 @@ class PaymentController extends GetxController {
   int floorCharges = 0;
   int perFloorCharges = 0;
   int fastDeliveryCharges = 0;
+  int adminCharges = 0;
   String bottleOriginalPrice = '0';
   String bottleDiscountPrice = '0';
 
@@ -68,6 +69,10 @@ class PaymentController extends GetxController {
     fastDelivery = args["fastDelivery"] == true;
     // Set quick delivery charges only if fast delivery is selected
     fastDeliveryCharges = fastDelivery ? (args["quickDeliveryCharges"] ?? 0) : 0;
+    adminCharges = int.tryParse(args["admincharges"]?.toString() ??
+            args["adminCharges"]?.toString() ??
+            '') ??
+        (args["adminCharges"] as int? ?? 0);
     bottleOriginalPrice = args["bottle_originalprice"]?.toString() ?? '0';
     bottleDiscountPrice = args["bottle_discountprice"]?.toString() ?? '0';
 
@@ -372,6 +377,7 @@ class PaymentController extends GetxController {
       "bottleprice": bottleDiscountPrice,
       "floorprice": floorCharges.toString(),
       "quickdeliverycharge": fastDeliveryCharges.toString(),
+      "admincharges": adminCharges.toString(),
       "price": price,
       "quantity": quantity,
       "deliverydate": DateFormat('yyyy-MM-dd').format(deliveryDate),

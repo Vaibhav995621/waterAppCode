@@ -72,6 +72,15 @@ class BookWaterController extends GetxController {
     return b?.quickDeliveryCharges ?? 0;
   }
 
+  /// Admin charges from selected bottle
+  int get adminCharges {
+    if (bottleList.isEmpty) return 0;
+    final b = bottleList.firstWhereOrNull(
+      (e) => e.id == selectedBottle.value,
+    );
+    return b?.adminCharges ?? 0;
+  }
+
   BottleData? get currentBottle {
     if (bottleList.isEmpty) return null;
     return bottleList.firstWhereOrNull((e) => e.id == selectedBottle.value);
@@ -82,7 +91,7 @@ class BookWaterController extends GetxController {
     return quickDeliveryCharges;
   }
 
-  int get total => bottleSubtotal + floorTotal + quickDeliveryTotal;
+  int get total => bottleSubtotal + floorTotal + quickDeliveryTotal + adminCharges;
 
   @override
   void onInit() {

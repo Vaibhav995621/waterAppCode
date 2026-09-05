@@ -552,6 +552,16 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
             ),
           ],
 
+          /// Admin charge row
+          if ((double.tryParse(order.admincharges) ?? 0) > 0) ...[
+            const SizedBox(height: 3),
+            _breakupRow(
+              "Admin Charges",
+              "+ ₹${(double.tryParse(order.admincharges) ?? 0).toStringAsFixed(0)}",
+              Colors.purple.shade700,
+            ),
+          ],
+
           /// Fallback when no sub-prices are available
           if (bottleTotal == 0 && floorTotal == 0 && !isQuick)
             _breakupRow("Base Price", "₹${totalP.toStringAsFixed(0)}", Colors.black87),

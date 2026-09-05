@@ -891,6 +891,33 @@ Future<SubscriptionModel> getSubscriptionList() async {
     }
   }
 
+  Future<OrderList> getDeliveryCancelOrderList(
+      String customerId,
+      ) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.deliveryPartnerCancelOrderList,
+        {
+          "customerid": customerId,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      /// ✅ SUCCESS
+      return OrderList.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
   Future<SectorListModel> getSectorList() async {
     try {
       final response = await _api.post(

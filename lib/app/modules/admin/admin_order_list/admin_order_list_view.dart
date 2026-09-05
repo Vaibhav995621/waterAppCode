@@ -308,6 +308,8 @@ class AdminOrderListView extends StatelessWidget {
                       ),
                     ),
                   ),
+                  _buildOrderStatusChip(order.displayStatusText),
+                  const SizedBox(width: 6),
                   _buildPaymentModeChip(order),
                   const SizedBox(width: 6),
                   _buildPaymentStatusChip(order),

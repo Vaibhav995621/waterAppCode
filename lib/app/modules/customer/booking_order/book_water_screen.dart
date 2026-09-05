@@ -290,6 +290,35 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                   ],
                                 );
                               }),
+                              Obx(() {
+                                if (controller.adminCharges <= 0) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Admin Charges",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade700),
+                                        ),
+                                        Text(
+                                          "₹${controller.adminCharges}",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }),
                               const Divider(height: 16),
                               Obx(() => Row(
                                 mainAxisAlignment:
@@ -541,6 +570,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                       "addressid": addressId,
                                       "floor": controller.floor,
                                       "floorCharges": controller.floorCharges,
+                                      "admincharges": controller.adminCharges.toString(),
+                                      "adminCharges": controller.adminCharges,
                                       "isLiftAvailable": controller.isLiftAvailable,
                                     },
                                   );
@@ -642,6 +673,8 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                 "floorCharges": controller.floorCharges,
                                 "fastDelivery": controller.fastDelivery.value,
                                 "quickDeliveryCharges": controller.fastDelivery.value ? controller.quickDeliveryCharges : '0',
+                                "admincharges": controller.adminCharges.toString(),
+                                "adminCharges": controller.adminCharges,
                                 "bottle_originalprice": controller.bottle.originalprice,
                                 "bottle_discountprice": controller.bottle.discountprice,
                               },

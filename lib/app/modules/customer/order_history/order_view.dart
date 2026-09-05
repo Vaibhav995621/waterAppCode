@@ -366,6 +366,25 @@ class OrdersView extends GetView<OrdersController> {
     );
   }
 
+  Widget _buildOrderStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.statusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.statusColor.withOpacity(0.25), width: 0.8),
+      ),
+      child: Text(
+        order.displayStatusText.toUpperCase(),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: order.statusColor,
+        ),
+      ),
+    );
+  }
+
   Widget _buildPaymentModeChip(Order order) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -541,7 +560,7 @@ class OrdersView extends GetView<OrdersController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Order ID + Payment Mode & Payment Status
+            /// Header: Order ID + Status Chip + Payment Mode & Payment Status
             Row(
               children: [
                 Expanded(
@@ -554,6 +573,8 @@ class OrdersView extends GetView<OrdersController> {
                     ),
                   ),
                 ),
+                _buildOrderStatusChip(order),
+                const SizedBox(width: 6),
                 _buildPaymentModeChip(order),
                 const SizedBox(width: 6),
                 _buildPaymentStatusChip(order),

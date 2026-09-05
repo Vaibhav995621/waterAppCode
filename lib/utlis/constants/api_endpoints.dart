@@ -45,6 +45,7 @@ class ApiEndpoints {
   static const updateorderstatusbyorderid = "updateorderstatusbyorderid";
 
   static const deliveryPartnerOrderHistory = "getpastorderlistbypartnerid";
+  static const deliveryPartnerCancelOrderList = "getcancelorderlistbypartnerid";
   static const getAllScheduleList = "getallschedulelist";
   static const getScheduleListByCustomerId = "getschedulelistbycustomerid";
   static const getSectorList = "getsectorlist";
