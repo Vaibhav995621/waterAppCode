@@ -923,11 +923,10 @@ class BookWaterScreen extends GetView<BookWaterController> {
         BookWaterController.getTimeSlotsForDate(controller.selectedDate.value);
 
     Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
+      Material(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        clipBehavior: Clip.antiAlias,
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
