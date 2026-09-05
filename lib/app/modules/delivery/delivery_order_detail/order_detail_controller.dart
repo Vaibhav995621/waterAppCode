@@ -18,19 +18,9 @@ class DeliveryOrderDetailController extends GetxController {
   }
 
   String get statusText {
-    switch (order.status) {
-      case 0:
-        return 'Pending';
-      case 1:
-        return 'Assigned';
-      case 2:
-        return 'Delivered';
-      case 3:
-        return 'Cancelled';
-      default:
-        return 'Unknown';
-    }
+    return order.displayStatusText;
   }
+
   Future<void> markAsDelivered(String orderStatus) async {
     try {
       isLoading.value = true;
@@ -52,10 +42,11 @@ class DeliveryOrderDetailController extends GetxController {
   Future<bool> updateOrderStatus(String orderStatus) async {
     try {
       final data =
-      await _repo.updateOrderStatus(order.id.toString(), orderStatus);
+          await _repo.updateOrderStatus(order.id.toString(), orderStatus);
 
       if (data.statusCode == "200") {
-        order.status = 2;
+        order.status = int.tryParse(orderStatus) ?? 3;
+        order.statusText = "Delivered";
         update(['status']);
         AppSnackbar.success(data.message);
 

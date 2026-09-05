@@ -20,6 +20,7 @@ abstract class AppRoutes {
   static const paymentHistory = '/paymentHistory';
   static const mainNavigation = '/mainNavigation';
   static const subscriptionHistoryList = '/subscriptionHistoryList';
+  static const deliveryDashboard = '/deliveryDashboard';
   static const deliveryOrderDetail = '/deliveryOrderDetail';
   static const deliveryOrderList = '/deliveryOrderList';
   static const welcomeScreen = '/welcomeScreen';

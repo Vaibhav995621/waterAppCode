@@ -568,6 +568,94 @@ class Order {
     }
     return Icons.info_rounded;
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ORDER STATUS HELPERS (State, Color, Background Color)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  bool get isDelivered {
+    final s = statusText.trim().toLowerCase();
+    if (s.contains('deliver') || s.contains('complete')) return true;
+    if (s.contains('cancel') || s.contains('fail') || s.contains('reject')) return false;
+    if (status == 3 || status == 4) return true;
+    return false;
+  }
+
+  bool get isCancelled {
+    final s = statusText.trim().toLowerCase();
+    final p = paymentstatus.trim().toLowerCase();
+    if (s.contains('cancel') || s.contains('fail') || s.contains('reject')) return true;
+    if (p == 'cancelled' || p == 'canceled') return true;
+    if (status == 5) return true;
+    return false;
+  }
+
+  bool get isActive {
+    return !isDelivered && !isCancelled;
+  }
+
+  String get displayStatusText {
+    if (statusText.trim().isNotEmpty) {
+      return statusText.trim();
+    }
+    if (isDelivered) return 'Delivered';
+    if (isCancelled) return 'Cancelled';
+    switch (status) {
+      case 0:
+        return 'Pending';
+      case 1:
+        return 'Assigned';
+      case 2:
+        return 'Out for Delivery';
+      case 3:
+      case 4:
+        return 'Delivered';
+      case 5:
+        return 'Cancelled';
+      default:
+        return 'Pending';
+    }
+  }
+
+  Color get statusColor {
+    if (isDelivered) {
+      return const Color(0xff2E7D32); // Green
+    }
+    if (isCancelled) {
+      return const Color(0xffC62828); // Red
+    }
+    final sText = statusText.trim().toLowerCase();
+    if (status == 2 || sText.contains('pickup') || sText.contains('delivery') || sText.contains('out')) {
+      return const Color(0xff1565C0); // Blue
+    }
+    if (status == 1 || sText == 'received' || sText == 'assigned' || sText == 'accepted') {
+      return const Color(0xff00838F); // Cyan / Teal
+    }
+    if (status == 0 || sText == 'pending') {
+      return const Color(0xffE65100); // Orange
+    }
+    return const Color(0xff455A64); // Slate Grey
+  }
+
+  Color get statusBgColor {
+    if (isDelivered) {
+      return const Color(0xffE8F5E9);
+    }
+    if (isCancelled) {
+      return const Color(0xffFFEBEE);
+    }
+    final sText = statusText.trim().toLowerCase();
+    if (status == 2 || sText.contains('pickup') || sText.contains('delivery') || sText.contains('out')) {
+      return const Color(0xffE3F2FD);
+    }
+    if (status == 1 || sText == 'received' || sText == 'assigned' || sText == 'accepted') {
+      return const Color(0xffE0F7FA);
+    }
+    if (status == 0 || sText == 'pending') {
+      return const Color(0xffFFF3E0);
+    }
+    return const Color(0xffECEFF1);
+  }
 }
 
 class CustomerDetails {

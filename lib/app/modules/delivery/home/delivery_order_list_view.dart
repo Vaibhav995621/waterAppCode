@@ -21,9 +21,9 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
           /// Tabs
           SizedBox(
-            height: 45,
+            height: 44,
             child: Obx(() {
-              final isSelectedActive = controller.isActiveSelected.value;
+              final currentTab = controller.selectedTabIndex.value;
 
               return ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -31,13 +31,24 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                 children: [
                   _tabItem(
                     title: "Active Orders",
-                    isSelected: isSelectedActive,
-                    onTap: () => controller.toggleTab(true),
+                    count: controller.activeOrders.length,
+                    isSelected: currentTab == 0,
+                    activeColor: const Color(0xff3949AB),
+                    onTap: () => controller.changeTab(0),
                   ),
                   _tabItem(
-                    title: "History",
-                    isSelected: !isSelectedActive,
-                    onTap: () => controller.toggleTab(false),
+                    title: "Delivered Orders",
+                    count: controller.deliveredOrders.length,
+                    isSelected: currentTab == 1,
+                    activeColor: const Color(0xff2E7D32),
+                    onTap: () => controller.changeTab(1),
+                  ),
+                  _tabItem(
+                    title: "Cancelled Orders",
+                    count: controller.cancelledOrders.length,
+                    isSelected: currentTab == 2,
+                    activeColor: const Color(0xffC62828),
+                    onTap: () => controller.changeTab(2),
                   ),
                 ],
               );
@@ -47,11 +58,17 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
           /// Order Count Badge
           Obx(() {
-            final orders = controller.isActiveSelected.value
-                ? controller.activeOrders
-                : controller.historyOrders;
+            final orders = controller.currentOrders;
             final count = orders.length;
             if (count == 0) return const SizedBox.shrink();
+
+            final currentTab = controller.selectedTabIndex.value;
+            final badgeColor = currentTab == 1
+                ? const Color(0xff2E7D32)
+                : (currentTab == 2
+                    ? const Color(0xffC62828)
+                    : const Color(0xff3949AB));
+
             return Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 6),
               child: Row(
@@ -59,13 +76,13 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xff3949AB).withOpacity(0.1),
+                      color: badgeColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       "$count order${count == 1 ? '' : 's'}",
-                      style: const TextStyle(
-                        color: Color(0xff3949AB),
+                      style: TextStyle(
+                        color: badgeColor,
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
@@ -80,9 +97,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           Expanded(
             child: Obx(() {
               final isLoading = controller.isLoading.value;
-              final orders = controller.isActiveSelected.value
-                  ? controller.activeOrders
-                  : controller.historyOrders;
+              final orders = controller.currentOrders;
 
               if (isLoading) {
                 return _buildShimmerLoading();
@@ -90,21 +105,39 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
               if (orders.isEmpty) {
                 return RefreshIndicator(
-                  onRefresh: () => controller.isActiveSelected.value
-                      ? controller.getCustomerActiveOrder()
-                      : controller.getCustomerHistoryOrder(),
+                  onRefresh: () => controller.refreshCurrentTab(),
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.5,
-                        child: const Center(
-                          child: Text(
-                            "No Orders Found",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                controller.selectedTabIndex.value == 0
+                                    ? Icons.local_shipping_outlined
+                                    : (controller.selectedTabIndex.value == 1
+                                        ? Icons.check_circle_outline
+                                        : Icons.cancel_outlined),
+                                size: 54,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                controller.selectedTabIndex.value == 0
+                                    ? "No Active Orders Found"
+                                    : (controller.selectedTabIndex.value == 1
+                                        ? "No Delivered Orders Found"
+                                        : "No Cancelled Orders Found"),
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -114,13 +147,16 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
               }
 
               return RefreshIndicator(
-                onRefresh: () => controller.isActiveSelected.value
-                    ? controller.getCustomerActiveOrder()
-                    : controller.getCustomerHistoryOrder(),
+                onRefresh: () => controller.refreshCurrentTab(),
                 child: Builder(
                   builder: (_) {
                     final grouped = controller.groupOrdersByDate(orders);
                     final dateKeys = grouped.keys.toList();
+                    final accentColor = controller.selectedTabIndex.value == 1
+                        ? const Color(0xff2E7D32)
+                        : (controller.selectedTabIndex.value == 2
+                            ? const Color(0xffC62828)
+                            : const Color(0xff3949AB));
 
                     return ListView.builder(
                       physics: const ClampingScrollPhysics(),
@@ -139,7 +175,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildDateHeader(dateKey, groupOrders.length, const Color(0xff3949AB)),
+                            _buildDateHeader(dateKey, groupOrders.length, accentColor),
                             ...groupOrders.map((order) => _orderCard(context, order)),
                             const SizedBox(height: 4),
                           ],
@@ -249,30 +285,84 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
 
   Widget _tabItem({
     required String title,
+    required int count,
     required bool isSelected,
     required VoidCallback onTap,
+    Color activeColor = const Color(0xff3949AB),
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 10,
+          horizontal: 16,
+          vertical: 9,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xff3949AB) : Colors.white,
+          color: isSelected ? activeColor : Colors.white,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? const Color(0xff3949AB) : Colors.grey.shade300,
+            color: isSelected ? activeColor : Colors.grey.shade300,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+            if (count > 0) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.white.withOpacity(0.25) : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderStatusChip(Order order) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: order.statusBgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: order.statusColor.withOpacity(0.25), width: 0.8),
+      ),
+      child: Text(
+        order.displayStatusText.toUpperCase(),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: order.statusColor,
         ),
       ),
     );
@@ -417,11 +507,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
         );
 
         if (result == true) {
-          if (controller.isActiveSelected.value) {
-            controller.getCustomerActiveOrder(); // reload API
-          } else {
-            controller.getCustomerHistoryOrder(); // reload API
-          }
+          controller.fetchAllOrders();
         }
       },
       borderRadius: BorderRadius.circular(16),
@@ -446,7 +532,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Order ID + Payment Mode & Payment Status
+            /// Header: Order ID + Status Chip + Payment Chips
             Row(
               children: [
                 Expanded(
@@ -459,6 +545,8 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                     ),
                   ),
                 ),
+                _buildOrderStatusChip(order),
+                const SizedBox(width: 6),
                 _buildPaymentModeChip(order),
                 const SizedBox(width: 6),
                 _buildPaymentStatusChip(order),

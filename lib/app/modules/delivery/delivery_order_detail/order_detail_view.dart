@@ -20,7 +20,7 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
       bottomNavigationBar: GetBuilder<DeliveryOrderDetailController>(
         id: 'status',
         builder: (_) {
-          final isCompleted = order.status == 3 || order.status == 4 || order.status == 5;
+          final isCompleted = order.isDelivered || order.isCancelled || order.status == 3 || order.status == 4 || order.status == 5;
           if (isCompleted) {
             return const SizedBox.shrink();
           }

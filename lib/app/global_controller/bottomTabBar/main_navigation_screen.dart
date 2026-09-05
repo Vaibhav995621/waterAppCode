@@ -9,7 +9,10 @@ import 'package:zourney/app/modules/customer/order_history/orders_controller.dar
 import 'package:zourney/app/modules/customer/pofile/profile_view.dart';
 import 'package:zourney/app/modules/customer/wallet/wallet_view.dart';
 import 'package:zourney/app/modules/customer/wallet/wallet_controller.dart';
+import 'package:zourney/app/modules/delivery/dashboard/delivery_dashboard_controller.dart';
+import 'package:zourney/app/modules/delivery/dashboard/delivery_dashboard_view.dart';
 import '../../app_session/app_session.dart';
+import '../../modules/admin/dashboard/admin_dashboard_controller.dart';
 import '../../modules/customer/booking_order/book_water_controller.dart';
 import '../../modules/customer/home/customer_home_controller.dart';
 import '../../modules/customer/pofile/profile_controller.dart';
@@ -29,6 +32,8 @@ class MainNavigationScreen extends StatelessWidget {
     Get.put(BookWaterController());
     Get.put(WalletController());
     Get.put(DeliveryOrderListController());
+    Get.put(AdminDashboardController());
+    Get.put(DeliveryDashboardController());
 
 
     int userType = AppSession.role;
@@ -46,6 +51,7 @@ class MainNavigationScreen extends StatelessWidget {
     } else if (userType == 2) {
       //delivery
       screens = [
+        DeliveryDashboardView(),
         DeliveryOrderListView(),
         ProfileView(),
       ];
@@ -61,7 +67,7 @@ class MainNavigationScreen extends StatelessWidget {
     } else {
       // fallback
       screens = [
-        const Center(child: Text("Home")),
+        DeliveryDashboardView(),
         ProfileView(),
       ];
     }
@@ -122,29 +128,38 @@ class MainNavigationScreen extends StatelessWidget {
         ];
 
       case 2:
-
         return const [
           BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.list_alt_rounded),
+            activeIcon: Icon(Icons.list_alt),
             label: 'Orders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ];
       case 3:
       return const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: 'Home',
+          icon: Icon(Icons.dashboard_outlined),
+          activeIcon: Icon(Icons.dashboard),
+          label: 'Dashboard',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.list_alt_rounded),
+          activeIcon: Icon(Icons.list_alt),
           label: 'Orders',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
+          activeIcon: Icon(Icons.person),
           label: 'Profile',
         ),
       ];

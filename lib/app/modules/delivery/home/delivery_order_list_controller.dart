@@ -9,33 +9,69 @@ import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 
 class DeliveryOrderListController extends GetxController {
-  /// 🔁 Toggle state
+  /// 🔁 Tab state: 0 = Active Orders, 1 = Delivered Orders, 2 = Cancelled Orders
+  RxInt selectedTabIndex = 0.obs;
+
+  /// Backward compatibility for any boolean check
   RxBool isActiveSelected = true.obs;
 
   final AuthRepository _repo = AuthRepository();
 
   /// ✅ API Order Lists
   RxList<Order> activeOrders = <Order>[].obs;
+  RxList<Order> deliveredOrders = <Order>[].obs;
+  RxList<Order> cancelledOrders = <Order>[].obs;
   RxList<Order> historyOrders = <Order>[].obs;
 
   /// ✅ Loader
   RxBool isLoading = false.obs;
 
-  void toggleTab(bool value) {
-    isActiveSelected.value = value;
-    if(value == true){
+  List<Order> get currentOrders {
+    switch (selectedTabIndex.value) {
+      case 0:
+        return activeOrders;
+      case 1:
+        return deliveredOrders;
+      case 2:
+        return cancelledOrders;
+      default:
+        return activeOrders;
+    }
+  }
+
+  void changeTab(int index) {
+    selectedTabIndex.value = index;
+    isActiveSelected.value = (index == 0);
+    if (index == 0) {
       getCustomerActiveOrder();
-    } else{
+    } else {
       getCustomerHistoryOrder();
     }
+  }
+
+  void toggleTab(bool value) {
+    changeTab(value ? 0 : 1);
   }
 
   @override
   void onInit() {
     super.onInit();
-    getCustomerActiveOrder();
-    getCustomerHistoryOrder();
+    fetchAllOrders();
+  }
 
+  Future<void> fetchAllOrders() async {
+    await Future.wait([
+      getCustomerActiveOrder(),
+      getCustomerHistoryOrder(),
+    ]);
+  }
+
+  Future<void> refreshCurrentTab() async {
+    if (selectedTabIndex.value == 0) {
+      await getCustomerActiveOrder();
+    } else {
+      await getCustomerHistoryOrder();
+    }
   }
 
   Future<bool> getCustomerActiveOrder() async {
@@ -46,7 +82,7 @@ class DeliveryOrderListController extends GetxController {
 
       /// ❌ API Error
       if (data.statusCode == "201") {
-      //  AppSnackbar.error(data.message);
+        activeOrders.clear();
         return false;
       }
 
@@ -54,12 +90,32 @@ class DeliveryOrderListController extends GetxController {
       if (data.statusCode == "200") {
         final list = List<Order>.from(data.data);
         sortOrdersSlotWise(list);
-        activeOrders.assignAll(list);
 
-        /// Example History Filter
-        final historyList = data.data.where((e) => e.status == 3).toList();
-        sortOrdersSlotWise(historyList);
-        historyOrders.assignAll(historyList);
+        // Filter active orders (only not delivered and not cancelled)
+        final activeList = list.where((o) => o.isActive).toList();
+        activeOrders.assignAll(activeList);
+
+        // If any delivered orders were in the active API response, keep track of them
+        final deliveredFromActive = list.where((o) => o.isDelivered).toList();
+        for (final o in deliveredFromActive) {
+          if (!deliveredOrders.any((d) => d.id == o.id)) {
+            deliveredOrders.add(o);
+          }
+        }
+        if (deliveredFromActive.isNotEmpty) {
+          sortOrdersSlotWise(deliveredOrders);
+        }
+
+        // If any cancelled orders were in the active API response, keep track of them
+        final cancelledFromActive = list.where((o) => o.isCancelled).toList();
+        for (final o in cancelledFromActive) {
+          if (!cancelledOrders.any((c) => c.id == o.id)) {
+            cancelledOrders.add(o);
+          }
+        }
+        if (cancelledFromActive.isNotEmpty) {
+          sortOrdersSlotWise(cancelledOrders);
+        }
       }
 
       return true;
@@ -71,7 +127,6 @@ class DeliveryOrderListController extends GetxController {
       isLoading.value = false;
     }
   }
-
 
   Future<bool> getCustomerHistoryOrder() async {
     try {
@@ -81,7 +136,9 @@ class DeliveryOrderListController extends GetxController {
 
       /// ❌ API Error
       if (data.statusCode == "201") {
-      //  AppSnackbar.error(data.message);
+        deliveredOrders.clear();
+        cancelledOrders.clear();
+        historyOrders.clear();
         return false;
       }
 
@@ -90,6 +147,14 @@ class DeliveryOrderListController extends GetxController {
         final list = List<Order>.from(data.data);
         sortOrdersSlotWise(list);
         historyOrders.assignAll(list);
+
+        // Delivered orders: strictly isDelivered OR (not cancelled and not active)
+        final delivered = list.where((o) => o.isDelivered || (!o.isCancelled && !o.isActive)).toList();
+        deliveredOrders.assignAll(delivered);
+
+        // Cancelled orders: strictly isCancelled
+        final cancelled = list.where((o) => o.isCancelled).toList();
+        cancelledOrders.assignAll(cancelled);
       }
 
       return true;
@@ -101,7 +166,6 @@ class DeliveryOrderListController extends GetxController {
       isLoading.value = false;
     }
   }
-
 
   /// ✅ Status Text
   String getStatusText(int status) {
@@ -112,6 +176,8 @@ class DeliveryOrderListController extends GetxController {
         return "Out for Delivery";
       case 3:
         return "Delivered";
+      case 4:
+        return "Cancelled";
       default:
         return "Unknown";
     }
@@ -119,8 +185,10 @@ class DeliveryOrderListController extends GetxController {
 
   /// ✅ Status Color
   Color getStatusColor(String status) {
-    switch (status) {
-      case 'Failed':
+    switch (status.trim().toLowerCase()) {
+      case 'failed':
+      case 'cancelled':
+      case 'canceled':
         return Colors.red;
       default:
         return Colors.green;

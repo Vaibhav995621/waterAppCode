@@ -24,6 +24,8 @@ import 'package:zourney/app/modules/customer/payment_successs_screen/payment_suc
 import 'package:zourney/app/modules/customer/select_address/select_address_binding.dart';
 import 'package:zourney/app/modules/customer/subscription_history_list/subscription_history_view.dart';
 import 'package:zourney/app/modules/customer/subscription_plan/bottle_subscription_binding.dart';
+import 'package:zourney/app/modules/delivery/dashboard/delivery_dashboard_binding.dart';
+import 'package:zourney/app/modules/delivery/dashboard/delivery_dashboard_view.dart';
 import 'package:zourney/app/modules/delivery/delivery_order_detail/order_detail_binding.dart';
 import 'package:zourney/app/modules/delivery/home/delivery_order_list_binding.dart';
 import 'package:zourney/app/modules/delivery/home/delivery_order_list_view.dart';
@@ -181,6 +183,11 @@ class AppPages {
       name: AppRoutes.subscriptionHistoryList,
       page: () =>  SubscriptionHistoryView(),
       binding: SubscriptionHistoryBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryDashboard,
+      page: () => DeliveryDashboardView(),
+      binding: DeliveryDashboardBinding(),
     ),
     GetPage(
       name: AppRoutes.deliveryOrderList,
