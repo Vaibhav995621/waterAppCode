@@ -701,11 +701,13 @@ Future<SubscriptionModel> getSubscriptionList() async {
   }
 
 
-  Future<AdminDashboardModel> adminDashboardApi() async {
+  Future<AdminDashboardModel> adminDashboardApi({String? partnerId}) async {
     try {
       final response = await _api.post(
-        ApiEndpoints.adminDashboard, // change endpoint if needed
+        ApiEndpoints.adminDashboard,
         {
+          "partnerid": partnerId ??
+              (AppSession.userId.isNotEmpty ? AppSession.userId : "1"),
         },
         tokenRequired: false,
         headers: {
