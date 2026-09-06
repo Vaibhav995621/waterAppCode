@@ -223,6 +223,9 @@ class PaymentController extends GetxController {
       if (transId.isNotEmpty) {
         body['trans_id'] = transId;
       }
+      if (!body.containsKey('admincharges') && adminCharges > 0) {
+        body['admincharges'] = adminCharges.toString();
+      }
       final response = await _repo.saveSchedule(body);
 
       String statusCode = response['status_code']?.toString() ?? response['status']?.toString() ?? '200';

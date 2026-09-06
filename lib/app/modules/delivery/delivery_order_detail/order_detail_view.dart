@@ -70,9 +70,15 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
         },
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: RefreshIndicator(
+        color: const Color(0xff6B67F6),
+        onRefresh: () async {
+          await Future.delayed(const Duration(milliseconds: 600));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
           children: [
             /// ORDER INFO
             _sectionCard(
@@ -270,8 +276,9 @@ class DeliveryOrderDetailView extends GetView<DeliveryOrderDetailController> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
   Widget _detailRow(String title, String value, {VoidCallback? onCallTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

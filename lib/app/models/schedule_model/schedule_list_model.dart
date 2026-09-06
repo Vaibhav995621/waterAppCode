@@ -45,6 +45,7 @@ class ScheduleData {
   final int paymentstatus;
   final int status;
   final int subscriptionduration;
+  final String admincharges;
   final String? createdAt;
   final WaterbottleDetails? waterbottleDetails;
   final ScheduleCustomer? customer;
@@ -67,6 +68,7 @@ class ScheduleData {
     required this.paymentstatus,
     required this.status,
     required this.subscriptionduration,
+    this.admincharges = '0',
     this.createdAt,
     this.waterbottleDetails,
     this.customer,
@@ -91,6 +93,10 @@ class ScheduleData {
       paymentstatus: int.tryParse(json['paymentstatus']?.toString() ?? '0') ?? 0,
       status: int.tryParse(json['status']?.toString() ?? '0') ?? 0,
       subscriptionduration: int.tryParse(json['subscriptionduration']?.toString() ?? '0') ?? 0,
+      admincharges: json['admincharges']?.toString() ??
+          json['adminCharges']?.toString() ??
+          json['admincharge']?.toString() ??
+          '0',
       createdAt: json['created_at']?.toString(),
       waterbottleDetails: json['waterbottle_details'] != null
           ? WaterbottleDetails.fromJson(json['waterbottle_details'])
@@ -121,6 +127,7 @@ class ScheduleData {
         'paymentstatus': paymentstatus,
         'status': status,
         'subscriptionduration': subscriptionduration,
+        'admincharges': admincharges,
         'created_at': createdAt,
         'waterbottle_details': waterbottleDetails?.toJson(),
         'customer': customer?.toJson(),

@@ -109,35 +109,47 @@ class SelectAddressScreen extends StatelessWidget {
                       top: Radius.circular(35),
                     ),
                   ),
-                  child: Obx(
-                    () {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xff6C63FF),
-                          ),
-                        );
-                      }
+                  child: RefreshIndicator(
+                    color: const Color(0xff6C63FF),
+                    onRefresh: controller.refreshAddress,
+                    child: Obx(
+                      () {
+                        if (controller.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xff6C63FF),
+                            ),
+                          );
+                        }
 
-                      if (controller.addressList.isEmpty) {
-                        return _buildEmptyState();
-                      }
+                        if (controller.addressList.isEmpty) {
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: _buildEmptyState(),
+                              ),
+                            ],
+                          );
+                        }
 
-                      return ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                        itemCount: controller.addressList.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 18),
-                        itemBuilder: (_, index) {
-                          final item = controller.addressList[index];
-                          final isSelected = controller.selectedId.value == item.id;
+                        return ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                          itemCount: controller.addressList.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 18),
+                          itemBuilder: (_, index) {
+                            final item = controller.addressList[index];
+                            final isSelected = controller.selectedId.value == item.id;
 
-                          return AddressCard(
-                            model: item,
-                            selected: isSelected,
-                            onTap: () {
-                              controller.selectAddress(item.id!);
-                            },
+                            return AddressCard(
+                              model: item,
+                              selected: isSelected,
+                              onTap: () {
+                                controller.selectAddress(item.id!);
+                              },
                             onDelete: () {
                               if (controller.addressList.length > 1 &&
                                   item.isDefault == 0) {
@@ -163,6 +175,7 @@ class SelectAddressScreen extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
 
               _buildBottomActionButtons(),
             ],

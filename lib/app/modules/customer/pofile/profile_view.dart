@@ -51,9 +51,13 @@ class ProfileView extends GetView<ProfileController> {
 
             /// Main Body
             SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
+              child: RefreshIndicator(
+                color: const Color(0xff6C63FF),
+                onRefresh: () async => await controller.getProfile(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
                   children: [
 
                     const SizedBox(height: 20),
@@ -330,10 +334,12 @@ class ProfileView extends GetView<ProfileController> {
                 ],
               ),
             ),
-            )],
+          ),
         ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   Widget cardTile(
       IconData icon,

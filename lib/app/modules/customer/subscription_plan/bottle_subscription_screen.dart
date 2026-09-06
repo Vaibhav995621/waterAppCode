@@ -65,77 +65,84 @@ class BottleSubscriptionScreen extends StatelessWidget {
 
           Column(
             children: [
-              SizedBox(height: 120),
-
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      _buildHeader(),
+                child: RefreshIndicator(
+                  color: const Color(0xff6B67F6),
+                  onRefresh: () async {
+                    await controller.getSubscribePlanList();
+                    await controller.getDefaultAddressFloor();
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 120),
+                        _buildHeader(),
 
-                      const SizedBox(height: 25),
+                        const SizedBox(height: 25),
 
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Choose your plan",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xff0D1B52),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Choose your plan",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xff0D1B52),
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                      Obx(
-                        () => Column(
-                          children: List.generate(
-                            controller.subscriptionList.length,
-                            (index) {
-                              final plan = controller.subscriptionList[index];
-                              double basePrice = controller.getBasePrice(plan);
-                              double floorCharge = controller.getFloorCharge(plan);
-                              double totalPrice = controller.getTotalPrice(plan);
-                              String bottles = plan.bottlequantity.toString();
-                              String oldPrice = plan.originalprice;
-                              String save = plan.totalsave.toString();
-                              String perBottle = plan.rateperbottle
-                                  .toStringAsFixed(2);
+                        Obx(
+                          () => Column(
+                            children: List.generate(
+                              controller.subscriptionList.length,
+                              (index) {
+                                final plan = controller.subscriptionList[index];
+                                double basePrice = controller.getBasePrice(plan);
+                                double floorCharge = controller.getFloorCharge(plan);
+                                double totalPrice = controller.getTotalPrice(plan);
+                                String bottles = plan.bottlequantity.toString();
+                                String oldPrice = plan.originalprice;
+                                String save = plan.totalsave.toString();
+                                String perBottle = plan.rateperbottle
+                                    .toStringAsFixed(2);
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 18),
-                                child: _buildPlanCard(
-                                  index: index,
-                                  bottles: bottles,
-                                  save: save,
-                                  oldPrice: oldPrice,
-                                  price: basePrice.toStringAsFixed(0),
-                                  floorCharge: floorCharge,
-                                  totalPrice: totalPrice,
-                                  perBottle: perBottle,
-                                  color: Colors.blue,
-                                  selected:
-                                      controller.selectedPlan.value == index,
-                                ),
-                              );
-                            },
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 18),
+                                  child: _buildPlanCard(
+                                    index: index,
+                                    bottles: bottles,
+                                    save: save,
+                                    oldPrice: oldPrice,
+                                    price: basePrice.toStringAsFixed(0),
+                                    floorCharge: floorCharge,
+                                    totalPrice: totalPrice,
+                                    perBottle: perBottle,
+                                    color: Colors.blue,
+                                    selected:
+                                        controller.selectedPlan.value == index,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
-                      _buildPriceSummary(),
+                        _buildPriceSummary(),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                      _buildFeatures(),
+                        _buildFeatures(),
 
-                      const SizedBox(height: 40),
-                    ],
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
                 ),
               ),

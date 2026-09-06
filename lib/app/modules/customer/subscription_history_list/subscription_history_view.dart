@@ -70,32 +70,44 @@ class SubscriptionHistoryView extends GetView<SubscriptionHistoryController> {
 
   // ─── Empty State ──────────────────────────────────────────────────────────
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    return RefreshIndicator(
+      color: _purple,
+      onRefresh: () => controller.fetchSubscriptions(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          Container(
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: _purple.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
+          SizedBox(
+            height: 400,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: _purple.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.receipt_long_rounded, size: 56, color: _purple.withValues(alpha: 0.5)),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'No Transactions Yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your transaction history will\nappear here.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: Color(0xFF9CA3AF)),
+                  ),
+                ],
+              ),
             ),
-            child: Icon(Icons.receipt_long_rounded, size: 56, color: _purple.withValues(alpha: 0.5)),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'No Transactions Yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF374151),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Your transaction history will\nappear here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF9CA3AF)),
           ),
         ],
       ),
@@ -112,18 +124,23 @@ class SubscriptionHistoryView extends GetView<SubscriptionHistoryController> {
         .where((e) => e.isWalletTopUp)
         .length;
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      itemCount: controller.subscriptionList.length + 1, // +1 for summary header
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildSummaryHeader(totalSubscriptions, totalWalletTopUps);
-        }
-        final item = controller.subscriptionList[index - 1];
-        return item.isWalletTopUp
-            ? _buildWalletTopUpCard(item)
-            : _buildSubscriptionCard(item);
-      },
+    return RefreshIndicator(
+      color: _purple,
+      onRefresh: () => controller.fetchSubscriptions(),
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        itemCount: controller.subscriptionList.length + 1, // +1 for summary header
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildSummaryHeader(totalSubscriptions, totalWalletTopUps);
+          }
+          final item = controller.subscriptionList[index - 1];
+          return item.isWalletTopUp
+              ? _buildWalletTopUpCard(item)
+              : _buildSubscriptionCard(item);
+        },
+      ),
     );
   }
 

@@ -51,11 +51,18 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
           ),
 
           SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
+            child: RefreshIndicator(
+              color: const Color(0xff6B67F6),
+              onRefresh: () async {
+                await controller.getProfile();
+                await controller.getActiveOrders();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
                   children: [
 
                     const SizedBox(height: 30),
@@ -627,12 +634,13 @@ class CustomerHomeScreen extends GetView<CustomerHomeController> {
                       );
                     }),
 
-                    SizedBox(height: 120)
+                    const SizedBox(height: 120),
                   ],
                 ),
               ),
             ),
-          )
+          ),
+        ),
         ],
       ),
     );

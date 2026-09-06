@@ -78,143 +78,129 @@ class AssignDeliveryBoyView
 
         /// ONLY LIST SCROLL
         Expanded(
-          child: Obx(() {
-            if (controller.isLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+          child: RefreshIndicator(
+            color: Colors.blue,
+            onRefresh: controller.deliveryBoyListApi,
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
 
-            if (controller.filteredBoys.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No delivery boys found",
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
-              itemCount: controller.filteredBoys.length,
-              separatorBuilder: (_, __) => Divider(
-                color: Colors.grey.shade200,
-                height: 24,
-              ),
-              itemBuilder: (context, index) {
-                final item = controller.filteredBoys[index];
-
-                return GestureDetector(
-                  onTap: () => controller.selectBoy(item.id),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundColor: const Color(0xffE8EEF9),
-                        backgroundImage: item.photo.isNotEmpty
-                            ? NetworkImage(item.photo)
-                            : null,
-                        child: item.photo.isEmpty
-                            ? const Icon(
-                          Icons.person,
-                          color: Colors.grey,
-                        )
-                            : null,
-                      ),
-
-                      const SizedBox(width: 14),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.fullname,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xff222222),
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            Text(
-                              item.mobile,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            Text(
-                              item.email,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            Text(
-                              item.status == 1
-                                  ? "Available"
-                                  : "Inactive",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: item.status == 1
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            ),
-                          ],
+              if (controller.filteredBoys.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.45,
+                      child: const Center(
+                        child: Text(
+                          "No delivery boys found",
                         ),
                       ),
-
-                      Obx(() {
-                        final isSelected =
-                            controller.selectedBoyId.value == item.id;
-
-                        return GestureDetector(
-                          onTap: () => controller.selectBoy(item.id),
-                          child: Container(
-                            height: 26,
-                            width: 26,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.blue
-                                    : Colors.grey.shade400,
-                                width: 2,
-                              ),
-                            ),
-                            child: isSelected
-                                ? const Center(
-                              child: CircleAvatar(
-                                radius: 7,
-                                backgroundColor: Colors.blue,
-                              ),
-                            )
-                                : null,
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
-              },
-            );
-          }),
+              }
+
+              return ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: controller.filteredBoys.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: Colors.grey.shade200,
+                  height: 24,
+                ),
+                itemBuilder: (context, index) {
+                  final item = controller.filteredBoys[index];
+
+                  return GestureDetector(
+                    onTap: () => controller.selectBoy(item.id),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: const Color(0xffE8EEF9),
+                          backgroundImage: item.photo.isNotEmpty
+                              ? NetworkImage(item.photo)
+                              : null,
+                          child: item.photo.isEmpty
+                              ? const Icon(
+                            Icons.person,
+                            color: Colors.grey,
+                          )
+                              : null,
+                        ),
+
+                        const SizedBox(width: 14),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.fullname,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Text(
+                                item.mobile,
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Obx(() {
+                          final isSelected =
+                              controller.selectedBoyId.value == item.id;
+
+                          return GestureDetector(
+                            onTap: () => controller.selectBoy(item.id),
+                            child: Container(
+                              height: 26,
+                              width: 26,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Colors.blue
+                                      : Colors.grey.shade400,
+                                  width: 2,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? const Center(
+                                child: CircleAvatar(
+                                  radius: 7,
+                                  backgroundColor: Colors.blue,
+                                ),
+                              )
+                                  : null,
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
+          ),
         ),
+
         /// FIXED BUTTON
         Container(
           padding: const EdgeInsets.fromLTRB(

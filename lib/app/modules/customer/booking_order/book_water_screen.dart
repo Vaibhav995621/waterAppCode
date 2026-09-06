@@ -4,7 +4,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../routes/app_routes.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
-import '../../../app_session/app_session.dart';
 import 'book_water_controller.dart';
 import '../../../models/bottel_model/botle_model.dart';
 
@@ -30,8 +29,15 @@ class BookWaterScreen extends GetView<BookWaterController> {
 
             /// BOTTLE LIST
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
+              child: RefreshIndicator(
+                color: Colors.blue.shade700,
+                onRefresh: () async {
+                  await controller.getBottleList();
+                  await controller.addressController.refreshAddress();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
                   children: [
 
                     /// Dynamic Bottle List
@@ -290,35 +296,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                   ],
                                 );
                               }),
-                              Obx(() {
-                                if (controller.adminCharges <= 0) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Column(
-                                  children: [
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Admin Charges",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey.shade700),
-                                        ),
-                                        Text(
-                                          "₹${controller.adminCharges}",
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }),
+
                               const Divider(height: 16),
                               Obx(() => Row(
                                 mainAxisAlignment:
@@ -570,8 +548,9 @@ class BookWaterScreen extends GetView<BookWaterController> {
                                       "addressid": addressId,
                                       "floor": controller.floor,
                                       "floorCharges": controller.floorCharges,
-                                      "admincharges": controller.adminCharges.toString(),
-                                      "adminCharges": controller.adminCharges,
+                                      "admincharges": controller.singleBottleAdminCharge.toString(),
+                                      "adminCharges": controller.singleBottleAdminCharge,
+                                      "singleBottleAdminCharge": controller.singleBottleAdminCharge,
                                       "isLiftAvailable": controller.isLiftAvailable,
                                     },
                                   );
@@ -641,6 +620,7 @@ class BookWaterScreen extends GetView<BookWaterController> {
                 ),
               ),
             ),
+          ),
 
             /// PLACE ORDER BUTTON
             Obx(

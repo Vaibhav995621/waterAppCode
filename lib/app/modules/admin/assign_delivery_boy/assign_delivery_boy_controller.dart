@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
-import '../../../global_controller/bottomTabBar/navigation_controller.dart';
 import '../../../models/Admin/admin_order_details/admin_order_details_model.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 

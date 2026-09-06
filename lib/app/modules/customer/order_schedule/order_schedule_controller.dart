@@ -23,6 +23,9 @@ class OrderScheduleController extends GetxController {
   var floorCharges = 0.obs;
   var isLiftAvailable = false.obs;
 
+  // Admin charges
+  var adminCharges = 0.obs;
+
   var isLoading = false.obs;
 
   // Subscription type: 'Daily', 'Weekly', 'Custom'
@@ -81,6 +84,9 @@ class OrderScheduleController extends GetxController {
         if (bottleData.value!.floorChanges != null) {
           floorCharges.value = bottleData.value!.floorChanges!;
         }
+        if (bottleData.value!.adminCharges > 0) {
+          adminCharges.value = bottleData.value!.adminCharges;
+        }
       }
       if (args['waterbottleid'] != null) {
         waterbottleid.value = args['waterbottleid'].toString();
@@ -108,6 +114,13 @@ class OrderScheduleController extends GetxController {
           isLiftAvailable.value = args['isLiftAvailable'].toString() == '1' ||
               args['isLiftAvailable'].toString().toLowerCase() == 'true';
         }
+      }
+      if (args['singleBottleAdminCharge'] != null) {
+        adminCharges.value = int.tryParse(args['singleBottleAdminCharge'].toString()) ?? adminCharges.value;
+      } else if (args['admincharges'] != null) {
+        adminCharges.value = int.tryParse(args['admincharges'].toString()) ?? adminCharges.value;
+      } else if (args['adminCharges'] != null) {
+        adminCharges.value = int.tryParse(args['adminCharges'].toString()) ?? adminCharges.value;
       }
     }
   }
@@ -239,6 +252,15 @@ class OrderScheduleController extends GetxController {
     return getDeliveryCount() * calculateFloorChargesPerDelivery();
   }
 
+  int get singleBottleAdminCharge => bottleData.value?.adminCharges ?? 0;
+
+  int get actualAdminCharge {
+    if (singleBottleAdminCharge > 0) {
+      return singleBottleAdminCharge;
+    }
+    return adminCharges.value;
+  }
+
   double calculateBottleSubtotal() {
     int totalQty = calculateTotalQuantity();
     double price = double.tryParse(unitprice.value) ?? 0.0;
@@ -305,6 +327,7 @@ class OrderScheduleController extends GetxController {
       "paymentstatus": paymentstatus.value,
       "status": status.value,
       "subscriptionduration": getDurationDays(),
+      "admincharges": actualAdminCharge.toString(),
     };
 
     // Navigate to payment screen passing all schedule data
@@ -319,6 +342,8 @@ class OrderScheduleController extends GetxController {
         "quantity": totalQty,
         "floor": floor.value,
         "floorCharges": floorCharges.value,
+        "admincharges": actualAdminCharge.toString(),
+        "adminCharges": actualAdminCharge,
       },
     );
   }

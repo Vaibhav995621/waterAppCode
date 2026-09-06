@@ -35,7 +35,8 @@ class ApiEndpoints {
   static const getWalletByCustomerId = "getwalletbycustomerid";
   static const updateWalletByCustomerId = "updatewalletbycustomerid";
 
-  static const adminDashboard = "dashboardbypartnerid";
+  static const adminDashboard = "dashboard";
+  static const deliveryDashboard = "dashboardbypartnerid";
   static const subscriptionHistoryList = "getsubscriptionhistorybycustomerid";
   static const adminOrderList = "allorders";
   static const deliverBoyList = "alldeliveryboy";

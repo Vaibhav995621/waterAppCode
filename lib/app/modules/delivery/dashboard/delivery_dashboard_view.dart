@@ -113,6 +113,7 @@ class DeliveryDashboardView extends StatelessWidget {
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             /// STATS GRID
                             Obx(
@@ -178,10 +179,31 @@ class DeliveryDashboardView extends StatelessWidget {
                                               Color(0xff6A1B9A),
                                             ],
                                           ),
+                                          DeliveryStatsCard(
+                                            title: "Online (Admin to Delivery)",
+                                            value: controller
+                                                .onlineAdminToDelivery.value
+                                                .toString(),
+                                            colors: const [
+                                              Color(0xff26A69A),
+                                              Color(0xff00695C),
+                                            ],
+                                          ),
+                                          DeliveryStatsCard(
+                                            title: "Offline (Delivery to Admin)",
+                                            value: controller
+                                                .offlineDeliveryToAdmin.value
+                                                .toString(),
+                                            colors: const [
+                                              Color(0xffFFA726),
+                                              Color(0xffE65100),
+                                            ],
+                                          ),
                                         ],
                                       ),
                               ),
                             ),
+
                             const SizedBox(height: 24),
                           ],
                         ),
@@ -205,7 +227,7 @@ class DeliveryDashboardView extends StatelessWidget {
       mainAxisSpacing: 14,
       crossAxisSpacing: 14,
       childAspectRatio: 1.45,
-      children: List.generate(5, (index) {
+      children: List.generate(7, (index) {
         return Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -273,7 +295,7 @@ class DeliveryStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -295,17 +317,19 @@ class DeliveryStatsCard extends StatelessWidget {
         children: [
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: Colors.white70,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),

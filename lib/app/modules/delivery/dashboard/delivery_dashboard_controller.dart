@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../../../utlis/network/repositories/auth_repository.dart';
 import '../../../../utlis/progress_hud/app_snackbar.dart';
+import '../../../app_session/app_session.dart';
 import '../../../models/Admin/admin_order_list/admin_order_model.dart';
 
 class DeliveryDashboardController extends GetxController {
@@ -13,6 +14,8 @@ class DeliveryDashboardController extends GetxController {
   RxInt completedOrders = 0.obs;
   RxInt cancelledOrders = 0.obs;
   RxInt totalRevenue = 0.obs;
+  RxInt onlineAdminToDelivery = 0.obs;
+  RxInt offlineDeliveryToAdmin = 0.obs;
 
   RxList<Order> recentOrders = <Order>[].obs;
 
@@ -26,7 +29,9 @@ class DeliveryDashboardController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await _repo.adminDashboardApi();
+      final response = await _repo.deliveryDashboardApi(
+        partnerId: AppSession.userId.isNotEmpty ? AppSession.userId : "1",
+      );
 
       if (response.statusCode == '200') {
         totalOrders.value = response.data.totalOrders;
@@ -34,6 +39,8 @@ class DeliveryDashboardController extends GetxController {
         completedOrders.value = response.data.totalCompletedOrders;
         cancelledOrders.value = response.data.totalCancelledOrders;
         totalRevenue.value = response.data.totalEarning;
+        onlineAdminToDelivery.value = response.data.onlineAdminToDelivery;
+        offlineDeliveryToAdmin.value = response.data.offlineDeliveryToAdmin;
 
         recentOrders.assignAll(response.data.recentOrder);
       } else {

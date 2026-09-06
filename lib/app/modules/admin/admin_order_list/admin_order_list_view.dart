@@ -217,7 +217,9 @@ class AdminOrderListView extends StatelessWidget {
 
                     return ListView.builder(
                       key: PageStorageKey(controller.activeTab.value),
-                      physics: const ClampingScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: ClampingScrollPhysics(),
+                      ),
                       addAutomaticKeepAlives: false,
                       addRepaintBoundaries: true,
                       addSemanticIndexes: false,

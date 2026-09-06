@@ -701,10 +701,33 @@ Future<SubscriptionModel> getSubscriptionList() async {
   }
 
 
-  Future<AdminDashboardModel> adminDashboardApi({String? partnerId}) async {
+  Future<AdminDashboardModel> adminDashboardApi() async {
     try {
       final response = await _api.post(
         ApiEndpoints.adminDashboard,
+        {},
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh",
+        },
+      );
+
+      /// ✅ SUCCESS
+      return AdminDashboardModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<AdminDashboardModel> deliveryDashboardApi({String? partnerId}) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.deliveryDashboard,
         {
           "partnerid": partnerId ??
               (AppSession.userId.isNotEmpty ? AppSession.userId : "1"),

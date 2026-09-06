@@ -13,9 +13,9 @@ class AdminDashboardModel {
 
   factory AdminDashboardModel.fromJson(Map<String, dynamic> json) {
     return AdminDashboardModel(
-      statusCode: json['status_code'] ?? '',
-      message: json['message'] ?? '',
-      data: Data.fromJson(json['data'] ?? {}),
+      statusCode: json['status_code']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      data: Data.fromJson(json['data'] is Map<String, dynamic> ? json['data'] : {}),
     );
   }
 
@@ -34,6 +34,8 @@ class Data {
   int totalCompletedOrders;
   int totalCancelledOrders;
   int totalEarning;
+  int onlineAdminToDelivery;
+  int offlineDeliveryToAdmin;
   List<Order> recentOrder;
 
   Data({
@@ -42,19 +44,30 @@ class Data {
     required this.totalCompletedOrders,
     required this.totalCancelledOrders,
     required this.totalEarning,
+    this.onlineAdminToDelivery = 0,
+    this.offlineDeliveryToAdmin = 0,
     required this.recentOrder,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      totalOrders: json['total_orders'] ?? 0,
-      totalActiveOrders: json['total_active_orders'] ?? 0,
-      totalCompletedOrders: json['total_completed_orders'] ?? 0,
-      totalCancelledOrders: json['total_cancelled_orders'] ?? 0,
-      totalEarning: json['total_earning'] ?? 0,
+      totalOrders: int.tryParse(json['total_orders']?.toString() ?? '0') ?? 0,
+      totalActiveOrders:
+          int.tryParse(json['total_active_orders']?.toString() ?? '0') ?? 0,
+      totalCompletedOrders:
+          int.tryParse(json['total_completed_orders']?.toString() ?? '0') ?? 0,
+      totalCancelledOrders:
+          int.tryParse(json['total_cancelled_orders']?.toString() ?? '0') ?? 0,
+      totalEarning: int.tryParse(json['total_earning']?.toString() ?? '0') ?? 0,
+      onlineAdminToDelivery: int.tryParse(
+              (json['online_admintodelivery'] ?? json['online_admin_to_delivery'] ?? '0').toString()) ??
+          0,
+      offlineDeliveryToAdmin: int.tryParse(
+              (json['offline_deliverytoadmin'] ?? json['offline_delivery_to_admin'] ?? '0').toString()) ??
+          0,
       recentOrder: (json['Recent_order'] as List<dynamic>?)
-          ?.map((e) => Order.fromJson(e))
-          .toList() ??
+              ?.map((e) => Order.fromJson(e))
+              .toList() ??
           [],
     );
   }
@@ -66,6 +79,8 @@ class Data {
       'total_completed_orders': totalCompletedOrders,
       'total_cancelled_orders': totalCancelledOrders,
       'total_earning': totalEarning,
+      'online_admintodelivery': onlineAdminToDelivery,
+      'offline_deliverytoadmin': offlineDeliveryToAdmin,
       'Recent_order': recentOrder.map((e) => e.toJson()).toList(),
     };
   }

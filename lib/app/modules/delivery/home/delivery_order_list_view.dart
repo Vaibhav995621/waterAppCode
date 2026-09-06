@@ -159,7 +159,9 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                             : const Color(0xff3949AB));
 
                     return ListView.builder(
-                      physics: const ClampingScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: ClampingScrollPhysics(),
+                      ),
                       addAutomaticKeepAlives: false,
                       addRepaintBoundaries: true,
                       addSemanticIndexes: false,

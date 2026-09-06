@@ -42,10 +42,6 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
       );
     }
 
-    final statusColor = controller.orderData != null
-        ? getStatusColor(controller.orderData!.status)
-        : Colors.grey;
-
     final partnerName = order.deliveryDetails.deliveryPartnerName.trim().isNotEmpty
         ? order.deliveryDetails.deliveryPartnerName
         : order.deliveryPartnerName;
@@ -57,125 +53,129 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
           buildHeader(),
 
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  /// ORDER HEADER CARD
-                  _buildCard(
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "#${order.ordernumber}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff1A2C56),
-                                ),
-                              ),
-                            ),
-                            _buildPaymentModeChip(order),
-                            const SizedBox(width: 6),
-                            _buildPaymentStatusChip(order),
-                          ],
-                        ),
-
-                        /// Quick Delivery / Scheduled badges
-                        if (order.quickDelivery == 1 || order.isSchedule == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) ...[
-                          const SizedBox(height: 8),
+            child: RefreshIndicator(
+              color: const Color(0xff5E35B1),
+              onRefresh: () async {
+                await Future.delayed(const Duration(milliseconds: 600));
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    /// ORDER HEADER CARD
+                    _buildCard(
+                      child: Column(
+                        children: [
                           Row(
                             children: [
-                              if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
-                                _badgeChip("⚡ Quick Delivery", Colors.orange),
-                              if ((order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) && order.isSchedule == 1)
-                                const SizedBox(width: 6),
-                              if (order.isSchedule == 1)
-                                _badgeChip("🗓 Scheduled", Colors.purple),
+                              Expanded(
+                                child: Text(
+                                  "#${order.ordernumber}",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xff1A2C56),
+                                  ),
+                                ),
+                              ),
+                              _buildPaymentModeChip(order),
+                              const SizedBox(width: 6),
+                              _buildPaymentStatusChip(order),
+                            ],
+                          ),
+
+                          /// Quick Delivery / Scheduled badges
+                          if (order.quickDelivery == 1 || order.isSchedule == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                                  _badgeChip("⚡ Quick Delivery", Colors.orange),
+                                if ((order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) && order.isSchedule == 1)
+                                  const SizedBox(width: 6),
+                                if (order.isSchedule == 1)
+                                  _badgeChip("🗓 Scheduled", Colors.purple),
+                              ],
+                            ),
+                          ],
+
+                          const SizedBox(height: 15),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _infoTile("Amount", "₹${order.price}"),
+                              ),
+                              Expanded(
+                                child: _infoTile(
+                                  "Quantity",
+                                  order.quantity.toString(),
+                                ),
+                              ),
                             ],
                           ),
                         ],
-
-                        const SizedBox(height: 15),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _infoTile("Amount", "₹${order.price}"),
-                            ),
-                            Expanded(
-                              child: _infoTile(
-                                "Quantity",
-                                order.quantity.toString(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  /// ORDER INFORMATION
-                  _sectionTitle("Order Information"),
-                  _buildCard(
-                    child: Column(
-                      children: [
-                        _detailRow(
-                          "Order Date & Time",
-                          DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate),
-                        ),
+                    /// ORDER INFORMATION
+                    _sectionTitle("Order Information"),
+                    _buildCard(
+                      child: Column(
+                        children: [
+                          _detailRow(
+                            "Order Date & Time",
+                            DateFormat('dd-MMM-yyyy hh:mm a').format(order.cdate),
+                          ),
 
-                        _detailRow(
-                          "Delivery Date",
-                          DateFormat('dd-MMM-yyyy').format(order.deliverydate),
-                        ),
+                          _detailRow(
+                            "Delivery Date",
+                            DateFormat('dd-MMM-yyyy').format(order.deliverydate),
+                          ),
 
-                        _detailRow(
-                          "Delivery Time",
-                          order.deliverytime.isNotEmpty ? order.deliverytime : "N/A",
-                        ),
+                          _detailRow(
+                            "Delivery Time",
+                            order.deliverytime.isNotEmpty ? order.deliverytime : "N/A",
+                          ),
 
-                        _detailRow(
-                          "Bottle ID",
-                          order.waterbottleid.toString(),
-                        ),
+                          _detailRow(
+                            "Bottle ID",
+                            order.waterbottleid.toString(),
+                          ),
 
-                        _detailRow(
-                          "Water Bottle Name",
-                          displayValue(order.waterbottleName),
-                        ),
+                          _detailRow(
+                            "Water Bottle Name",
+                            displayValue(order.waterbottleName),
+                          ),
 
-                        _detailRow(
-                          "Bottle Weight",
-                          displayValue(order.bottleWeight),
-                        ),
+                          _detailRow(
+                            "Bottle Weight",
+                            displayValue(order.bottleWeight),
+                          ),
 
-                        _detailRow(
-                          "Bottle Description",
-                          displayValue(order.bottleDescription),
-                        ),
+                          _detailRow(
+                            "Bottle Description",
+                            displayValue(order.bottleDescription),
+                          ),
 
-                        _detailRow(
-                          "Payment Mode",
-                          order.formattedPaymentMode,
-                          badgeColor: order.paymentModeColor,
-                          badgeBgColor: order.paymentModeBgColor,
-                          badgeIcon: order.paymentModeIcon,
-                        ),
+                          _detailRow(
+                            "Payment Mode",
+                            order.formattedPaymentMode,
+                            badgeColor: order.paymentModeColor,
+                            badgeBgColor: order.paymentModeBgColor,
+                            badgeIcon: order.paymentModeIcon,
+                          ),
 
-                        _detailRow(
-                          "Payment Status",
-                          order.formattedPaymentStatus,
-                          badgeColor: order.paymentStatusColor,
-                          badgeBgColor: order.paymentStatusBgColor,
-                          badgeIcon: order.paymentStatusIcon,
-                        ),
-
-                        if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0)
+                          _detailRow(
+                            "Payment Status",
+                            order.formattedPaymentStatus,
+                            badgeColor: order.paymentStatusColor,
+                            badgeBgColor: order.paymentStatusBgColor,
+                            badgeIcon: order.paymentStatusIcon,
+                          ),
                           _detailRow(
                             "Delivery Type",
                             "⚡ Quick Delivery",
@@ -295,9 +295,10 @@ class OrderDetailsScreen extends GetView<OrderDetailsController> {
               ),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
   }
 
   Widget buildHeader() {

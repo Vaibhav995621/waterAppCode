@@ -46,10 +46,15 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
             buildHeader(),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-
-                child: Column(
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await Future.delayed(const Duration(milliseconds: 600));
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                   children: [
                     /// ORDER HEADER
                     _buildCard(
@@ -431,6 +436,7 @@ class AdminOrderDetailsView extends GetView<AdminOrderDetailsController> {
                 ),
               ),
             ),
+          ),
           ],
         );
       }),

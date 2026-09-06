@@ -106,6 +106,7 @@ class ScheduleOrdersListView extends GetView<ScheduleOrdersListController> {
               return RefreshIndicator(
                 onRefresh: () => controller.fetchScheduleOrders(),
                 child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                   itemCount: controller.filteredScheduleList.length,
                   itemBuilder: (context, index) {
