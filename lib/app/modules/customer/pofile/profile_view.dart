@@ -304,7 +304,19 @@ class ProfileView extends GetView<ProfileController> {
                               AppRoutes.subscriptionHistoryList,
                             );
                           },
-                         ) : SizedBox.shrink(),
+                         ) : const SizedBox.shrink(),
+                        AppSession.role == 2 ? SizedBox(height: 16,):  const SizedBox.shrink(),
+
+                        AppSession.role == 2 ?
+                        cardTile(
+                          Icons.account_balance_wallet_rounded,
+                          "Daily Earn",
+                          () {
+                            Get.toNamed(
+                              AppRoutes.dailyEarn,
+                            );
+                          },
+                        ) : const SizedBox.shrink(),
                         cardTile(
                           Icons.lock,
                           "Change Password",
@@ -481,66 +493,6 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
                 ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Full-screen image viewer dialog
-  void _showFullScreenImage(
-    BuildContext context,
-    ProfileController controller,
-  ) {
-    final ImageProvider imageProvider =
-        controller.selectedImage.value != null
-            ? FileImage(controller.selectedImage.value!) as ImageProvider
-            : controller.image.isNotEmpty
-                ? NetworkImage(controller.image)
-                : const NetworkImage("https://i.pravatar.cc/150");
-
-    showDialog(
-      context: context,
-      barrierColor: Colors.black87,
-      builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
-          child: Stack(
-            children: [
-              /// Pinch-to-zoom full-screen image
-              Center(
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 4.0,
-                  child: CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.42,
-                    backgroundImage: imageProvider,
-                  ),
-                ),
-              ),
-
-              /// Close button
-              Positioned(
-                top: 40,
-                right: 16,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.white24,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

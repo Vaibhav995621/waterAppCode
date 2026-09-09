@@ -29,6 +29,7 @@ import '../../../app/models/register_model/register_sector_list_model.dart';
 import '../../../app/models/register_model/register_locality_list_model.dart';
 import '../../../app/models/wallet_model/wallet_model.dart';
 import '../../../app/models/schedule_model/schedule_list_model.dart';
+import '../../../app/models/delivery_daily_data_model/delivery_daily_data_model.dart';
 import '../../constants/api_endpoints.dart';
 import '../api_provider.dart';
 
@@ -742,6 +743,33 @@ Future<SubscriptionModel> getSubscriptionList() async {
 
       /// ✅ SUCCESS
       return AdminDashboardModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<DeliveryDailyDataResponse> getDeliveryDailyData({
+    String? deliveryPartnerId,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.deliveryDailyData,
+        {
+          "deliverypartnerid": deliveryPartnerId ??
+              (AppSession.userId.isNotEmpty ? AppSession.userId : "1"),
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh",
+        },
+      );
+
+      return DeliveryDailyDataResponse.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

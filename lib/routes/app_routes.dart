@@ -31,4 +31,5 @@ abstract class AppRoutes {
   static const scheduleOrdersList = '/scheduleOrdersList';
   static const uploadAddressImageScreen = '/uploadAddressImageScreen';
   static const profile = '/profile';
+  static const dailyEarn = '/dailyEarn';
 }
