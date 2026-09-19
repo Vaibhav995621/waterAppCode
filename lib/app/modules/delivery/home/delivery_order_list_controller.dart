@@ -310,4 +310,62 @@ class DeliveryOrderListController extends GetxController {
 
     return result;
   }
+
+  /// Groups orders by date (dd-MMM-yyyy) -> then separately by Slot Time (e.g. "6:00 AM - 9:00 AM", "⚡ Quick Delivery").
+  Map<String, Map<String, List<Order>>> groupOrdersByDateAndSlot(List<Order> orderList) {
+    final Map<String, Map<String, List<Order>>> grouped = {};
+    final DateFormat fmt = DateFormat('dd-MMM-yyyy');
+
+    for (final order in orderList) {
+      final date = order.deliverydate.year > 2000 ? order.deliverydate : order.cdate;
+      final dateKey = fmt.format(date);
+
+      String slotKey;
+      if (order.quickDelivery == 1 || (double.tryParse(order.quickdeliverycharge) ?? 0) > 0) {
+        slotKey = "⚡ Quick Delivery";
+      } else if (order.deliverytime.trim().isNotEmpty) {
+        slotKey = order.deliverytime.trim();
+      } else {
+        slotKey = "Standard Delivery / Anytime";
+      }
+
+      grouped.putIfAbsent(dateKey, () => {});
+      grouped[dateKey]!.putIfAbsent(slotKey, () => []).add(order);
+    }
+
+    // Sort Date Keys descending (newest first)
+    final sortedDateKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        try {
+          final da = fmt.parse(a);
+          final db = fmt.parse(b);
+          return db.compareTo(da);
+        } catch (_) {
+          return 0;
+        }
+      });
+
+    final Map<String, Map<String, List<Order>>> result = {};
+    for (final dKey in sortedDateKeys) {
+      final slotMap = grouped[dKey]!;
+      final sortedSlots = slotMap.keys.toList()
+        ..sort((a, b) {
+          if (a.contains("Quick Delivery")) return -1;
+          if (b.contains("Quick Delivery")) return 1;
+          final sa = getSlotStartMinutes(a);
+          final sb = getSlotStartMinutes(b);
+          return sa.compareTo(sb);
+        });
+
+      final Map<String, List<Order>> sortedSlotMap = {};
+      for (final sKey in sortedSlots) {
+        final orders = slotMap[sKey]!;
+        orders.sort((a, b) => b.id.compareTo(a.id));
+        sortedSlotMap[sKey] = orders;
+      }
+      result[dKey] = sortedSlotMap;
+    }
+
+    return result;
+  }
 }

@@ -150,8 +150,8 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                 onRefresh: () => controller.refreshCurrentTab(),
                 child: Builder(
                   builder: (_) {
-                    final grouped = controller.groupOrdersByDate(orders);
-                    final dateKeys = grouped.keys.toList();
+                    final dateSlotGrouped = controller.groupOrdersByDateAndSlot(orders);
+                    final dateKeys = dateSlotGrouped.keys.toList();
                     final accentColor = controller.selectedTabIndex.value == 1
                         ? const Color(0xff2E7D32)
                         : (controller.selectedTabIndex.value == 2
@@ -172,14 +172,25 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                       itemCount: dateKeys.length,
                       itemBuilder: (context, groupIndex) {
                         final dateKey = dateKeys[groupIndex];
-                        final groupOrders = grouped[dateKey]!;
+                        final slotMap = dateSlotGrouped[dateKey]!;
+                        final totalDateOrders = slotMap.values.fold<int>(0, (sum, list) => sum + list.length);
+                        final slotKeys = slotMap.keys.toList();
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildDateHeader(dateKey, groupOrders.length, accentColor),
-                            ...groupOrders.map((order) => _orderCard(context, order)),
-                            const SizedBox(height: 4),
+                            _buildDateHeader(dateKey, totalDateOrders, accentColor),
+                            ...slotKeys.map((slotKey) {
+                              final slotOrders = slotMap[slotKey]!;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSlotHeader(slotKey, slotOrders.length, accentColor),
+                                  ...slotOrders.map((order) => _orderCard(context, order)),
+                                ],
+                              );
+                            }),
+                            const SizedBox(height: 6),
                           ],
                         );
                       },
@@ -194,9 +205,59 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
     );
   }
 
+  Widget _buildSlotHeader(String slot, int count, Color accentColor) {
+    final bool isQuick = slot.contains("Quick Delivery");
+    final Color slotBg = isQuick ? const Color(0xffFFF3E0) : const Color(0xffEEF2FF);
+    final Color slotBorder = isQuick ? const Color(0xffFFE0B2) : const Color(0xffC7D2FE);
+    final Color slotText = isQuick ? const Color(0xffE65100) : const Color(0xff3730A3);
+    final IconData slotIcon = isQuick ? Icons.bolt_rounded : Icons.access_time_filled_rounded;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 4, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: slotBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: slotBorder, width: 0.8),
+      ),
+      child: Row(
+        children: [
+          Icon(slotIcon, size: 15, color: slotText),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              slot,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: slotText,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: slotText.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              "$count order${count == 1 ? '' : 's'}",
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: slotText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDateHeader(String date, int count, Color accentColor) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      padding: const EdgeInsets.only(top: 12, bottom: 6),
       child: Row(
         children: [
           Icon(Icons.calendar_today_rounded, size: 14, color: accentColor),
@@ -214,7 +275,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -229,7 +290,7 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           const SizedBox(width: 10),
           Expanded(
             child: Divider(
-              color: accentColor.withOpacity(0.2),
+              color: accentColor.withValues(alpha: 0.2),
               thickness: 1,
             ),
           ),
@@ -1085,12 +1146,4 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
       debugPrint("Unable to call: $e");
     }
   }
-}
-
-class _PaymentModeInfo {
-  final String label;
-  final Color fg;
-  final Color bg;
-
-  const _PaymentModeInfo(this.label, this.fg, this.bg);
 }
