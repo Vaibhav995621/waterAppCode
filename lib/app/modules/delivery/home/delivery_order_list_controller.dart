@@ -9,8 +9,11 @@ import '../../../../utlis/progress_hud/app_snackbar.dart';
 import '../../../app_session/app_session.dart';
 
 class DeliveryOrderListController extends GetxController {
-  /// 🔁 Tab state: 0 = Active Orders, 1 = Delivered Orders, 2 = Cancelled Orders
+  /// 🔁 Tab state: 0 = Fast Delivery, 1 = Active Orders, 2 = Delivered Orders, 3 = Cancelled Orders
   RxInt selectedTabIndex = 0.obs;
+
+  /// ⏰ Slot Filter: "All Slots" or specific slot string (e.g. "6:00 AM - 9:00 AM", "⚡ Quick Delivery")
+  RxString selectedSlot = "All Slots".obs;
 
   /// Backward compatibility for any boolean check
   RxBool isActiveSelected = true.obs;
@@ -26,27 +29,99 @@ class DeliveryOrderListController extends GetxController {
   /// ✅ Loader
   RxBool isLoading = false.obs;
 
-  List<Order> get currentOrders {
+  /// ⚡ Fast/Quick Delivery Orders (from active orders)
+  List<Order> get fastOrders => activeOrders
+      .where((o) =>
+          o.quickDelivery == 1 ||
+          (double.tryParse(o.quickdeliverycharge) ?? 0) > 0)
+      .toList();
+
+  /// Raw orders for current tab without slot filter applied
+  List<Order> get currentRawOrders {
     switch (selectedTabIndex.value) {
       case 0:
-        return activeOrders;
+        return fastOrders;
       case 1:
-        return deliveredOrders;
+        return activeOrders;
       case 2:
+        return deliveredOrders;
+      case 3:
         return cancelledOrders;
       default:
-        return activeOrders;
+        return fastOrders;
+    }
+  }
+
+  /// Filtered orders based on selected slot
+  List<Order> get currentOrders {
+    final raw = currentRawOrders;
+    if (selectedSlot.value.isEmpty ||
+        selectedSlot.value == "All" ||
+        selectedSlot.value == "All Slots") {
+      return raw;
+    }
+
+    final sel = selectedSlot.value.trim().toLowerCase();
+    if (sel.contains("quick") || sel.contains("fast")) {
+      return raw
+          .where((o) =>
+              o.quickDelivery == 1 ||
+              (double.tryParse(o.quickdeliverycharge) ?? 0) > 0)
+          .toList();
+    }
+
+    return raw
+        .where((o) => o.deliverytime.trim().toLowerCase() == sel)
+        .toList();
+  }
+
+  /// Available slots across all tabs for the dropdown filter
+  List<String> get availableSlots {
+    final List<String> slots = ["All Slots", "⚡ Quick Delivery"];
+    const standard = [
+      "6:00 AM - 9:00 AM",
+      "9:00 AM - 12:00 PM",
+      "12:00 PM - 3:00 PM",
+      "3:00 PM - 6:00 PM",
+      "6:00 PM - 9:00 PM",
+      "9:00 PM - 12:00 AM",
+    ];
+    for (final s in standard) {
+      if (!slots.contains(s)) {
+        slots.add(s);
+      }
+    }
+    // Also include any unique slots found across all tabs
+    final allOrders = [...activeOrders, ...deliveredOrders, ...cancelledOrders, ...historyOrders];
+    for (final o in allOrders) {
+      final t = o.deliverytime.trim();
+      if (t.isNotEmpty && !slots.contains(t)) {
+        slots.add(t);
+      }
+    }
+    return slots;
+  }
+
+  void selectSlot(String slot) {
+    selectedSlot.value = slot;
+    final lower = slot.toLowerCase();
+    if (lower.contains("quick") || lower.contains("fast")) {
+      if (selectedTabIndex.value != 0) {
+        changeTab(0);
+      }
     }
   }
 
   void changeTab(int index) {
     selectedTabIndex.value = index;
-    isActiveSelected.value = (index == 0);
-    if (index == 0) {
+    isActiveSelected.value = (index == 0 || index == 1);
+    // Slot filter persists across all tabs
+
+    if (index == 0 || index == 1) {
       getCustomerActiveOrder();
-    } else if (index == 1) {
-      getCustomerHistoryOrder();
     } else if (index == 2) {
+      getCustomerHistoryOrder();
+    } else if (index == 3) {
       getDeliveryCancelOrderList();
     }
   }
@@ -70,11 +145,11 @@ class DeliveryOrderListController extends GetxController {
   }
 
   Future<void> refreshCurrentTab() async {
-    if (selectedTabIndex.value == 0) {
+    if (selectedTabIndex.value == 0 || selectedTabIndex.value == 1) {
       await getCustomerActiveOrder();
-    } else if (selectedTabIndex.value == 1) {
-      await getCustomerHistoryOrder();
     } else if (selectedTabIndex.value == 2) {
+      await getCustomerHistoryOrder();
+    } else if (selectedTabIndex.value == 3) {
       await getDeliveryCancelOrderList();
     }
   }

@@ -30,25 +30,32 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _tabItem(
+                    title: "⚡ Fast Delivery",
+                    count: controller.fastOrders.length,
+                    isSelected: currentTab == 0,
+                    activeColor: Colors.deepOrange,
+                    onTap: () => controller.changeTab(0),
+                  ),
+                  _tabItem(
                     title: "Active Orders",
                     count: controller.activeOrders.length,
-                    isSelected: currentTab == 0,
+                    isSelected: currentTab == 1,
                     activeColor: const Color(0xff3949AB),
-                    onTap: () => controller.changeTab(0),
+                    onTap: () => controller.changeTab(1),
                   ),
                   _tabItem(
                     title: "Delivered Orders",
                     count: controller.deliveredOrders.length,
-                    isSelected: currentTab == 1,
+                    isSelected: currentTab == 2,
                     activeColor: const Color(0xff2E7D32),
-                    onTap: () => controller.changeTab(1),
+                    onTap: () => controller.changeTab(2),
                   ),
                   _tabItem(
                     title: "Cancelled Orders",
                     count: controller.cancelledOrders.length,
-                    isSelected: currentTab == 2,
+                    isSelected: currentTab == 3,
                     activeColor: const Color(0xffC62828),
-                    onTap: () => controller.changeTab(2),
+                    onTap: () => controller.changeTab(3),
                   ),
                 ],
               );
@@ -56,25 +63,38 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
           ),
           const SizedBox(height: 8),
 
-          /// Order Count Badge
-          Obx(() {
-            final orders = controller.currentOrders;
-            final count = orders.length;
-            if (count == 0) return const SizedBox.shrink();
+          /// Filter Row (Order Count + Slot Filter Dropdown)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Obx(() {
+              final orders = controller.currentOrders;
+              final count = orders.length;
+              final currentTab = controller.selectedTabIndex.value;
+              final selectedSlot = controller.selectedSlot.value;
+              final availableSlots = controller.availableSlots.toSet().toList();
 
-            final currentTab = controller.selectedTabIndex.value;
-            final badgeColor = currentTab == 1
-                ? const Color(0xff2E7D32)
-                : (currentTab == 2
-                    ? const Color(0xffC62828)
-                    : const Color(0xff3949AB));
+              final badgeColor = currentTab == 0
+                  ? Colors.deepOrange
+                  : (currentTab == 2
+                      ? const Color(0xff2E7D32)
+                      : (currentTab == 3
+                          ? const Color(0xffC62828)
+                          : const Color(0xff3949AB)));
 
-            return Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 6),
-              child: Row(
+              final isFiltered = selectedSlot.isNotEmpty &&
+                  selectedSlot != "All" &&
+                  selectedSlot != "All Slots";
+
+              final effectiveValue = availableSlots.contains(selectedSlot)
+                  ? selectedSlot
+                  : (availableSlots.isNotEmpty ? availableSlots.first : "All Slots");
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  /// Count badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: badgeColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -83,15 +103,124 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                       "$count order${count == 1 ? '' : 's'}",
                       style: TextStyle(
                         color: badgeColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),
                     ),
                   ),
+
+                  /// Slot Filter Dropdown Button
+                  Flexible(
+                    child: Container(
+                      height: 34,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: isFiltered ? const Color(0xff1A2C56) : Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: isFiltered
+                              ? const Color(0xff1A2C56)
+                              : Colors.grey.shade300,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: effectiveValue,
+                          icon: Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: isFiltered ? Colors.white : Colors.grey.shade700,
+                            ),
+                          ),
+                          isDense: true,
+                          dropdownColor: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          items: availableSlots.map((String slot) {
+                            final isQuick = slot.contains("Quick");
+                            return DropdownMenuItem<String>(
+                              value: slot,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isQuick
+                                        ? Icons.bolt_rounded
+                                        : (slot == "All Slots" || slot == "All"
+                                            ? Icons.filter_alt_outlined
+                                            : Icons.access_time_rounded),
+                                    size: 15,
+                                    color: isQuick
+                                        ? Colors.deepOrange
+                                        : const Color(0xff3949AB),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    slot,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isQuick ? Colors.deepOrange : Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.selectSlot(val);
+                            }
+                          },
+                          selectedItemBuilder: (context) {
+                            return availableSlots.map((String slot) {
+                              final isQuick = slot.contains("Quick");
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isQuick
+                                        ? Icons.bolt_rounded
+                                        : (slot == "All Slots" || slot == "All"
+                                            ? Icons.filter_alt_outlined
+                                            : Icons.access_time_rounded),
+                                    size: 14,
+                                    color: isFiltered ? Colors.white : Colors.grey.shade700,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Flexible(
+                                    child: Text(
+                                      slot,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isFiltered ? Colors.white : Colors.grey.shade800,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-            );
-          }),
+              );
+            }),
+          ),
+          const SizedBox(height: 6),
 
           /// Order List
           Expanded(
@@ -117,26 +246,54 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                             children: [
                               Icon(
                                 controller.selectedTabIndex.value == 0
-                                    ? Icons.local_shipping_outlined
+                                    ? Icons.bolt_rounded
                                     : (controller.selectedTabIndex.value == 1
-                                        ? Icons.check_circle_outline
-                                        : Icons.cancel_outlined),
+                                        ? Icons.local_shipping_outlined
+                                        : (controller.selectedTabIndex.value == 2
+                                            ? Icons.check_circle_outline
+                                            : Icons.cancel_outlined)),
                                 size: 54,
-                                color: Colors.grey.shade400,
+                                color: controller.selectedTabIndex.value == 0
+                                    ? Colors.deepOrange.shade300
+                                    : Colors.grey.shade400,
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 controller.selectedTabIndex.value == 0
-                                    ? "No Active Orders Found"
+                                    ? "No Fast Delivery Orders Found"
                                     : (controller.selectedTabIndex.value == 1
-                                        ? "No Delivered Orders Found"
-                                        : "No Cancelled Orders Found"),
+                                        ? "No Active Orders Found"
+                                        : (controller.selectedTabIndex.value == 2
+                                            ? "No Delivered Orders Found"
+                                            : "No Cancelled Orders Found")),
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (controller.selectedSlot.value.isNotEmpty &&
+                                  controller.selectedSlot.value != "All" &&
+                                  controller.selectedSlot.value != "All Slots") ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  "No orders match slot: \"${controller.selectedSlot.value}\"",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                OutlinedButton.icon(
+                                  onPressed: () => controller.selectSlot("All Slots"),
+                                  icon: const Icon(Icons.refresh_rounded, size: 14),
+                                  label: const Text("Show All Slots", style: TextStyle(fontSize: 12)),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -152,11 +309,13 @@ class DeliveryOrderListView extends GetView<DeliveryOrderListController> {
                   builder: (_) {
                     final dateSlotGrouped = controller.groupOrdersByDateAndSlot(orders);
                     final dateKeys = dateSlotGrouped.keys.toList();
-                    final accentColor = controller.selectedTabIndex.value == 1
-                        ? const Color(0xff2E7D32)
+                    final accentColor = controller.selectedTabIndex.value == 0
+                        ? Colors.deepOrange
                         : (controller.selectedTabIndex.value == 2
-                            ? const Color(0xffC62828)
-                            : const Color(0xff3949AB));
+                            ? const Color(0xff2E7D32)
+                            : (controller.selectedTabIndex.value == 3
+                                ? const Color(0xffC62828)
+                                : const Color(0xff3949AB)));
 
                     return ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(
