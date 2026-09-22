@@ -327,6 +327,102 @@ class DailyEarnView extends GetView<DailyEarnController> {
               ),
             ],
           ),
+
+          const SizedBox(height: 14),
+
+          /// Net Settlement Status Banner (Total)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.25),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Final Net Settlement (Total)",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            controller.totalSettlementDirection == 'delivery_to_admin'
+                                ? Icons.arrow_circle_up_rounded
+                                : (controller.totalSettlementDirection == 'admin_to_delivery'
+                                    ? Icons.arrow_circle_down_rounded
+                                    : Icons.check_circle_outline_rounded),
+                            color: controller.totalSettlementDirection == 'delivery_to_admin'
+                                ? Colors.orangeAccent
+                                : (controller.totalSettlementDirection == 'admin_to_delivery'
+                                    ? Colors.greenAccent
+                                    : Colors.white),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              controller.totalSettlementLabel,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: controller.totalSettlementDirection == 'delivery_to_admin'
+                        ? Colors.orangeAccent.withValues(alpha: 0.3)
+                        : (controller.totalSettlementDirection == 'admin_to_delivery'
+                            ? Colors.greenAccent.withValues(alpha: 0.3)
+                            : Colors.white.withValues(alpha: 0.2)),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: controller.totalSettlementDirection == 'delivery_to_admin'
+                          ? Colors.orangeAccent
+                          : (controller.totalSettlementDirection == 'admin_to_delivery'
+                              ? Colors.greenAccent
+                              : Colors.white70),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    "₹${controller.totalNetSettlementAmount}",
+                    style: TextStyle(
+                      color: controller.totalSettlementDirection == 'delivery_to_admin'
+                          ? Colors.orangeAccent
+                          : (controller.totalSettlementDirection == 'admin_to_delivery'
+                              ? Colors.greenAccent
+                              : Colors.white),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -426,126 +522,202 @@ class DailyEarnView extends GetView<DailyEarnController> {
             ),
           ),
 
-          /// Card Body: 2 Amount Tiles
+          /// Card Body: 2 Amount Tiles + Daily Settlement Result
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
               children: [
-                /// Admin to Delivery Tile
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffE8F5E9),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xffA5D6A7),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                Row(
+                  children: [
+                    /// Admin to Delivery Tile
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffE8F5E9),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xffA5D6A7),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color(0xff2E7D32),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.arrow_downward_rounded,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Expanded(
-                              child: Text(
-                                "Admin to Delivery",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xff1B5E20),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff2E7D32),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_downward_rounded,
+                                    color: Colors.white,
+                                    size: 12,
+                                  ),
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                                const SizedBox(width: 6),
+                                const Expanded(
+                                  child: Text(
+                                    "Admin to Delivery",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff1B5E20),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "₹${item.totalAmountAdminToDelivery}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff2E7D32),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "₹${item.totalAmountAdminToDelivery}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff2E7D32),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    /// Delivery to Admin Tile
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffFFF3E0),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xffFFE082),
+                            width: 1,
                           ),
                         ),
-                      ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xffE65100),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_upward_rounded,
+                                    color: Colors.white,
+                                    size: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Expanded(
+                                  child: Text(
+                                    "Delivery to Admin",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xffBF360C),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "₹${item.totalAmountDeliveryToAdmin}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffE65100),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(height: 10),
 
-                /// Delivery to Admin Tile
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffFFF3E0),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xffFFE082),
-                        width: 1,
+                /// Daily Settlement Row
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: item.settlementDirection == 'delivery_to_admin'
+                        ? const Color(0xffFFF8E1)
+                        : (item.settlementDirection == 'admin_to_delivery'
+                            ? const Color(0xffF1F8E9)
+                            : const Color(0xffF5F5F5)),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: item.settlementDirection == 'delivery_to_admin'
+                          ? const Color(0xffFFE082)
+                          : (item.settlementDirection == 'admin_to_delivery'
+                              ? const Color(0xffC8E6C9)
+                              : const Color(0xffE0E0E0)),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        item.settlementDirection == 'delivery_to_admin'
+                            ? Icons.arrow_circle_up_rounded
+                            : (item.settlementDirection == 'admin_to_delivery'
+                                ? Icons.arrow_circle_down_rounded
+                                : Icons.check_circle_outline),
+                        size: 16,
+                        color: item.settlementDirection == 'delivery_to_admin'
+                            ? const Color(0xffE65100)
+                            : (item.settlementDirection == 'admin_to_delivery'
+                                ? const Color(0xff2E7D32)
+                                : Colors.grey.shade700),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color(0xffE65100),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.arrow_upward_rounded,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Expanded(
-                              child: Text(
-                                "Delivery to Admin",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xffBF360C),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "₹${item.totalAmountDeliveryToAdmin}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xffE65100),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          item.settlementLabel,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: item.settlementDirection ==
+                                    'delivery_to_admin'
+                                ? const Color(0xffD84315)
+                                : (item.settlementDirection ==
+                                        'admin_to_delivery'
+                                    ? const Color(0xff2E7D32)
+                                    : Colors.grey.shade800),
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
+                      ),
+                      Text(
+                        "₹${item.netSettlementAmount}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: item.settlementDirection == 'delivery_to_admin'
+                              ? const Color(0xffD84315)
+                              : (item.settlementDirection ==
+                                      'admin_to_delivery'
+                                  ? const Color(0xff2E7D32)
+                                  : Colors.grey.shade800),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

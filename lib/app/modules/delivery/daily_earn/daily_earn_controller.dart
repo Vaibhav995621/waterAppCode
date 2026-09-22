@@ -18,8 +18,32 @@ class DailyEarnController extends GetxController {
   num get totalDeliveryToAdmin =>
       dailyList.fold<num>(0, (sum, item) => sum + item.totalAmountDeliveryToAdmin);
 
-  /// Net balance
+  /// Net balance (Admin to Delivery - Delivery to Admin)
   num get netBalance => totalAdminToDelivery - totalDeliveryToAdmin;
+
+  /// Absolute net difference across all days
+  num get totalNetSettlementAmount =>
+      (totalDeliveryToAdmin - totalAdminToDelivery).abs();
+
+  /// Total settlement direction: 'delivery_to_admin' | 'admin_to_delivery' | 'settled'
+  String get totalSettlementDirection {
+    if (totalDeliveryToAdmin > totalAdminToDelivery) {
+      return 'delivery_to_admin';
+    } else if (totalAdminToDelivery > totalDeliveryToAdmin) {
+      return 'admin_to_delivery';
+    }
+    return 'settled';
+  }
+
+  /// User friendly total settlement label
+  String get totalSettlementLabel {
+    if (totalDeliveryToAdmin > totalAdminToDelivery) {
+      return "Delivery Partner gives to Admin";
+    } else if (totalAdminToDelivery > totalDeliveryToAdmin) {
+      return "Admin gives to Delivery Partner";
+    }
+    return "All Settled";
+  }
 
   @override
   void onInit() {

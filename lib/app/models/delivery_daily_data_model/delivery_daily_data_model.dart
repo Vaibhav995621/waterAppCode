@@ -90,6 +90,40 @@ class DailyEarningItem {
     return "";
   }
 
-  /// Net for the day
+  /// Net for the day (Admin to Delivery - Delivery to Admin)
   num get netAmount => totalAmountAdminToDelivery - totalAmountDeliveryToAdmin;
+
+  /// Absolute net difference to be settled
+  num get netSettlementAmount =>
+      (totalAmountDeliveryToAdmin - totalAmountAdminToDelivery).abs();
+
+  /// Settlement direction: 'delivery_to_admin' | 'admin_to_delivery' | 'settled'
+  String get settlementDirection {
+    if (totalAmountDeliveryToAdmin > totalAmountAdminToDelivery) {
+      return 'delivery_to_admin';
+    } else if (totalAmountAdminToDelivery > totalAmountDeliveryToAdmin) {
+      return 'admin_to_delivery';
+    }
+    return 'settled';
+  }
+
+  /// Descriptive label of who gives to whom
+  String get settlementLabel {
+    if (totalAmountDeliveryToAdmin > totalAmountAdminToDelivery) {
+      return "Delivery Partner gives to Admin";
+    } else if (totalAmountAdminToDelivery > totalAmountDeliveryToAdmin) {
+      return "Admin gives to Delivery Partner";
+    }
+    return "Settled";
+  }
+
+  /// Short tag label
+  String get settlementShortLabel {
+    if (totalAmountDeliveryToAdmin > totalAmountAdminToDelivery) {
+      return "Delivery to Admin";
+    } else if (totalAmountAdminToDelivery > totalAmountDeliveryToAdmin) {
+      return "Admin to Delivery";
+    }
+    return "Settled";
+  }
 }
