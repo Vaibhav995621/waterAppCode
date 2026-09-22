@@ -48,26 +48,46 @@ class DailyEarningItem {
     );
   }
 
+  /// Parsed DateTime object for sorting and date formatting
+  DateTime? get parsedDate {
+    if (date.isEmpty) return null;
+    final iso = DateTime.tryParse(date);
+    if (iso != null) return iso;
+    for (final pattern in [
+      'dd-MM-yyyy',
+      'dd/MM/yyyy',
+      'yyyy-MM-dd',
+      'yyyy/MM/dd',
+      'MM-dd-yyyy',
+      'MM/dd/yyyy',
+      'dd MMM yyyy',
+      'd MMM yyyy',
+    ]) {
+      try {
+        return DateFormat(pattern).parseStrict(date);
+      } catch (_) {}
+    }
+    return null;
+  }
+
   /// Formatted date e.g. "06 Sep 2026"
   String get formattedDate {
     if (date.isEmpty) return "N/A";
-    try {
-      final parsed = DateTime.parse(date);
+    final parsed = parsedDate;
+    if (parsed != null) {
       return DateFormat('dd MMM yyyy').format(parsed);
-    } catch (_) {
-      return date;
     }
+    return date;
   }
 
   /// Formatted day name e.g. "Sunday"
   String get dayName {
     if (date.isEmpty) return "";
-    try {
-      final parsed = DateTime.parse(date);
+    final parsed = parsedDate;
+    if (parsed != null) {
       return DateFormat('EEEE').format(parsed);
-    } catch (_) {
-      return "";
     }
+    return "";
   }
 
   /// Net for the day

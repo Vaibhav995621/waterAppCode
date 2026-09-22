@@ -36,7 +36,18 @@ class DailyEarnController extends GetxController {
       );
 
       if (response.statusCode == '200') {
-        dailyList.assignAll(response.data);
+        final sortedList = List<DailyEarningItem>.from(response.data);
+        sortedList.sort((a, b) {
+          final dateA = a.parsedDate;
+          final dateB = b.parsedDate;
+          if (dateA != null && dateB != null) {
+            return dateB.compareTo(dateA);
+          }
+          if (dateA != null) return -1;
+          if (dateB != null) return 1;
+          return b.srNo.compareTo(a.srNo);
+        });
+        dailyList.assignAll(sortedList);
       } else {
         AppSnackbar.error(response.message);
       }
