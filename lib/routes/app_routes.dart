@@ -32,4 +32,6 @@ abstract class AppRoutes {
   static const uploadAddressImageScreen = '/uploadAddressImageScreen';
   static const profile = '/profile';
   static const dailyEarn = '/dailyEarn';
+  static const helpAndSupport = '/helpAndSupport';
+  static const privacyPolicy = '/privacyPolicy';
 }

@@ -83,7 +83,8 @@ class LoginController extends GetxController {
         role: user.data.role,
         planType: user.data.plandetail.id,
         usertype: user.data.usertype,
-        mobileNo: user.data.mobile
+        mobileNo: user.data.mobile,
+        rozkey: user.data.razorpaykey ?? ''
       );
 
       Get.offAll(() => const MainNavigationScreen());

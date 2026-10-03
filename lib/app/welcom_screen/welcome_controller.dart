@@ -9,17 +9,17 @@ class WelcomeController extends GetxController {
 
   final List<Map<String, String>> pages = [
     {
-      "title": "Crystal-clear water bottle with water splashes.",
+      "title": "",
       "image": "assets/images/1.png",
       "button": "Next",
     },
     {
-      "title": "Pure Water, Delivered Daily.",
+      "title": "",
       "image": "assets/images/2.png",
       "button": "Next",
     },
     {
-      "title": "Fresh, safe drinking water delivered to your doorstep whenever you need it.",
+      "title": "",
       "image": "assets/images/3.png",
       "button": "Let’s get started!",
     },

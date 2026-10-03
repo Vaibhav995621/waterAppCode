@@ -262,7 +262,8 @@ class ProfileController extends GetxController {
           role: user.data.role,
           planType: user.data.plandetail.id,
           usertype: user.data.usertype,
-          mobileNo: user.data.mobile
+          mobileNo: user.data.mobile,
+          rozkey: AppSession.rozKey ?? '',
         );
       }
       update();
@@ -373,6 +374,7 @@ class ProfileController extends GetxController {
       planType: -1,
       usertype: -1,
       mobileNo: "",
+      rozkey: ''
     );
 
     Get.offAllNamed(AppRoutes.login);

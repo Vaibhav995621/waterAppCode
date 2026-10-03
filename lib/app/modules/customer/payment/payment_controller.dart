@@ -120,14 +120,21 @@ class PaymentController extends GetxController {
   }
 
   void makePayment(double amountPrice) {
+    if (amountPrice < 1.0) {
+      AppSnackbar.error("Order amount must be at least ₹1");
+      return;
+    }
     try {
       addressController.isPaymentLoading.value = true;
       var options = {
         'key': 'rzp_test_SrUuMWoExaIWgc',
-        'amount': amountPrice * 100,
+        'amount': (amountPrice * 100).round(),
         'name': 'Water Delivery',
         'description': 'Water Bottle Order',
-        'prefill': {'contact': AppSession.name, 'name': AppSession.name},
+        'prefill': {
+          'contact': AppSession.mobileNo.isNotEmpty ? AppSession.mobileNo : '7503781220',
+          'name': AppSession.name,
+        },
         'theme': {'color': '#0D47A1'},
         'method': {
           'upi': true,
@@ -139,7 +146,7 @@ class PaymentController extends GetxController {
       razorpay.open(options);
     } catch (e) {
       addressController.isPaymentLoading.value = false;
-      Get.snackbar("Error", e.toString());
+      AppSnackbar.error(e.toString());
     }
   }
 

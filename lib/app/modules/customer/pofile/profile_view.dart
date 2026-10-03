@@ -328,9 +328,23 @@ class ProfileView extends GetView<ProfileController> {
                         ),
 
                         cardTile(
-                          Icons.help,
+                          Icons.help_outline_rounded,
                           "Help & Support",
-                              () {},
+                          () {
+                            Get.toNamed(
+                              AppRoutes.helpAndSupport,
+                            );
+                          },
+                        ),
+
+                        cardTile(
+                          Icons.privacy_tip_outlined,
+                          "Privacy Policy",
+                          () {
+                            Get.toNamed(
+                              AppRoutes.privacyPolicy,
+                            );
+                          },
                         ),
 
                         cardTile(

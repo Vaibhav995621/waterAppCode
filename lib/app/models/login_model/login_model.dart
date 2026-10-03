@@ -52,6 +52,7 @@ class Data {
   String? otp;
   Address address;
   Plandetail plandetail;
+  String? razorpaykey;
 
   Data({
     required this.id,
@@ -78,6 +79,7 @@ class Data {
     this.otp,
     required this.address,
     required this.plandetail,
+    required this.razorpaykey
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
@@ -106,6 +108,8 @@ class Data {
       otp: json["otp"]?.toString(),
       address: Address.fromJson(json["address"] ?? {}),
       plandetail: Plandetail.fromJson(json["plandetail"] ?? {}),
+      razorpaykey: (json["razorpaykey"].toString() ?? ''),
+
     );
   }
 
@@ -135,6 +139,7 @@ class Data {
       "otp": otp,
       "address": address.toJson(),
       "plandetail": plandetail.toJson(),
+      "razorpaykey" : razorpaykey,
     };
   }
 }

@@ -93,8 +93,8 @@ class WalletController extends GetxController {
 
 
   void addMoneyToWallet(double amount) {
-    if (amount <= 0) {
-      AppSnackbar.error("Please enter a valid amount");
+    if (amount < 1.0) {
+      AppSnackbar.error("Please enter a valid amount (minimum ₹1)");
       return;
     }
     _pendingAmount = amount;

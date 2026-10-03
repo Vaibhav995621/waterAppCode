@@ -13,6 +13,7 @@ class AppSession {
     required int planType,
     required int usertype,
     required String mobileNo,
+    required String rozkey
 
   }) async {
     await _box.write('user', {
@@ -23,7 +24,8 @@ class AppSession {
       'role': role,
       'planType' : planType,
       'usertype': usertype,
-      'mobileNo': mobileNo
+      'mobileNo': mobileNo,
+      'rozKey' : rozkey
 
     });
 
@@ -56,6 +58,9 @@ class AppSession {
 
   static int get planType =>
       user['planType'] ?? 0;
+
+  static String get rozKey =>
+      user['rozKey'] ?? "";
 
   static bool get isLoggedIn =>
       userId.isNotEmpty;

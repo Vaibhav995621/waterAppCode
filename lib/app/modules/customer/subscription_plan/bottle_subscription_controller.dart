@@ -79,17 +79,21 @@ class BottleSubscriptionController extends GetxController {
   }
 
   void makePayment(double paymentAmount) {
+    if (paymentAmount < 1.0) {
+      AppSnackbar.error("Plan amount must be at least ₹1");
+      return;
+    }
     try {
       isLoadingPayment.value = true;
 
       var options = {
         'key': 'rzp_test_SrUuMWoExaIWgc',
-        'amount': paymentAmount * 100,
+        'amount': (paymentAmount * 100).round(),
         'name': 'Water Delivery',
         'description':
         'Water Bottle Order',
         'prefill': {
-          'contact': '7503781220',
+          'contact': AppSession.mobileNo.isNotEmpty ? AppSession.mobileNo : '7503781220',
           'email': 'test@gmail.com'
         },
         'theme': {
@@ -107,8 +111,7 @@ class BottleSubscriptionController extends GetxController {
     } catch (e) {
       isLoadingPayment.value = false;
 
-      Get.snackbar(
-        "Error",
+      AppSnackbar.error(
         e.toString(),
       );
     }

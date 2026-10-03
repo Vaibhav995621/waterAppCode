@@ -65,14 +65,15 @@ class CustomerHomeController extends GetxController {
 
       if (user.statusCode == '200') {
         AppSession.saveUser(
-          userId: AppSession.userId,
-          token: AppSession.fcmToken,
-          image: user.data.photo,
-          name: user.data.fullname ?? '',
-          role: user.data.role,
-          planType: user.data.plandetail.id,
-          usertype: user.data.usertype,
-          mobileNo: user.data.mobile
+            userId: AppSession.userId,
+            token: AppSession.fcmToken,
+            image: user.data.photo,
+            name: user.data.fullname ?? '',
+            role: user.data.role,
+            planType: user.data.plandetail.id,
+            usertype: user.data.usertype,
+            mobileNo: user.data.mobile,
+            rozkey: AppSession.rozKey,
         );
         profile.value = user;
       }

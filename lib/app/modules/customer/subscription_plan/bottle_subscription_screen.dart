@@ -167,15 +167,18 @@ class BottleSubscriptionScreen extends StatelessWidget {
                       onPressed: controller.isLoadingPayment.value
                           ? null
                           : () {
-                              if (controller.subscriptionList.isEmpty) return;
+                              if (controller.subscriptionList.isEmpty) {
+                                AppSnackbar.error('Please select a subscription plan');
+                                return;
+                              }
                               final plan = controller.subscriptionList[
                                   controller.selectedPlan.value];
                               double price = controller.getTotalPrice(plan);
-                              if (price > 0) {
+                              if (price >= 1.0) {
                                 controller.makePayment(price);
                               } else {
                                 AppSnackbar.error(
-                                  'Plan amount not valid',
+                                  'Plan amount must be at least ₹1',
                                 );
                               }
                             },
