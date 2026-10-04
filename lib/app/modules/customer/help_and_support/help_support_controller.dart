@@ -68,8 +68,11 @@ class HelpSupportController extends GetxController {
 
   /// Open WhatsApp chat
   Future<void> openWhatsApp() async {
+    final String userDetails = AppSession.isLoggedIn
+        ? "\nName: ${AppSession.name}\nMobile: ${AppSession.mobileNo}"
+        : "";
     final String message = Uri.encodeComponent(
-      "Hi H2O Express Support Team,\n\nI need assistance with my account/order.\nName: ${AppSession.name}\nMobile: ${AppSession.mobileNo}",
+      "Hi H2O Express Support Team,\n\nI need assistance with my account/order.$userDetails",
     );
     final Uri uri = Uri.parse("https://wa.me/91$supportPhone?text=$message");
     try {
@@ -86,10 +89,12 @@ class HelpSupportController extends GetxController {
   /// Send email to support
   Future<void> sendEmail() async {
     final String subject = Uri.encodeComponent("Support Request - H2O Express");
+    final String userDetails = AppSession.isLoggedIn
+        ? "Customer Name: ${AppSession.name}\nMobile Number: ${AppSession.mobileNo}\n\n"
+        : "";
     final String body = Uri.encodeComponent(
       "Hi H2O Express Team,\n\n"
-      "Customer Name: ${AppSession.name}\n"
-      "Mobile Number: ${AppSession.mobileNo}\n\n"
+      "$userDetails"
       "Please describe your issue or query below:\n",
     );
     final Uri uri = Uri.parse("mailto:$supportEmail?subject=$subject&body=$body");

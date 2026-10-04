@@ -229,8 +229,91 @@ class LoginView extends GetView<LoginController> {
                               ],
                             ),
       
-      
-                            const SizedBox(height: 300),
+                            const SizedBox(height: 36),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Get.toNamed(AppRoutes.privacyPolicy);
+                                  },
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.privacy_tip_outlined,
+                                          size: 15,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "Privacy Policy",
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Color(0xFF4B5563),
+                                            fontWeight: FontWeight.w500,
+                                            decoration: TextDecoration.underline,
+                                            decorationColor: Color(0xFF9CA3AF),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  child: Text(
+                                    "•",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF9CA3AF),
+                                    ),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Get.toNamed(AppRoutes.helpAndSupport);
+                                  },
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.help_outline_rounded,
+                                          size: 15,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "Help & Support",
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Color(0xFF4B5563),
+                                            fontWeight: FontWeight.w500,
+                                            decoration: TextDecoration.underline,
+                                            decorationColor: Color(0xFF9CA3AF),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 36),
                           ],
                         ),
                       ),
