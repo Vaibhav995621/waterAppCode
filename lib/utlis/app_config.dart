@@ -18,7 +18,33 @@ class Env {
 
 class AppConfig {
   // 👇 change only this
-  static const flavor = AppFlavor.dev;
+  static const flavor = AppFlavor.prod;
+
+
+  // static final config = {
+  //   AppFlavor.dev: Env(
+  //     baseUrl: 'https://sbgodeal.com/waterdelivery/api/apps/',
+  //     baseUrl1: '',
+  //     keyClockUrl: '',
+  //     enableLogger: true,
+  //   ),
+  //   AppFlavor.stage: Env(
+  //     baseUrl: 'https://sbgodeal.com/waterdelivery/api/apps/',
+  //     baseUrl1: '',
+  //     keyClockUrl: '',
+  //
+  //     enableLogger: true,
+  //   ),
+  //   AppFlavor.prod: Env(
+  //     baseUrl: 'https://sbgodeal.com/waterdelivery/api/apps/',
+  //     baseUrl1: '',
+  //     keyClockUrl: '',
+  //
+  //     enableLogger: false,
+  //   ),
+  // }[flavor]!;
+
+
 
   static final config = {
     AppFlavor.dev: Env(
