@@ -1021,11 +1021,13 @@ Future<SubscriptionModel> getSubscriptionList() async {
 
   Future<ForgotPasswordModel> sendOtpForgotPassword({
     required String mobile,
+    String email = '',
   }) async {
     try {
       final response = await _api.post(
         ApiEndpoints.sendOtpForgotPassword,
         {
+          "email": email,
           "mobile": mobile,
         },
         tokenRequired: false,
@@ -1049,11 +1051,13 @@ Future<SubscriptionModel> getSubscriptionList() async {
     required String mobile,
     required String newPassword,
     required String otp,
+    String email = '',
   }) async {
     try {
       final response = await _api.post(
         ApiEndpoints.forgotPasswordReset,
         {
+          "email": email,
           "mobile": mobile,
           "new_password": newPassword,
           "otp": otp,
@@ -1077,11 +1081,13 @@ Future<SubscriptionModel> getSubscriptionList() async {
 
   Future<ForgotPasswordModel> resendOtp({
     required String mobile,
+    String email = '',
   }) async {
     try {
       final response = await _api.post(
         ApiEndpoints.resendOtp,
         {
+          "email": email,
           "mobile": mobile,
         },
         tokenRequired: false,
@@ -1093,6 +1099,38 @@ Future<SubscriptionModel> getSubscriptionList() async {
       );
 
       return ForgotPasswordModel.fromJson(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? "Network error";
+
+      throw Exception(message);
+    }
+  }
+
+  Future<LoginModel> verifyOtpApi({
+    required String email,
+    required String mobile,
+    required String otp,
+    String? fcmToken,
+  }) async {
+    try {
+      final response = await _api.post(
+        ApiEndpoints.verifyOtpApi,
+        {
+          "email": email,
+          "mobile": mobile,
+          "otp": otp,
+          "fcm_token": fcmToken ?? AppSession.token,
+        },
+        tokenRequired: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "abcshsh"
+        },
+      );
+
+      return LoginModel.fromJson(response);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? "Network error";

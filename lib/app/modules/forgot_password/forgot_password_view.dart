@@ -165,7 +165,7 @@ class ForgotPasswordView
                               height: 10),
 
                           Text(
-                            "Enter your registered mobile number to receive password reset instructions.",
+                            "Enter your registered email address to receive password reset instructions.",
                             textAlign:
                             TextAlign.center,
                             style: TextStyle(
@@ -179,7 +179,7 @@ class ForgotPasswordView
                           const SizedBox(
                               height: 35),
 
-                          /// MOBILE FIELD
+                          /// EMAIL FIELD
                           Container(
                             decoration:
                             BoxDecoration(
@@ -199,11 +199,11 @@ class ForgotPasswordView
 
                             child: TextField(
                               controller: controller
-                                  .mobileController,
+                                  .emailController,
 
                               keyboardType:
                               TextInputType
-                                  .phone,
+                                  .emailAddress,
 
                               decoration:
                               const InputDecoration(
@@ -212,13 +212,13 @@ class ForgotPasswordView
 
                                 prefixIcon:
                                 Icon(
-                                  Icons.phone,
+                                  Icons.email_outlined,
                                   color: Color(
                                       0xff6C63FF),
                                 ),
 
                                 hintText:
-                                "Enter mobile number",
+                                "Enter email address",
                               ),
                             ),
                           ),

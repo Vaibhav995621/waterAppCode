@@ -132,7 +132,9 @@ class VerifyOtpView extends GetView<VerifyOtpController> {
                           const SizedBox(height: 8),
 
                           Text(
-                            "Enter the 4-digit code sent to your registered mobile number: ${controller.mobile}",
+                            controller.email.isNotEmpty
+                                ? "Enter the 4-digit code sent to your registered email: ${controller.email}"
+                                : "Enter the 4-digit code sent to your registered email",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey.shade600,

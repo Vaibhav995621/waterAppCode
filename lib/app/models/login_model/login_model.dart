@@ -100,7 +100,7 @@ class Data {
       email: json["email"]?.toString() ?? "",
       photo: json["photo"]?.toString() ?? "",
       planbottlequantity: json["planbottlequantity"] ?? 0,
-      status: json["status"] ?? 0,
+      status: json["status"] is int ? json["status"] : (int.tryParse(json["status"]?.toString() ?? "") ?? 0),
       cdate: DateTime.tryParse(json["cdate"] ?? "") ?? DateTime.now(),
       role: json["role"] ?? 0,
       modifiedDate: DateTime.tryParse(json["modified_date"] ?? "") ?? DateTime.now(),

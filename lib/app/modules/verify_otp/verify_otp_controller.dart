@@ -20,6 +20,7 @@ class VerifyOtpController extends GetxController {
 
   final AuthRepository _repo = AuthRepository();
   late final String mobile;
+  late final String email;
 
   final RxBool isLoading = false.obs;
   final RxBool showNewPassword = false.obs;
@@ -28,7 +29,17 @@ class VerifyOtpController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    mobile = Get.arguments as String? ?? '';
+    final args = Get.arguments;
+    if (args is Map) {
+      mobile = args['mobile']?.toString() ?? '';
+      email = args['email']?.toString() ?? '';
+    } else if (args is String) {
+      mobile = args;
+      email = '';
+    } else {
+      mobile = '';
+      email = '';
+    }
   }
 
   Future<void> verifyOtp() async {
@@ -59,6 +70,7 @@ class VerifyOtpController extends GetxController {
     try {
       isLoading.value = true;
       final response = await _repo.forgotPasswordReset(
+        email: email,
         mobile: mobile,
         newPassword: newPassword,
         otp: otp,
@@ -85,14 +97,17 @@ class VerifyOtpController extends GetxController {
   final RxBool isResending = false.obs;
 
   Future<void> resendOtp() async {
-    if (mobile.isEmpty) {
-      AppSnackbar.error("Invalid mobile number.");
+    if (mobile.isEmpty && email.isEmpty) {
+      AppSnackbar.error("Invalid mobile number or email.");
       return;
     }
 
     try {
       isResending.value = true;
-      final response = await _repo.resendOtp(mobile: mobile);
+      final response = await _repo.resendOtp(
+        email: email,
+        mobile: mobile,
+      );
 
       if (response.statusCode == '200') {
         final otp = response.data?.otp;

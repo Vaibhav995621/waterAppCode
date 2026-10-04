@@ -34,4 +34,5 @@ abstract class AppRoutes {
   static const dailyEarn = '/dailyEarn';
   static const helpAndSupport = '/helpAndSupport';
   static const privacyPolicy = '/privacyPolicy';
+  static const signupVerifyOtp = '/signupVerifyOtp';
 }

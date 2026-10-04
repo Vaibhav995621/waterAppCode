@@ -174,12 +174,23 @@ class RegisterScreen extends GetView<RegisterController> {
                             ),
 
                             _field(
+                              "Email",
+                              controller
+                                  .emailController,
+                              (v)=>controller
+                                  .validateEmail(
+                                  v!),
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+
+                            _field(
                               "Mobile Number",
                               controller
                                   .mobileController,
                                   (v)=>controller
                                   .validateMobile(
                                   v!),
+                              keyboardType: TextInputType.phone,
                             ),
 
                             _field(
@@ -206,10 +217,11 @@ class RegisterScreen extends GetView<RegisterController> {
                               controller
                                   .pinCodeController,
                               null,
+                              keyboardType: TextInputType.number,
                             ),
 
                             _field(
-                              "House No / Falt NO",
+                              "House No / Flat No",
                               controller
                                   .houseNoController,
                               null,
@@ -343,31 +355,51 @@ class RegisterScreen extends GetView<RegisterController> {
     );
   }
 
+  Widget _buildLabel(String label, {bool isRequired = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: RichText(
+        text: TextSpan(
+          text: label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1A2C56),
+          ),
+          children: [
+            if (isRequired)
+              const TextSpan(
+                text: " *",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _field(
       String label,
       TextEditingController controller,
-      String? Function(String?)? validator,
-      ) {
+      String? Function(String?)? validator, {
+      bool isRequired = false,
+      TextInputType? keyboardType,
+      }) {
+    final bool required = isRequired || validator != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label outside TextField
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-
+          _buildLabel(label, isRequired: required),
           TextFormField(
             controller: controller,
             validator: validator,
+            keyboardType: keyboardType,
             decoration: InputDecoration(
               hintText: "Enter $label",
               border: OutlineInputBorder(
@@ -386,16 +418,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "State",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel("State", isRequired: true),
 
           Obx(() {
             if (controller.isStateLoading.value) {
@@ -443,16 +466,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "City",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel("City", isRequired: true),
 
           Obx(() {
             if (controller.isDistrictLoading.value) {
@@ -501,16 +515,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "District",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel("District", isRequired: true),
 
           Obx(() {
             if (controller.isSubdivisionLoading.value) {
@@ -559,16 +564,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "Sector/Locality",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel("Sector/Locality", isRequired: true),
 
           Obx(() {
             if (controller.isSectorLoading.value) {
@@ -617,16 +613,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "Street Name/ Block Name / Gali No",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel("Street Name/ Block Name / Gali No", isRequired: true),
 
           Obx(() {
             if (controller.isLocalityLoading.value) {
@@ -672,24 +659,15 @@ class RegisterScreen extends GetView<RegisterController> {
   Widget _passwordField(
       String label,
       TextEditingController controller,
-      String? Function(String?) validator,
-      ) {
+      String? Function(String?) validator, {
+      bool isRequired = true,
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Label Outside
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel(label, isRequired: isRequired),
 
           /// Password Field
           Obx(() {
@@ -726,23 +704,16 @@ class RegisterScreen extends GetView<RegisterController> {
   Widget _numericField(
       String label,
       TextEditingController controller,
-      String? Function(String?)? validator,
-      ) {
+      String? Function(String?)? validator, {
+      bool isRequired = false,
+      }) {
+    final bool required = isRequired || validator != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          _buildLabel(label, isRequired: required),
           TextFormField(
             controller: controller,
             validator: validator,
@@ -765,13 +736,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Lift Available",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          _buildLabel("Lift Available"),
           const SizedBox(height: 8),
           Obx(() => Row(
             children: [
@@ -841,13 +806,7 @@ class RegisterScreen extends GetView<RegisterController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Address Type",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          _buildLabel("Address Type", isRequired: true),
           const SizedBox(height: 8),
           Obx(() => Row(
             children: [

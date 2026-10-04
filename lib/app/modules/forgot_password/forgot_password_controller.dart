@@ -7,31 +7,46 @@ import '../../../routes/app_routes.dart';
 
 class ForgotPasswordController extends GetxController {
   final AuthRepository _repo = AuthRepository();
-  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final RxBool isLoading = false.obs;
 
   Future<void> sendOtp() async {
-    final mobile = mobileController.text.trim();
-    if (mobile.isEmpty) {
-      AppSnackbar.error("Please enter your mobile number.");
+    final email = emailController.text.trim();
+
+    if (email.isEmpty) {
+      AppSnackbar.error("Please enter your email address.");
       return;
     }
 
     try {
       isLoading.value = true;
-      final response = await _repo.sendOtpForgotPassword(mobile: mobile);
+      final response = await _repo.sendOtpForgotPassword(
+        mobile: '',
+        email: email,
+      );
 
       if (response.statusCode == '200') {
         final otp = response.data?.otp;
         AppSnackbar.success(
           "OTP sent successfully.${otp != null ? ' Verification OTP is $otp.' : ''}",
         );
-        
+
+        final resolvedMobile = response.data?.mobile ?? '';
+        final resolvedEmail = (response.data?.email != null && response.data!.email!.isNotEmpty)
+            ? response.data!.email!
+            : email;
+
         // Clear text field
-        mobileController.clear();
+        emailController.clear();
 
         // Navigate to verify OTP screen
-        Get.toNamed(AppRoutes.verifyOtp, arguments: mobile);
+        Get.toNamed(
+          AppRoutes.verifyOtp,
+          arguments: {
+            'mobile': resolvedMobile,
+            'email': resolvedEmail,
+          },
+        );
       } else {
         AppSnackbar.error(
           response.message.isNotEmpty ? response.message : "Failed to send OTP",
@@ -46,7 +61,7 @@ class ForgotPasswordController extends GetxController {
 
   @override
   void onClose() {
-    mobileController.dispose();
+    emailController.dispose();
     super.onClose();
   }
 }

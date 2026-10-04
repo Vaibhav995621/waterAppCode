@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_routes.dart';
 import '../../../utlis/constants/app_strings.dart';
 import '../../../utlis/network/repositories/auth_repository.dart';
 import '../../../utlis/progress_hud/app_snackbar.dart';
@@ -73,6 +74,15 @@ class LoginController extends GetxController {
       if (user.statusCode != "200") {
         AppSnackbar.error(user.message);
         return false;
+      }
+
+      if (user.data.status == 0) {
+        final otp = user.data.otp;
+        AppSnackbar.success(
+          "Please verify OTP to continue.${otp != null && otp.isNotEmpty ? ' Verification OTP is $otp.' : ''}",
+        );
+        Get.toNamed(AppRoutes.signupVerifyOtp, arguments: user);
+        return true;
       }
 
       await AppSession.saveUser(

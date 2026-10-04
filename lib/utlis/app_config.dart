@@ -22,21 +22,21 @@ class AppConfig {
 
   static final config = {
     AppFlavor.dev: Env(
-      baseUrl: 'https://sbgodeal.com/waterdelivery/api/apps/',
-      baseUrl1: 'https://zourney-api-dev.kellton.net/api/',
+      baseUrl: 'https://h2oexpress.in/waterdelivery/api/apps/',
+      baseUrl1: '',
       keyClockUrl: '',
       enableLogger: true,
     ),
     AppFlavor.stage: Env(
-      baseUrl: 'https://stage-api.zourney.app',
-      baseUrl1: 'https://zourney-api-dev.kellton.net/api/',
+      baseUrl: 'https://h2oexpress.in/waterdelivery/api/apps/',
+      baseUrl1: '',
       keyClockUrl: '',
 
       enableLogger: true,
     ),
     AppFlavor.prod: Env(
-      baseUrl: 'https://api.zourney.app',
-      baseUrl1: 'https://zourney-api-dev.kellton.net/api/',
+      baseUrl: 'https://h2oexpress.in/waterdelivery/api/apps/',
+      baseUrl1: '',
       keyClockUrl: '',
 
       enableLogger: false,

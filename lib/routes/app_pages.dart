@@ -33,6 +33,8 @@ import 'package:zourney/app/modules/forgot_password/forgot_password_binding.dart
 import 'package:zourney/app/modules/forgot_password/forgot_password_view.dart';
 import 'package:zourney/app/modules/verify_otp/verify_otp_binding.dart';
 import 'package:zourney/app/modules/verify_otp/verify_otp_view.dart';
+import 'package:zourney/app/modules/signup_verify_otp/signup_verify_otp_binding.dart';
+import 'package:zourney/app/modules/signup_verify_otp/signup_verify_otp_view.dart';
 import 'package:zourney/app/modules/login_view/login_binding.dart';
 import 'package:zourney/app/modules/login_view/login_view.dart';
 import 'package:zourney/app/welcom_screen/welcome_binding.dart';
@@ -249,6 +251,11 @@ class AppPages {
       name: AppRoutes.privacyPolicy,
       page: () => const PrivacyPolicyView(),
       binding: PrivacyPolicyBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.signupVerifyOtp,
+      page: () => const SignupVerifyOtpView(),
+      binding: SignupVerifyOtpBinding(),
     ),
   ];
 }

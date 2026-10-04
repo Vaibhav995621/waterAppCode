@@ -20,14 +20,20 @@ class ForgotPasswordModel {
 
 class ForgotPasswordData {
   final int otp;
+  final String? email;
+  final String? mobile;
 
   ForgotPasswordData({
     required this.otp,
+    this.email,
+    this.mobile,
   });
 
   factory ForgotPasswordData.fromJson(Map<String, dynamic> json) {
     return ForgotPasswordData(
-      otp: json['otp'] is int ? json['otp'] : int.tryParse(json['otp'].toString()) ?? 0,
+      otp: json['otp'] is int ? json['otp'] : int.tryParse(json['otp']?.toString() ?? '') ?? 0,
+      email: json['email']?.toString(),
+      mobile: json['mobile']?.toString(),
     );
   }
 }

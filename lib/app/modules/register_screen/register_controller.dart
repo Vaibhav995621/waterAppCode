@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../utlis/network/repositories/auth_repository.dart';
 import '../../../utlis/progress_hud/app_snackbar.dart';
+import '../../../routes/app_routes.dart';
 import '../../app_session/app_session.dart';
 import '../../global_controller/bottomTabBar/main_navigation_screen.dart';
 import '../../models/register_model/state_list_model.dart';
@@ -18,6 +19,7 @@ class RegisterController extends GetxController {
 
   // Text Controllers
   final fullNameController = TextEditingController();
+  final emailController = TextEditingController();
   final mobileController = TextEditingController();
   final addressController = TextEditingController();
   final houseNoController = TextEditingController();
@@ -277,6 +279,15 @@ class RegisterController extends GetxController {
     return null;
   }
 
+  String? validateEmail(String value) {
+    if (value.trim().isEmpty) return "Email is required";
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value.trim())) {
+      return "Enter valid email address";
+    }
+    return null;
+  }
+
   String? validateMobile(String value) {
     if (value.isEmpty) return "Mobile number is required";
     if (value.length != 10) return "Enter valid 10 digit number";
@@ -348,7 +359,7 @@ class RegisterController extends GetxController {
               ? ""
               : mobileController.text.trim(),
 
-          email: '',
+          email: emailController.text.trim(),
           role:  "1",
           userType: addressType.value == "residential" ? "1" : "2",
           stateId: selectedState.value?.id.toString() ?? "",
@@ -369,21 +380,13 @@ class RegisterController extends GetxController {
           return false;
         }
 
-        /// ✅ Navigation
+        /// ✅ Navigation to OTP Verification
         if (user.statusCode == "200") {
-          await AppSession.saveUser(
-              userId: user.data.id.toString(),
-              token: AppSession.fcmToken,
-              image: user.data.photo,
-              name: user.data.fullname,
-              role: user.data.role,
-              planType: user.data.plandetail.id,
-              usertype : user.data.usertype,
-              mobileNo: user.data.mobile,
-              rozkey: user.data.razorpaykey ?? '',
-
+          final otp = user.data.otp;
+          AppSnackbar.success(
+            "Registration successful.${otp != null && otp.isNotEmpty ? ' Verification OTP is $otp.' : ''}",
           );
-          Get.offAll(() => const MainNavigationScreen());
+          Get.toNamed(AppRoutes.signupVerifyOtp, arguments: user);
         }
         return true;
       } catch (e) {
@@ -400,6 +403,7 @@ class RegisterController extends GetxController {
   @override
   void onClose() {
     fullNameController.dispose();
+    emailController.dispose();
     mobileController.dispose();
     floorNumberController.dispose();
     passwordController.dispose();
