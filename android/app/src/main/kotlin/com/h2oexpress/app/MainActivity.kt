@@ -1,4 +1,4 @@
-package com.example.aqua_getx_app
+package com.h2o.h2oexpress
 
 import io.flutter.embedding.android.FlutterActivity
 
