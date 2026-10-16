@@ -6,7 +6,6 @@ class Env {
   final String keyClockUrl;
 
   final bool enableLogger;
-
   const Env({
     required this.baseUrl,
     required this.baseUrl1,
