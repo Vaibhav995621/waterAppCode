@@ -302,38 +302,41 @@ class RegisterScreen extends GetView<RegisterController> {
                                 ],
                               ),
 
-                              child: ElevatedButton(
-                                onPressed:
-                                controller
-                                    .register,
-
-                                style:
-                                ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                  Colors
-                                      .transparent,
-
-                                  shadowColor:
-                                  Colors
-                                      .transparent,
-                                ),
-
-                                child:
-                                const Text(
-                                  "Create Account",
-
-                                  style:
-                                  TextStyle(
-                                    color:
-                                    Colors
-                                        .white,
-
-                                    fontSize:
-                                    18,
-
-                                    fontWeight:
-                                    FontWeight
-                                        .bold,
+                              child: Obx(
+                                () => ElevatedButton(
+                                  onPressed: controller.isLoading.value
+                                      ? null
+                                      : controller.register,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    disabledBackgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                  ),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Opacity(
+                                        opacity:
+                                            controller.isLoading.value ? 0 : 1,
+                                        child: const Text(
+                                          "Create Account",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      if (controller.isLoading.value)
+                                        const SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ),

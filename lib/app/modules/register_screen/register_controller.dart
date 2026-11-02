@@ -16,6 +16,7 @@ class RegisterController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final AuthRepository _repo = AuthRepository();
   RxBool isPasswordVisible = false.obs;
+  RxBool isLoading = false.obs;
 
   // Text Controllers
   final fullNameController = TextEditingController();
@@ -318,8 +319,10 @@ class RegisterController extends GetxController {
   // }
 
   Future<bool> register() async {
+    if (isLoading.value) return false;
     if (formKey.currentState!.validate()) {
       try {
+        isLoading.value = true;
         final user = await _repo.registerApi(
           userName: fullNameController.text.trim().replaceAll(' ', ''),
           fullName: fullNameController.text.isEmpty
@@ -394,7 +397,7 @@ class RegisterController extends GetxController {
         AppSnackbar.error(message);
         return false;
       } finally {
-        // isLoading.value = false;
+        isLoading.value = false;
       }
     }
     return false;
